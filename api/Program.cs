@@ -9,7 +9,8 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-//scaffold "server=localhost;port=3306;database=chat;user=root;password=SENHA_AQUI" Pomelo.EntityFrameworkCore.MySql -o Models -f
+//Scaffold-DbContext "server=localhost;port=3306;database=chat;user=root;password=Betoven2606" Pomelo.EntityFrameworkCore.MySql -OutputDir Models  -Force
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
