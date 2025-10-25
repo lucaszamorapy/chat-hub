@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using api.Services;
 using api.Models;
 
 namespace api.Controllers
@@ -24,22 +25,54 @@ namespace api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Conversa>>> GetConversas()
         {
-            return await _context.Conversas.ToListAsync();
+            var conversas = await _context.Conversas
+                .Include(e => e.Mensagens)
+                .ToListAsync();
+
+            return Ok(conversas);
         }
 
         // GET: api/Conversas/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Conversa>> GetConversa(int id)
+        public async Task<ActionResult<object>> GetConversa(int id)
         {
-            var conversa = await _context.Conversas.FindAsync(id);
+            var conversa = await _context.Conversas
+                .Where(c => c.ConversaId == id)
+                .Select(c => new
+                {
+                    c.ConversaId,
+                    c.NomeConversa,
+                    Grupos = c.Grupos.Select(g => new
+                    {
+                        g.GrupoId,
+                        g.Cargo,
+                        Usuario = new
+                        {
+                            g.Usuario.UsuarioId,
+                            g.Usuario.Nome
+                        }
+                    }).ToList(),
+                    Mensagens = c.Mensagens.Select(m => new
+                    {
+                        m.MensagemId,
+                        m.Mensagem,
+                        Usuario = new
+                        {
+                            m.Usuario.UsuarioId,
+                            m.Usuario.Nome,
+                        }
+                    }).ToList()
+                })
+                .FirstOrDefaultAsync();
 
             if (conversa == null)
             {
                 return NotFound();
             }
 
-            return conversa;
+            return Ok(conversa);
         }
+
 
         // PUT: api/Conversas/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -69,7 +102,7 @@ namespace api.Controllers
                 }
             }
 
-            return NoContent();
+            return Ok(new Message<Conversa>("Conversa alterada com sucesso!", conversa));
         }
 
         // POST: api/Conversas
@@ -80,7 +113,9 @@ namespace api.Controllers
             _context.Conversas.Add(conversa);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetConversa", new { id = conversa.ConversaId }, conversa);
+            CreatedAtAction("GetConversa", new { id = conversa.ConversaId }, conversa);
+
+            return Ok(new Message<Conversa>("Conversa criada com sucesso!", conversa));
         }
 
         // DELETE: api/Conversas/5
@@ -96,7 +131,7 @@ namespace api.Controllers
             _context.Conversas.Remove(conversa);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok(new Message<object>("Conversa excluída com sucesso!"));
         }
 
         private bool ConversaExists(int id)

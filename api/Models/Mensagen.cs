@@ -21,7 +21,7 @@ public partial class Mensagen
 
     public int? Regausu { get; set; }
 
-    public virtual Conversa Conversa { get; set; } = null!;
+    public virtual Conversa? Conversa { get; set; } = null!;
 
-    public virtual Usuario Usuario { get; set; } = null!;
+    public virtual Usuario? Usuario { get; set; } = null!;
 }

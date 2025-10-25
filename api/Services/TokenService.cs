@@ -9,7 +9,7 @@ using System.Text;
 using api;
 using api.DTO;
 
-namespace PGMTApi.Services
+namespace api.Services
 {
     public class TokenService
     {

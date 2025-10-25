@@ -1,11 +1,14 @@
-﻿using System;
+﻿using api.DTO;
+using api.Models;
+using api.Services;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using api.Models;
 
 namespace api.Controllers
 {
@@ -14,10 +17,12 @@ namespace api.Controllers
     public class MensagensController : ControllerBase
     {
         private readonly ChatContext _context;
+        private readonly IHubContext<ChatHub> _hubContext;
 
-        public MensagensController(ChatContext context)
+        public MensagensController(ChatContext context, IHubContext<ChatHub> hubContext)
         {
             _context = context;
+            _hubContext = hubContext;
         }
 
         // GET: api/Mensagens
@@ -75,12 +80,26 @@ namespace api.Controllers
         // POST: api/Mensagens
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Mensagen>> PostMensagen(Mensagen mensagen)
+        public async Task<ActionResult<Mensagen>> PostMensagen(MensagenDTO mensagemDto)
         {
-            _context.Mensagens.Add(mensagen);
+            var mensagem = new Mensagen
+            {
+                Mensagem = mensagemDto.Mensagem,
+                ConversaId = mensagemDto.ConversaId,
+                UsuarioId = mensagemDto.UsuarioId
+            };
+            _context.Mensagens.Add(mensagem);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetMensagen", new { id = mensagen.MensagemId }, mensagen);
+            var usuarioId = TokenService.GetTokenUserId(HttpContext);
+            var usuario = await _context.Usuarios.FindAsync(usuarioId);
+
+            if (usuario != null)
+            {
+                await _hubContext.Clients.All.SendAsync("ReceiveMessage", usuario.Nome, mensagem.Mensagem);
+            }
+
+            return CreatedAtAction("GetMensagen", new { id = mensagem.MensagemId }, mensagemDto);
         }
 
         // DELETE: api/Mensagens/5

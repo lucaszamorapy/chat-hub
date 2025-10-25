@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NuGet.Configuration;
-using PGMTApi.Services;
 using System.Configuration;
 
 
@@ -102,12 +101,11 @@ namespace api.Controllers
 
             CreatedAtAction("GetUsuario", new { id = usuario.UsuarioId }, usuario);
             usuario.Senha = "";
-            return Ok(new Message<Usuario>("Usuário criado com sucesso.", usuario));
+            return Ok(new Message<Usuario>("Usuário criado com sucesso!", usuario));
         }
 
         // POST: api/Usuarios/login
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [Authorize]
         [HttpPost("login")]
         public async Task<ActionResult<Usuario>> PostUsuarioLogin(UsuarioDTO usuario)
         {
@@ -146,7 +144,7 @@ namespace api.Controllers
             _context.Usuarios.Remove(usuario);
             await _context.SaveChangesAsync();
 
-            return Ok(new Message<object>("Usuário excluído com sucesso.", new { }));
+            return Ok(new Message<object>("Usuário excluído com sucesso!"));
         }
 
         private bool UsuarioExists(int id)

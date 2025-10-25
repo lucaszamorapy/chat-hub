@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using api.Models;
+using api.DTO;
 
 namespace api.Controllers
 {
@@ -44,14 +45,22 @@ namespace api.Controllers
         // PUT: api/Grupoes/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutGrupo(int id, Grupo grupo)
+        public async Task<IActionResult> PutGrupo(int id, GrupoesDTO grupo)
         {
+            var grupoexiste = await _context.Grupos.Where(e => e.GrupoId == id).FirstOrDefaultAsync();
+
+            if (grupoexiste == null)
+            {
+                return NotFound();
+            }
+
             if (id != grupo.GrupoId)
             {
                 return BadRequest();
             }
 
-            _context.Entry(grupo).State = EntityState.Modified;
+            grupoexiste.Cargo = grupo.Cargo;
+            _context.Entry(grupoexiste).State = EntityState.Modified;
 
             try
             {
@@ -75,12 +84,27 @@ namespace api.Controllers
         // POST: api/Grupoes
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Grupo>> PostGrupo(Grupo grupo)
+        public async Task<ActionResult<Grupo>> PostGrupo([FromBody] GrupoesDTO request)
         {
-            _context.Grupos.Add(grupo);
-            await _context.SaveChangesAsync();
+            foreach (var usuarioId in request.UsuariosIds)
+            {
+                var usuario = await _context.Usuarios.FindAsync(usuarioId);
+                if (usuario == null)
+                {
+                    return NotFound($"Usuário com ID {usuarioId} não encontrado.");
+                }
+                var novogrupo = new Grupo
+                {
+                    ConversaId = request.ConversaId,
+                    UsuarioId = usuarioId,
+                    UsuarioEntrou = request.UsuarioEntrou,
+                    Cargo = request.Cargo
+                };
 
-            return CreatedAtAction("GetGrupo", new { id = grupo.GrupoId }, grupo);
+                _context.Grupos.Add(novogrupo);
+                await _context.SaveChangesAsync();
+            }
+            return NoContent();
         }
 
         // DELETE: api/Grupoes/5
