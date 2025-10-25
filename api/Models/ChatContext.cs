@@ -11,11 +11,6 @@ public partial class ChatContext : DbContext
     {
     }
 
-    public ChatContext(DbContextOptions<ChatContext> options)
-        : base(options)
-    {
-    }
-
     public virtual DbSet<Conversa> Conversas { get; set; }
 
     public virtual DbSet<Grupo> Grupos { get; set; }
