@@ -7,7 +7,9 @@ public partial class Conversa
 {
     public int ConversaId { get; set; }
 
-    public string NomeConversa { get; set; } = null!;
+    public string ConversaNome { get; set; } = null!;
+
+    public string? ConversaFoto { get; set; }
 
     public sbyte Grupo { get; set; }
 
@@ -19,7 +21,7 @@ public partial class Conversa
 
     public int? Regausu { get; set; }
 
-    public virtual ICollection<Grupo> Grupos { get; set; } = new List<Grupo>();
+    public virtual ICollection<ConversaUsuario> ConversaUsuarios { get; set; } = new List<ConversaUsuario>();
 
     public virtual ICollection<Mensagen> Mensagens { get; set; } = new List<Mensagen>();
 }

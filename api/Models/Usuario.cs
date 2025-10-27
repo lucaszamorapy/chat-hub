@@ -9,6 +9,8 @@ public partial class Usuario
 
     public string Nome { get; set; } = null!;
 
+    public string Apelido { get; set; } = null!;
+
     public string Email { get; set; } = null!;
 
     public string Senha { get; set; } = null!;
@@ -25,7 +27,7 @@ public partial class Usuario
 
     public int? Regausu { get; set; }
 
-    public virtual ICollection<Grupo> Grupos { get; set; } = new List<Grupo>();
+    public virtual ICollection<ConversaUsuario> ConversaUsuarios { get; set; } = new List<ConversaUsuario>();
 
     public virtual ICollection<Mensagen> Mensagens { get; set; } = new List<Mensagen>();
 }

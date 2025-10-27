@@ -41,10 +41,10 @@ namespace api.Controllers
                 .Select(c => new
                 {
                     c.ConversaId,
-                    c.NomeConversa,
-                    Grupos = c.Grupos.Select(g => new
+                    c.ConversaNome,
+                    ConversaUsuarios = c.ConversaUsuarios.Select(g => new
                     {
-                        g.GrupoId,
+                        g.ConversaUsuariosId,
                         g.Cargo,
                         Usuario = new
                         {

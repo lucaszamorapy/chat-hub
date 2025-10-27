@@ -21,8 +21,7 @@ builder.Services.AddMvc(options =>
 });
 builder.Services.AddDbContext<ChatContext>(options =>
     options.UseMySql(
-        builder.Configuration.GetConnectionString("DefaultConnection") ??
-        "server=localhost;port=3306;database=chat;user=root;password=Betoven2606",
+        builder.Configuration.GetConnectionString("MySQL"),
         new MySqlServerVersion(new Version(8, 0, 42)) // ajuste para a sua versão do MySQL
     )
 );

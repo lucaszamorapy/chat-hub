@@ -1,8 +1,8 @@
 ﻿namespace api.DTO
 {
-    public class GrupoesDTO
+    public class ConversaUsuarioDTO
     {
-        public int? GrupoId { get; set; }
+        public int? ConversaUsuariosId { get; set; }
 
         public int ConversaId { get; set; }
 

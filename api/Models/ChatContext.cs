@@ -13,7 +13,7 @@ public partial class ChatContext : DbContext
 
     public virtual DbSet<Conversa> Conversas { get; set; }
 
-    public virtual DbSet<Grupo> Grupos { get; set; }
+    public virtual DbSet<ConversaUsuario> ConversaUsuarios { get; set; }
 
     public virtual DbSet<Mensagen> Mensagens { get; set; }
 
@@ -36,10 +36,13 @@ public partial class ChatContext : DbContext
             entity.ToTable("conversas");
 
             entity.Property(e => e.ConversaId).HasColumnName("conversa_id");
-            entity.Property(e => e.Grupo).HasColumnName("grupo");
-            entity.Property(e => e.NomeConversa)
+            entity.Property(e => e.ConversaFoto)
+                .HasMaxLength(45)
+                .HasColumnName("conversa_foto");
+            entity.Property(e => e.ConversaNome)
                 .HasMaxLength(255)
-                .HasColumnName("nome_conversa");
+                .HasColumnName("conversa_nome");
+            entity.Property(e => e.Grupo).HasColumnName("grupo");
             entity.Property(e => e.Regadh)
                 .HasColumnType("datetime")
                 .HasColumnName("regadh");
@@ -50,17 +53,17 @@ public partial class ChatContext : DbContext
             entity.Property(e => e.Regiusu).HasColumnName("regiusu");
         });
 
-        modelBuilder.Entity<Grupo>(entity =>
+        modelBuilder.Entity<ConversaUsuario>(entity =>
         {
-            entity.HasKey(e => e.GrupoId).HasName("PRIMARY");
+            entity.HasKey(e => e.ConversaUsuariosId).HasName("PRIMARY");
 
-            entity.ToTable("grupos");
+            entity.ToTable("conversa_usuarios");
 
             entity.HasIndex(e => e.ConversaId, "fk_conversa_id_idx");
 
             entity.HasIndex(e => e.UsuarioId, "fk_usuario_id_idx");
 
-            entity.Property(e => e.GrupoId).HasColumnName("grupo_id");
+            entity.Property(e => e.ConversaUsuariosId).HasColumnName("conversa_usuarios_id");
             entity.Property(e => e.Cargo)
                 .HasDefaultValueSql("'Membro'")
                 .HasColumnType("enum('Membro','Admin')")
@@ -79,14 +82,12 @@ public partial class ChatContext : DbContext
                 .HasColumnName("usuario_entrou");
             entity.Property(e => e.UsuarioId).HasColumnName("usuario_id");
 
-            entity.HasOne(d => d.Conversa).WithMany(p => p.Grupos)
+            entity.HasOne(d => d.Conversa).WithMany(p => p.ConversaUsuarios)
                 .HasForeignKey(d => d.ConversaId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_grupo_conversa");
 
-            entity.HasOne(d => d.Usuario).WithMany(p => p.Grupos)
+            entity.HasOne(d => d.Usuario).WithMany(p => p.ConversaUsuarios)
                 .HasForeignKey(d => d.UsuarioId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_grupo_usuario");
         });
 
@@ -131,6 +132,9 @@ public partial class ChatContext : DbContext
             entity.ToTable("usuarios");
 
             entity.Property(e => e.UsuarioId).HasColumnName("usuario_id");
+            entity.Property(e => e.Apelido)
+                .HasMaxLength(255)
+                .HasColumnName("apelido");
             entity.Property(e => e.Email)
                 .HasMaxLength(255)
                 .HasColumnName("email");

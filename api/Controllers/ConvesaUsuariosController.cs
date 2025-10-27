@@ -12,55 +12,55 @@ namespace api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class GrupoesController : ControllerBase
+    public class ConvesaUsuariosController : ControllerBase
     {
         private readonly ChatContext _context;
 
-        public GrupoesController(ChatContext context)
+        public ConvesaUsuariosController(ChatContext context)
         {
             _context = context;
         }
 
-        // GET: api/Grupoes
+        // GET: api/ConversaUsuarios
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Grupo>>> GetGrupos()
+        public async Task<ActionResult<IEnumerable<ConversaUsuario>>> GetConversaUsuarios()
         {
-            return await _context.Grupos.ToListAsync();
+            return await _context.ConversaUsuarios.ToListAsync();
         }
 
-        // GET: api/Grupoes/5
+        // GET: api/ConversaUsuarios/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Grupo>> GetGrupo(int id)
+        public async Task<ActionResult<ConversaUsuario>> GetConversaUsuario(int id)
         {
-            var grupo = await _context.Grupos.FindAsync(id);
+            var conversausuario = await _context.ConversaUsuarios.FindAsync(id);
 
-            if (grupo == null)
+            if (conversausuario == null)
             {
                 return NotFound();
             }
 
-            return grupo;
+            return conversausuario;
         }
 
-        // PUT: api/Grupoes/5
+        // PUT: api/ConversaUsuarios/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutGrupo(int id, GrupoesDTO grupo)
+        public async Task<IActionResult> PutGrupo(int id, ConversaUsuarioDTO conversausuario)
         {
-            var grupoexiste = await _context.Grupos.Where(e => e.GrupoId == id).FirstOrDefaultAsync();
+            var conversausuarioexiste = await _context.ConversaUsuarios.Where(e => e.ConversaUsuariosId == id).FirstOrDefaultAsync();
 
-            if (grupoexiste == null)
+            if (conversausuarioexiste == null)
             {
                 return NotFound();
             }
 
-            if (id != grupo.GrupoId)
+            if (id != conversausuario.ConversaUsuariosId)
             {
                 return BadRequest();
             }
 
-            grupoexiste.Cargo = grupo.Cargo;
-            _context.Entry(grupoexiste).State = EntityState.Modified;
+            conversausuarioexiste.Cargo = conversausuario.Cargo;
+            _context.Entry(conversausuarioexiste).State = EntityState.Modified;
 
             try
             {
@@ -68,7 +68,7 @@ namespace api.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!GrupoExists(id))
+                if (!ConversaUsuariosExists(id))
                 {
                     return NotFound();
                 }
@@ -81,10 +81,10 @@ namespace api.Controllers
             return NoContent();
         }
 
-        // POST: api/Grupoes
+        // POST: api/ConversaUsuarios
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Grupo>> PostGrupo([FromBody] GrupoesDTO request)
+        public async Task<ActionResult<ConversaUsuario>> PostConversaUsuario([FromBody] ConversaUsuarioDTO request)
         {
             foreach (var usuarioId in request.UsuariosIds)
             {
@@ -93,7 +93,7 @@ namespace api.Controllers
                 {
                     return NotFound($"Usuário com ID {usuarioId} não encontrado.");
                 }
-                var novogrupo = new Grupo
+                var novo = new ConversaUsuario
                 {
                     ConversaId = request.ConversaId,
                     UsuarioId = usuarioId,
@@ -101,31 +101,31 @@ namespace api.Controllers
                     Cargo = request.Cargo
                 };
 
-                _context.Grupos.Add(novogrupo);
+                _context.ConversaUsuarios.Add(novo);
                 await _context.SaveChangesAsync();
             }
             return NoContent();
         }
 
-        // DELETE: api/Grupoes/5
+        // DELETE: api/ConversaUsuarios/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteGrupo(int id)
+        public async Task<IActionResult> DeleteConversaUsuario(int id)
         {
-            var grupo = await _context.Grupos.FindAsync(id);
-            if (grupo == null)
+            var conversausuario = await _context.ConversaUsuarios.FindAsync(id);
+            if (conversausuario == null)
             {
                 return NotFound();
             }
 
-            _context.Grupos.Remove(grupo);
+            _context.ConversaUsuarios.Remove(conversausuario);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool GrupoExists(int id)
+        private bool ConversaUsuariosExists(int id)
         {
-            return _context.Grupos.Any(e => e.GrupoId == id);
+            return _context.ConversaUsuarios.Any(e => e.ConversaUsuariosId == id);
         }
     }
 }

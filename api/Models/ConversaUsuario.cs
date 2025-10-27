@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace api.Models;
 
-public partial class Grupo
+public partial class ConversaUsuario
 {
-    public int GrupoId { get; set; }
+    public int ConversaUsuariosId { get; set; }
 
     public int ConversaId { get; set; }
 
