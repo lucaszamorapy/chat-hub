@@ -25,11 +25,19 @@ namespace api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Conversa>>> GetConversas()
         {
-            var conversas = await _context.Conversas
-                .Include(e => e.Mensagens)
-                .ToListAsync();
+            try
+            {
 
-            return Ok(conversas);
+                var conversas = await _context.Conversas
+                    .Include(e => e.Mensagens)
+                    .ToListAsync();
+
+                return Ok(conversas);
+            }
+            catch
+            {
+                return BadRequest(new Message<List<Conversa>>("Ocorreu um erro ao obter a listagem de conversas", new List<Conversa>(), true));
+            }
         }
 
         // GET: api/Conversas/5
@@ -67,7 +75,7 @@ namespace api.Controllers
 
             if (conversa == null)
             {
-                return NotFound();
+                return BadRequest(new Message<Conversa>("Conversa não encontrada.", new Conversa { }, true));
             }
 
             return Ok(conversa);
@@ -81,7 +89,7 @@ namespace api.Controllers
         {
             if (id != conversa.ConversaId)
             {
-                return BadRequest();
+                return BadRequest(new Message<Conversa>("Conversa não encontrada.", new Conversa { }, true));
             }
 
             _context.Entry(conversa).State = EntityState.Modified;
@@ -102,7 +110,7 @@ namespace api.Controllers
                 }
             }
 
-            return Ok(new Message<Conversa>("Conversa alterada com sucesso!", conversa));
+            return Ok(new Message<Conversa>("Conversa alterada com sucesso!", conversa, false));
         }
 
         // POST: api/Conversas
@@ -110,12 +118,19 @@ namespace api.Controllers
         [HttpPost]
         public async Task<ActionResult<Conversa>> PostConversa(Conversa conversa)
         {
-            _context.Conversas.Add(conversa);
-            await _context.SaveChangesAsync();
+            try
+            {
+                _context.Conversas.Add(conversa);
+                await _context.SaveChangesAsync();
 
-            CreatedAtAction("GetConversa", new { id = conversa.ConversaId }, conversa);
+                CreatedAtAction("GetConversa", new { id = conversa.ConversaId }, conversa);
 
-            return Ok(new Message<Conversa>("Conversa criada com sucesso!", conversa));
+                return Ok(new Message<Conversa>("Conversa criada com sucesso!", conversa, false));
+            }
+            catch
+            {
+                return BadRequest(new Message<Conversa>("Ocorreu um erro tentar criar uma conversa", new Conversa { }, true));
+            }
         }
 
         // DELETE: api/Conversas/5
@@ -125,13 +140,13 @@ namespace api.Controllers
             var conversa = await _context.Conversas.FindAsync(id);
             if (conversa == null)
             {
-                return NotFound();
+                return BadRequest(new Message<Conversa>("Conversa não encontrada", new Conversa { }, true));
             }
 
             _context.Conversas.Remove(conversa);
             await _context.SaveChangesAsync();
 
-            return Ok(new Message<object>("Conversa excluída com sucesso!"));
+            return Ok(new Message<object>("Conversa excluída com sucesso!", new Conversa { }, false));
         }
 
         private bool ConversaExists(int id)

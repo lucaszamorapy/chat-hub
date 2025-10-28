@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using api.DTO;
+using api.Models;
+using api.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using api.Models;
-using api.DTO;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace api.Controllers
 {
@@ -25,7 +26,15 @@ namespace api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ConversaUsuario>>> GetConversaUsuarios()
         {
-            return await _context.ConversaUsuarios.ToListAsync();
+
+            try
+            {
+                return await _context.ConversaUsuarios.ToListAsync();
+            }
+            catch
+            {
+                return BadRequest(new Message<List<ConversaUsuario>>("Ocorreu um erro ao obter a listagem de conversas com usuários", new List<ConversaUsuario>(), true));
+            }
         }
 
         // GET: api/ConversaUsuarios/5
@@ -36,7 +45,7 @@ namespace api.Controllers
 
             if (conversausuario == null)
             {
-                return NotFound();
+                return BadRequest(new Message<ConversaUsuario>("Ocorreu um erro ao obter a conversa com usuário", new ConversaUsuario { }, true));
             }
 
             return conversausuario;
@@ -51,12 +60,7 @@ namespace api.Controllers
 
             if (conversausuarioexiste == null)
             {
-                return NotFound();
-            }
-
-            if (id != conversausuario.ConversaUsuariosId)
-            {
-                return BadRequest();
+                return BadRequest(new Message<ConversaUsuario>("Conversa usuário não existe.", new ConversaUsuario { }, true));
             }
 
             conversausuarioexiste.Cargo = conversausuario.Cargo;
@@ -91,7 +95,7 @@ namespace api.Controllers
                 var usuario = await _context.Usuarios.FindAsync(usuarioId);
                 if (usuario == null)
                 {
-                    return NotFound($"Usuário com ID {usuarioId} não encontrado.");
+                    return BadRequest(new Message<ConversaUsuario>($"Usuário com ID {usuarioId} não encontrado.", new ConversaUsuario { }, true));
                 }
                 var novo = new ConversaUsuario
                 {
@@ -114,7 +118,7 @@ namespace api.Controllers
             var conversausuario = await _context.ConversaUsuarios.FindAsync(id);
             if (conversausuario == null)
             {
-                return NotFound();
+                return BadRequest(new Message<ConversaUsuario>("Conversa usuário não encontrado.", new ConversaUsuario { }, true));
             }
 
             _context.ConversaUsuarios.Remove(conversausuario);

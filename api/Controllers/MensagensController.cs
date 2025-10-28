@@ -29,7 +29,14 @@ namespace api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Mensagen>>> GetMensagens()
         {
-            return await _context.Mensagens.ToListAsync();
+            try
+            {
+                return await _context.Mensagens.ToListAsync();
+            }
+            catch
+            {
+                return BadRequest(new Message<List<Mensagen>>("Ocorreu um erro ao obter a listagem de mensagens", new List<Mensagen>(), true));
+            }
         }
 
         // GET: api/Mensagens/5
@@ -40,7 +47,7 @@ namespace api.Controllers
 
             if (mensagen == null)
             {
-                return NotFound();
+                return BadRequest(new Message<Mensagen>("Ocorreu um erro ao obter a mensagem", new Mensagen { }, true));
             }
 
             return mensagen;
@@ -53,7 +60,7 @@ namespace api.Controllers
         {
             if (id != mensagen.MensagemId)
             {
-                return BadRequest();
+                return BadRequest(new Message<Mensagen>("Mensagem não encontrada.", new Mensagen { }, true));
             }
 
             _context.Entry(mensagen).State = EntityState.Modified;
@@ -82,24 +89,32 @@ namespace api.Controllers
         [HttpPost]
         public async Task<ActionResult<Mensagen>> PostMensagen(MensagenDTO mensagemDto)
         {
-            var mensagem = new Mensagen
+            try
             {
-                Mensagem = mensagemDto.Mensagem,
-                ConversaId = mensagemDto.ConversaId,
-                UsuarioId = mensagemDto.UsuarioId
-            };
-            _context.Mensagens.Add(mensagem);
-            await _context.SaveChangesAsync();
 
-            var usuarioId = TokenService.GetTokenUserId(HttpContext);
-            var usuario = await _context.Usuarios.FindAsync(usuarioId);
+                var mensagem = new Mensagen
+                {
+                    Mensagem = mensagemDto.Mensagem,
+                    ConversaId = mensagemDto.ConversaId,
+                    UsuarioId = mensagemDto.UsuarioId
+                };
+                _context.Mensagens.Add(mensagem);
+                await _context.SaveChangesAsync();
 
-            if (usuario != null)
-            {
-                await _hubContext.Clients.All.SendAsync("ReceiveMessage", usuario.Nome, mensagem.Mensagem);
+                var usuarioId = TokenService.GetTokenUserId(HttpContext);
+                var usuario = await _context.Usuarios.FindAsync(usuarioId);
+
+                if (usuario != null)
+                {
+                    await _hubContext.Clients.All.SendAsync("ReceiveMessage", usuario.Nome, mensagem.Mensagem);
+                }
+
+                return CreatedAtAction("GetMensagen", new { id = mensagem.MensagemId }, mensagemDto);
             }
-
-            return CreatedAtAction("GetMensagen", new { id = mensagem.MensagemId }, mensagemDto);
+            catch
+            {
+                return BadRequest(new Message<Mensagen>("Ocorreu um erro ao enviar mensagem.", new Mensagen { }, true));
+            }
         }
 
         // DELETE: api/Mensagens/5
@@ -109,7 +124,7 @@ namespace api.Controllers
             var mensagen = await _context.Mensagens.FindAsync(id);
             if (mensagen == null)
             {
-                return NotFound();
+                return BadRequest(new Message<Mensagen>("Mensagem não encontrada.", new Mensagen { }, true));
             }
 
             _context.Mensagens.Remove(mensagen);

@@ -1,0 +1,1 @@
+export const rotasPublicas = ["/login", "/cadastro"]

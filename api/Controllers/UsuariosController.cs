@@ -27,7 +27,14 @@ namespace api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Usuario>>> GetUsuarios()
         {
-            return await _context.Usuarios.ToListAsync();
+            try
+            {
+                return await _context.Usuarios.ToListAsync();
+            }
+            catch
+            {
+                return BadRequest(new Message<List<Usuario>>("Ocorreu um erro ao obter a listagem de usuários", new List<Usuario>(), true));
+            }
         }
 
         // GET: api/Usuarios/5
@@ -38,7 +45,7 @@ namespace api.Controllers
 
             if (usuario == null)
             {
-                return NotFound();
+                return BadRequest(new Message<Usuario>("Ocorreu um erro ao obter o usuário.", new Usuario { }, true));
             }
 
             return usuario;
@@ -51,16 +58,16 @@ namespace api.Controllers
         {
             if (id != usuario.UsuarioId)
             {
-                return BadRequest();
+                return BadRequest(new Message<Usuario>("ID do usuário não foi encontrado.", new Usuario { }, true));
             }
 
             _context.Entry(usuario).State = EntityState.Modified;
 
-            var existenome = _context.Usuarios.Any(u => u.Nome == usuario.Nome && u.UsuarioId != usuario.UsuarioId);
+            var existeapelido = _context.Usuarios.Any(u => u.Apelido == usuario.Apelido && u.UsuarioId != usuario.UsuarioId);
 
-            if (existenome)
+            if (existeapelido)
             {
-                return Problem("Nome já cadastradado no sistema");
+                return BadRequest(new Message<Usuario>("Apelido já cadastrado no sistema.", new Usuario { }, true));
             }
 
             usuario.Senha = BCrypt.Net.BCrypt.HashPassword(usuario.Senha);
@@ -73,25 +80,25 @@ namespace api.Controllers
             {
                 if (!UsuarioExists(id))
                 {
-                    return NotFound();
+                    return BadRequest(new Message<Usuario>("Usuário não existe no sistema.", new Usuario { }, true));
                 }
                 else
                 {
                     throw;
                 }
             }
-            return Ok(new Message<Usuario>("Usuário alterado com sucesso.", usuario));
+            return Ok(new Message<Usuario>("Usuário alterado com sucesso.", usuario, false));
         }
 
         // POST: api/Usuarios
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Usuario>> PostUsuario( Usuario usuario)
+        public async Task<ActionResult<Usuario>> PostUsuario(Usuario usuario)
         {
-            var existenome = _context.Usuarios.Any(u => u.Nome == usuario.Nome && u.UsuarioId != usuario.UsuarioId);
+            var existenome = _context.Usuarios.Any(u => u.Apelido == usuario.Apelido && u.UsuarioId != usuario.UsuarioId);
             if (existenome)
             {
-                return Problem("Nome já cadastradado no sistema");
+                return BadRequest(new Message<object>("Apelido já cadastrado no sistema.", new { }, true));
             }
 
             usuario.Senha = BCrypt.Net.BCrypt.HashPassword(usuario.Senha);
@@ -99,9 +106,13 @@ namespace api.Controllers
             _context.Usuarios.Add(usuario);
             await _context.SaveChangesAsync();
 
-            CreatedAtAction("GetUsuario", new { id = usuario.UsuarioId }, usuario);
+            var token = TokenService.GenerateToken(usuario);
             usuario.Senha = "";
-            return Ok(new Message<Usuario>("Usuário criado com sucesso!", usuario));
+            return Ok(new Message<object>($"Bem-vindo, {usuario.Nome}!", new
+            {
+                usuario = usuario,
+                token = token
+            }, false));
         }
 
         // POST: api/Usuarios/login
@@ -109,25 +120,25 @@ namespace api.Controllers
         [HttpPost("login")]
         public async Task<ActionResult<Usuario>> PostUsuarioLogin(UsuarioDTO usuario)
         {
-            var existeusuario = await _context.Usuarios.Where(u => u.Nome == usuario.Nome).FirstOrDefaultAsync();
+            var existeusuario = await _context.Usuarios.Where(u => u.Apelido == usuario.Apelido).FirstOrDefaultAsync();
 
             if (existeusuario == null)
             {
-                return NotFound("Usuário não encontrado.");
+                return NotFound(new Message<object>("Usuário não encontrado.", new { }, true));
             }
 
             if (usuario.Senha == null || !BCrypt.Net.BCrypt.Verify(usuario.Senha, existeusuario.Senha))
             {
-                return Problem("Senha inválida.");
+                return BadRequest(new Message<object>("Senha inválida.", new { }, true));
             }
 
             var token = TokenService.GenerateToken(existeusuario);
             usuario.Senha = "";
-            return Ok(new Message<object>($"Bem-vindo, {usuario.Nome}!", new
+            return Ok(new Message<object>($"Bem-vindo, {existeusuario.Nome}!", new
             {
                 usuario = existeusuario,
                 token = token
-            }));
+            }, false));
 
         }
 
@@ -144,7 +155,7 @@ namespace api.Controllers
             _context.Usuarios.Remove(usuario);
             await _context.SaveChangesAsync();
 
-            return Ok(new Message<object>("Usuário excluído com sucesso!"));
+            return Ok(new Message<object>("Usuário excluído com sucesso!", new { }, false));
         }
 
         private bool UsuarioExists(int id)

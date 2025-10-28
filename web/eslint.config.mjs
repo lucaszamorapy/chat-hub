@@ -6,13 +6,13 @@ const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
   // Override default ignores of eslint-config-next.
-  globalIgnores([
-    // Default ignores of eslint-config-next:
-    ".next/**",
-    "out/**",
-    "build/**",
-    "next-env.d.ts",
-  ]),
+  globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts"]),
+  {
+    // Regras personalizadas
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off", // desativa o erro de 'any'
+    },
+  },
 ]);
 
 export default eslintConfig;
