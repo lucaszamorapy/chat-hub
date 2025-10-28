@@ -24,7 +24,6 @@ export default async function RootLayout({
 }) {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
-  console.log(token);
   return (
     <html lang="pt-BR">
       <body
