@@ -42,6 +42,21 @@ namespace api.Controllers
             return amigo;
         }
 
+        // GET: api/Amigos/usuario/5
+        [HttpGet("usuario/{id}")]
+        public async Task<ActionResult<IEnumerable<Vwamigo>>> GetAmigoByUsuario(int id)
+        {
+            var amigos = await _context.Vwamigos.Where(e => e.UsuarioId == id).ToListAsync();
+
+            if (amigos == null)
+            {
+                return NotFound(new Message<List<Vwamigo>>("Ocorreu um erro ao obter o seu amigo", new List<Vwamigo>(), true));
+            }
+
+            return amigos;
+        }
+
+
         // PUT: api/Amigos/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]

@@ -24,72 +24,75 @@ namespace api.Controllers
 
         // GET: api/ConversaUsuarios
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ConversaUsuario>>> GetConversaUsuarios()
+        public async Task<ActionResult<IEnumerable<Vwconversausuario>>> GetConversaUsuarios()
         {
-
             try
             {
-                return await _context.ConversaUsuarios.ToListAsync();
+                var conversausuarios = await _context.Vwconversausuarios.ToListAsync();
+                return Ok(new Message<List<Vwconversausuario>>("", conversausuarios, false));
             }
             catch
             {
-                return BadRequest(new Message<List<ConversaUsuario>>("Ocorreu um erro ao obter a listagem de conversas com usuários", new List<ConversaUsuario>(), true));
+                return BadRequest(new Message<List<Vwconversausuario>>("Ocorreu um erro ao obter a conversa com usuário", new List<Vwconversausuario>(), true));
             }
         }
 
         // GET: api/ConversaUsuarios/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<ConversaUsuario>> GetConversaUsuario(int id)
+        public async Task<ActionResult<Vwconversausuario>> GetConversaUsuario(int id)
         {
-            var conversausuario = await _context.ConversaUsuarios.FindAsync(id);
+            var conversausuario = await _context.Vwconversausuarios.FindAsync(id);
 
             if (conversausuario == null)
-            {
-                return BadRequest(new Message<ConversaUsuario>("Ocorreu um erro ao obter a conversa com usuário", new ConversaUsuario { }, true));
-            }
-
-            return conversausuario;
-        }
-
-        // GET: api/ConversaUsuarios/usuario/5
-        [HttpGet("usuario/{id}")]
-        public async Task<ActionResult<object>> GetConversaByUsuario(int id)
-        {
-            var conversaUsuario = await _context.Vwconversausuarios
-                     .AsNoTracking()
-                     .Where(e => e.UsuarioId == id)
-                     .FirstOrDefaultAsync();
-
-            if (conversaUsuario == null)
-                return null;
-
-            var mensagens = await _context.Mensagens
-                .Where(m => m.ConversaId == conversaUsuario.ConversaId)
-                .OrderByDescending(m => m.Regidh)
-                .ToListAsync();
-
-            var resultado = new
-            {
-                conversaUsuario.ConversaId,
-                conversaUsuario.UsuarioId,
-                conversaUsuario.ConversaNome,
-                conversaUsuario.ConversaFoto,
-                conversaUsuario.Grupo,
-                Mensagens = mensagens,
-                conversaUsuario.Regidh,
-                conversaUsuario.Regiusu,
-                conversaUsuario.Regadh,
-                conversaUsuario.Regausu
-            };
-
-
-            if (resultado == null)
             {
                 return BadRequest(new Message<Vwconversausuario>("Ocorreu um erro ao obter a conversa com usuário", new Vwconversausuario { }, true));
             }
 
-            return conversaUsuario;
+            return Ok(new Message<Vwconversausuario>("", conversausuario, false));
         }
+
+        // GET: api/ConversaUsuarios/usuario/5
+        [HttpGet("usuario/{id}")]
+        public async Task<ActionResult> GetConversasByUsuario(int id)
+        {
+            var conversasUsuario = await _context.Vwconversausuarios
+                .AsNoTracking()
+                .Where(e => e.UsuarioId == id)
+                .ToListAsync();
+
+            if (conversasUsuario == null || !conversasUsuario.Any())
+            {
+                return Ok(new Message<List<object>>("Nenhuma conversa encontrada", new List<object>(), false));
+
+            }
+
+            var resultado = new List<object>();
+
+            foreach (var conversaUsuario in conversasUsuario)
+            {
+                var mensagens = await _context.Mensagens
+                    .Where(m => m.ConversaId == conversaUsuario.ConversaId)
+                    .OrderByDescending(m => m.Regidh)
+                    .ToListAsync();
+
+                resultado.Add(new
+                {
+                    conversaUsuario.ConversaId,
+                    conversaUsuario.UsuarioId,
+                    conversaUsuario.ConversaNome,
+                    conversaUsuario.ConversaFoto,
+                    conversaUsuario.Grupo,
+                    Mensagens = mensagens,
+                    conversaUsuario.Regidh,
+                    conversaUsuario.Regiusu,
+                    conversaUsuario.Regadh,
+                    conversaUsuario.Regausu
+                });
+            }
+
+            return Ok(new Message<List<object>>("", resultado, false));
+        }
+
 
         // PUT: api/ConversaUsuarios/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754

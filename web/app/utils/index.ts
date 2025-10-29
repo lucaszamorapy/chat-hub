@@ -1,5 +1,7 @@
 "use client"
 
+import moment from "moment";
+
 export const formatoMoeda = (valor: number) => {
   return valor.toLocaleString('pt-BR', {
     style: 'currency',
@@ -21,4 +23,23 @@ export const getCookie = (cname: string): string | undefined => {
     }
   }
   return undefined;
+}
+
+export const formatarData = (data: string | number | Date, formato: string = "padrão") => {
+  let retorno
+
+  switch (formato) {
+    case "padrão": retorno = moment(data).format("DD/MM/YYYY");
+      break;
+    case "dataehoratexto": retorno = moment(data).format("DD/MM/yyyy [às] HH:mm");
+      break;
+    case "dataehora": retorno = moment(data).format("DD/MM/yyyy HH:mm");
+      break;
+    case "formatobanco": retorno = moment(data).format("yyyy-MM-DD HH:mm:ss");
+      break;
+  }
+  if (retorno == "Invalid date") {
+    return "";
+  }
+  return retorno;
 }

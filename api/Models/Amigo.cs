@@ -20,4 +20,8 @@ public partial class Amigo
     public DateTime? Regadh { get; set; }
 
     public int? Regausu { get; set; }
+
+    public virtual Usuario Usuario { get; set; } = null!;
+
+    public virtual Usuario UsuarioAmigo { get; set; } = null!;
 }

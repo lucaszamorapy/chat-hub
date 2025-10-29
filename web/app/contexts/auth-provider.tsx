@@ -4,10 +4,10 @@ import React, { createContext, useState, useContext, useEffect } from "react";
 import { getCookie } from "../utils";
 
 export interface IAuth {
-  usuarioId: string | null;
+  usuarioId: number | null;
   nome: string | null;
   apelido: string | null;
-  token: string | null;
+  perfilFoto?: string | null;
 }
 
 interface AuthContextType {
@@ -26,25 +26,23 @@ export const AuthProvider = ({ children }: IChildren) => {
     usuarioId: null,
     nome: null,
     apelido: null,
-    token: null,
+    perfilFoto: null,
   });
 
   useEffect(() => {
-    const storedNome = getCookie("nome");
-    const storedUsuarioId = getCookie("usuarioId");
-    const storedApelido = getCookie("apelido");
-    const storedToken = getCookie("token");
-
-    if (storedNome && storedUsuarioId && storedApelido && storedToken) {
-      Promise.resolve().then(() => {
+    const loadAuth = async () => {
+      const usuario = localStorage.getItem("usuario");
+      if (usuario) {
+        const usuarioFormatado = JSON.parse(usuario);
         setAuth({
-          usuarioId: storedUsuarioId,
-          nome: storedNome,
-          apelido: storedApelido,
-          token: storedToken,
+          usuarioId: Number(usuarioFormatado.usuarioId),
+          nome: usuarioFormatado.nome,
+          apelido: usuarioFormatado.apelido,
+          perfilFoto: usuarioFormatado.perfilFoto,
         });
-      });
-    }
+      }
+    };
+    loadAuth();
   }, []);
 
   return (

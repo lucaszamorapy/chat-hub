@@ -21,6 +21,8 @@ public partial class ChatContext : DbContext
 
     public virtual DbSet<Usuario> Usuarios { get; set; }
 
+    public virtual DbSet<Vwamigo> Vwamigos { get; set; }
+
     public virtual DbSet<Vwconversausuario> Vwconversausuarios { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -39,6 +41,10 @@ public partial class ChatContext : DbContext
 
             entity.ToTable("amigos");
 
+            entity.HasIndex(e => e.UsuarioAmigoId, "fk_usuario_amigo_id_idx");
+
+            entity.HasIndex(e => e.UsuarioId, "fk_usuario_id_idx");
+
             entity.Property(e => e.AmigoId).HasColumnName("amigo_id");
             entity.Property(e => e.Regadh)
                 .HasColumnType("datetime")
@@ -54,6 +60,15 @@ public partial class ChatContext : DbContext
                 .HasColumnName("status");
             entity.Property(e => e.UsuarioAmigoId).HasColumnName("usuario_amigo_id");
             entity.Property(e => e.UsuarioId).HasColumnName("usuario_id");
+
+            entity.HasOne(d => d.UsuarioAmigo).WithMany(p => p.AmigoUsuarioAmigos)
+                .HasForeignKey(d => d.UsuarioAmigoId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_usuario_amigo_id");
+
+            entity.HasOne(d => d.Usuario).WithMany(p => p.AmigoUsuarios)
+                .HasForeignKey(d => d.UsuarioId)
+                .HasConstraintName("fk_usuario_id");
         });
 
         modelBuilder.Entity<Conversa>(entity =>
@@ -185,6 +200,54 @@ public partial class ChatContext : DbContext
             entity.Property(e => e.Status)
                 .HasMaxLength(255)
                 .HasColumnName("status");
+        });
+
+        modelBuilder.Entity<Vwamigo>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("vwamigos");
+
+            entity.Property(e => e.AmigoId).HasColumnName("amigo_id");
+            entity.Property(e => e.Apelido)
+                .HasMaxLength(255)
+                .HasColumnName("apelido");
+            entity.Property(e => e.ApelidoAmigo)
+                .HasMaxLength(255)
+                .HasColumnName("apelido_amigo");
+            entity.Property(e => e.Email)
+                .HasMaxLength(255)
+                .HasColumnName("email");
+            entity.Property(e => e.EmailAmigo)
+                .HasMaxLength(255)
+                .HasColumnName("email_amigo");
+            entity.Property(e => e.Nome)
+                .HasMaxLength(255)
+                .HasColumnName("nome");
+            entity.Property(e => e.NomeAmigo)
+                .HasMaxLength(255)
+                .HasColumnName("nome_amigo");
+            entity.Property(e => e.PerfilFoto)
+                .HasMaxLength(255)
+                .HasColumnName("perfil_foto");
+            entity.Property(e => e.PerfilFotoAmigo)
+                .HasMaxLength(255)
+                .HasColumnName("perfil_foto_amigo");
+            entity.Property(e => e.Regadh)
+                .HasColumnType("datetime")
+                .HasColumnName("regadh");
+            entity.Property(e => e.Regausu).HasColumnName("regausu");
+            entity.Property(e => e.Regidh)
+                .HasColumnType("datetime")
+                .HasColumnName("regidh");
+            entity.Property(e => e.Regiusu).HasColumnName("regiusu");
+            entity.Property(e => e.Status)
+                .HasMaxLength(255)
+                .HasColumnName("status");
+            entity.Property(e => e.StatusAmigo)
+                .HasMaxLength(255)
+                .HasColumnName("status_amigo");
+            entity.Property(e => e.UsuarioId).HasColumnName("usuario_id");
         });
 
         modelBuilder.Entity<Vwconversausuario>(entity =>

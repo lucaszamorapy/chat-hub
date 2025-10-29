@@ -1,7 +1,6 @@
 "use client";
 
-import * as React from "react";
-import { Command, Inbox, MessageCircle, Users2 } from "lucide-react";
+import { Command, MessageCircle, Users2 } from "lucide-react";
 
 import { NavUser } from "@/app/components/nav-user";
 import { Label } from "@/app/components/ui/label";
@@ -20,13 +19,17 @@ import {
 } from "@/app/components/ui/sidebar";
 import { Switch } from "@/app/components/ui/switch";
 import Link from "next/link";
+import { IConversa } from "../types/conversas";
+import { getConversasByUsuario } from "../_actions/conversas";
+import { useAuth } from "../contexts/auth-provider";
+import { IAmigo } from "../types/amigos";
+import { toast } from "sonner";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { formatarData } from "../utils";
+import { IMensagem } from "../types/mensagens";
+import { useCallback, useEffect, useState } from "react";
 
-const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
+const items = {
   navMain: [
     {
       title: "Conversas",
@@ -41,95 +44,65 @@ const data = {
       filtro: "amigos",
     },
   ],
-  mails: [
-    {
-      name: "William Smith",
-      email: "williamsmith@example.com",
-      subject: "Meeting Tomorrow",
-      date: "09:34 AM",
-      teaser:
-        "Hi team, just a reminder about our meeting tomorrow at 10 AM.\nPlease come prepared with your project updates.",
-    },
-    {
-      name: "Alice Smith",
-      email: "alicesmith@example.com",
-      subject: "Re: Project Update",
-      date: "Yesterday",
-      teaser:
-        "Thanks for the update. The progress looks great so far.\nLet's schedule a call to discuss the next steps.",
-    },
-    {
-      name: "Bob Johnson",
-      email: "bobjohnson@example.com",
-      subject: "Weekend Plans",
-      date: "2 days ago",
-      teaser:
-        "Hey everyone! I'm thinking of organizing a team outing this weekend.\nWould you be interested in a hiking trip or a beach day?",
-    },
-    {
-      name: "Emily Davis",
-      email: "emilydavis@example.com",
-      subject: "Re: Question about Budget",
-      date: "2 days ago",
-      teaser:
-        "I've reviewed the budget numbers you sent over.\nCan we set up a quick call to discuss some potential adjustments?",
-    },
-    {
-      name: "Michael Wilson",
-      email: "michaelwilson@example.com",
-      subject: "Important Announcement",
-      date: "1 week ago",
-      teaser:
-        "Please join us for an all-hands meeting this Friday at 3 PM.\nWe have some exciting news to share about the company's future.",
-    },
-    {
-      name: "Sarah Brown",
-      email: "sarahbrown@example.com",
-      subject: "Re: Feedback on Proposal",
-      date: "1 week ago",
-      teaser:
-        "Thank you for sending over the proposal. I've reviewed it and have some thoughts.\nCould we schedule a meeting to discuss my feedback in detail?",
-    },
-    {
-      name: "David Lee",
-      email: "davidlee@example.com",
-      subject: "New Project Idea",
-      date: "1 week ago",
-      teaser:
-        "I've been brainstorming and came up with an interesting project concept.\nDo you have time this week to discuss its potential impact and feasibility?",
-    },
-    {
-      name: "Olivia Wilson",
-      email: "oliviawilson@example.com",
-      subject: "Vacation Plans",
-      date: "1 week ago",
-      teaser:
-        "Just a heads up that I'll be taking a two-week vacation next month.\nI'll make sure all my projects are up to date before I leave.",
-    },
-    {
-      name: "James Martin",
-      email: "jamesmartin@example.com",
-      subject: "Re: Conference Registration",
-      date: "1 week ago",
-      teaser:
-        "I've completed the registration for the upcoming tech conference.\nLet me know if you need any additional information from my end.",
-    },
-    {
-      name: "Sophia White",
-      email: "sophiawhite@example.com",
-      subject: "Team Dinner",
-      date: "1 week ago",
-      teaser:
-        "To celebrate our recent project success, I'd like to organize a team dinner.\nAre you available next Friday evening? Please let me know your preferences.",
-    },
-  ],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const [activeItem, setActiveItem] = React.useState(data.navMain[0]);
-  const [mails, setMails] = React.useState(data.mails);
-  const [filtro, setFiltro] = React.useState("");
+  const [activeItem, setActiveItem] = useState(items.navMain[0]);
+  const [conversas, setConversas] = useState<IConversa[]>();
+  const [conversasClone, setConversasClone] = useState<IConversa[]>();
+  const [amigos, setAmigos] = useState<IAmigo[]>();
+  const [filtro, setFiltro] = useState("conversas");
   const { setOpen } = useSidebar();
+  const { auth } = useAuth();
+
+  const getConversas = useCallback(async () => {
+    try {
+      if (auth.usuarioId) {
+        const conversasData = await getConversasByUsuario(auth.usuarioId);
+        if (!conversasData.erro) {
+          setConversas(conversasData.resultado);
+          setConversasClone(conversasData.resultado);
+        } else {
+          console.error(conversasData.mensagem);
+          toast.error(conversasData.mensagem);
+        }
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error(error.message);
+        toast.error(error.message);
+      } else {
+        console.error("Ocorreu um erro:", error);
+      }
+    }
+  }, [auth.usuarioId]);
+
+  const filtrar = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const valor = e.target.value.toLocaleLowerCase();
+    if (filtro === "conversas") {
+      const conversasFiltradas = conversasClone?.filter(
+        (conversa: IConversa) => {
+          const nomeInclui = conversa.conversaNome
+            .toLocaleLowerCase()
+            .includes(valor);
+          const mensagemInclui = conversa.mensagens.some(
+            (mensagem: IMensagem) =>
+              mensagem.mensagem.toLocaleLowerCase().includes(valor)
+          );
+          return nomeInclui || mensagemInclui;
+        }
+      );
+      setConversas(conversasFiltradas || conversasClone);
+    }
+  };
+
+  useEffect(() => {
+    const fetchConversas = async () => {
+      await getConversas();
+    };
+
+    fetchConversas();
+  }, [getConversas]);
 
   return (
     <Sidebar
@@ -137,9 +110,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       className="overflow-hidden *:data-[sidebar=sidebar]:flex-row"
       {...props}
     >
-      {/* This is the first sidebar */}
-      {/* We disable collapsible and adjust width to icon. */}
-      {/* This will make the sidebar appear as icons. */}
       <Sidebar
         collapsible="none"
         className="w-[calc(var(--sidebar-width-icon)+1px)]! border-r"
@@ -162,7 +132,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarGroup>
             <SidebarGroupContent className="px-1.5 md:px-0">
               <SidebarMenu>
-                {data.navMain.map((item) => (
+                {items.navMain.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton
                       tooltip={{
@@ -170,17 +140,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         hidden: false,
                       }}
                       onClick={() => {
-                        //função de get (conversas/amigos)
                         setFiltro(item.filtro);
                         setActiveItem(item);
-                        const mail = data.mails.sort(() => Math.random() - 0.5);
-                        setMails(
-                          mail.slice(
-                            0,
-                            Math.max(5, Math.floor(Math.random() * 10) + 1)
-                          )
-                        );
                         setOpen(true);
+                        getConversas();
                       }}
                       isActive={activeItem?.title === item.title}
                       className="px-2.5 md:px-2 cursor-pointer"
@@ -195,12 +158,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarGroup>
         </SidebarContent>
         <SidebarFooter>
-          <NavUser user={data.user} />
+          <NavUser usuario={auth} />
         </SidebarFooter>
       </Sidebar>
 
-      {/* This is the second sidebar */}
-      {/* We disable collapsible and let it fill remaining space */}
       <Sidebar collapsible="none" className="hidden flex-1 md:flex">
         <SidebarHeader className="gap-3.5 border-b p-4">
           <div className="flex w-full items-center justify-between">
@@ -214,30 +175,59 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               </Label>
             )}
           </div>
-          <SidebarInput placeholder="O que você procura...?" />
+          <SidebarInput
+            onChange={(e) => filtrar(e)}
+            placeholder="O que você procura...?"
+          />
         </SidebarHeader>
-        <SidebarContent>
-          <SidebarGroup className="px-0">
-            <SidebarGroupContent>
-              {/* {mails.map((mail) => ( lista de conversas/amigos
-                <a
-                  href="#"
-                  key={mail.email}
-                  className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground flex flex-col items-start gap-2 border-b p-4 text-sm leading-tight whitespace-nowrap last:border-b-0"
-                >
-                  <div className="flex w-full items-center gap-2">
-                    <span>{mail.name}</span>{" "}
-                    <span className="ml-auto text-xs">{mail.date}</span>
+        {activeItem.filtro === "conversas" ? (
+          <SidebarContent>
+            <SidebarGroup className="p-0 border-b">
+              <SidebarGroupContent>
+                {conversas && conversas?.length > 0 ? (
+                  conversas?.map((item: IConversa) => (
+                    <Link
+                      href={`/conversa/${item.conversaId}`}
+                      key={item.conversaId}
+                      className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground flex flex-col items-start gap-2 border-b p-4 text-sm leading-tight whitespace-nowrap last:border-b-0"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Avatar className="h-8 w-8 rounded-lg">
+                          <AvatarImage
+                            src={item.conversaFoto}
+                            alt={item.conversaNome}
+                          />
+                          <AvatarFallback className="rounded-lg">
+                            CN
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="font-medium">{item.conversaNome}</span>
+                      </div>
+                      <div className="flex items-center w-full">
+                        <span className="w-45 text-xs mr-2 truncate">
+                          {item.mensagens[0].mensagem}
+                        </span>
+                        <span
+                          style={{ fontSize: "10px" }}
+                          className="shrink-0 whitespace-nowrap"
+                        >
+                          {formatarData(
+                            item.mensagens[0].regidh,
+                            "dataehoratexto"
+                          )}
+                        </span>
+                      </div>
+                    </Link>
+                  ))
+                ) : (
+                  <div className="p-2 flex justify-center items-center text-xs">
+                    Nenhuma conversa encontrada.
                   </div>
-                  <span className="font-medium">{mail.subject}</span>
-                  <span className="line-clamp-2 w-[260px] text-xs whitespace-break-spaces">
-                    {mail.teaser}
-                  </span>
-                </a>
-              ))} */}
-            </SidebarGroupContent>
-          </SidebarGroup>
-        </SidebarContent>
+                )}
+              </SidebarGroupContent>
+            </SidebarGroup>
+          </SidebarContent>
+        ) : null}
       </Sidebar>
     </Sidebar>
   );

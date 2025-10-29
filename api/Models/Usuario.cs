@@ -27,6 +27,10 @@ public partial class Usuario
 
     public int? Regausu { get; set; }
 
+    public virtual ICollection<Amigo> AmigoUsuarioAmigos { get; set; } = new List<Amigo>();
+
+    public virtual ICollection<Amigo> AmigoUsuarios { get; set; } = new List<Amigo>();
+
     public virtual ICollection<ConversaUsuario> ConversaUsuarios { get; set; } = new List<ConversaUsuario>();
 
     public virtual ICollection<Mensagen> Mensagens { get; set; } = new List<Mensagen>();

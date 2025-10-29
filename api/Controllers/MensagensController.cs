@@ -31,7 +31,8 @@ namespace api.Controllers
         {
             try
             {
-                return await _context.Mensagens.ToListAsync();
+                var mensagens = await _context.Mensagens.ToListAsync();
+                return Ok(new Message<List<Mensagen>>("", mensagens, false));
             }
             catch
             {
