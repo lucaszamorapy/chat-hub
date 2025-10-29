@@ -28,6 +28,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { formatarData } from "../utils";
 import { IMensagem } from "../types/mensagens";
 import { useCallback, useEffect, useState } from "react";
+import { Badge } from "./ui/badge";
 
 const items = {
   navMain: [
@@ -184,41 +185,61 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarContent>
             <SidebarGroup className="p-0 border-b">
               <SidebarGroupContent>
-                {conversas && conversas?.length > 0 ? (
-                  conversas?.map((item: IConversa) => (
-                    <Link
-                      href={`/conversa/${item.conversaId}`}
-                      key={item.conversaId}
-                      className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground flex flex-col items-start gap-2 border-b p-4 text-sm leading-tight whitespace-nowrap last:border-b-0"
-                    >
-                      <div className="flex items-center gap-2">
-                        <Avatar className="h-8 w-8 rounded-lg">
-                          <AvatarImage
-                            src={item.conversaFoto}
-                            alt={item.conversaNome}
-                          />
-                          <AvatarFallback className="rounded-lg">
-                            CN
-                          </AvatarFallback>
-                        </Avatar>
-                        <span className="font-medium">{item.conversaNome}</span>
-                      </div>
-                      <div className="flex items-center w-full">
-                        <span className="w-45 text-xs mr-2 truncate">
-                          {item.mensagens[0].mensagem}
-                        </span>
-                        <span
-                          style={{ fontSize: "10px" }}
-                          className="shrink-0 whitespace-nowrap"
+                {conversas && conversas.length > 0 ? (
+                  conversas.map((item: IConversa) => {
+                    const mensagensVisualizados = item.mensagens.filter(
+                      (mensagem) => !mensagem.visualizado
+                    );
+
+                    return (
+                      <div key={item.conversaId}>
+                        <Link
+                          href={`/conversa/${item.conversaId}`}
+                          className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground flex flex-col gap-2 border-b p-4 text-sm leading-tight last:border-b-0"
                         >
-                          {formatarData(
-                            item.mensagens[0].regidh,
-                            "dataehoratexto"
-                          )}
-                        </span>
+                          <div className="flex items-center w-full">
+                            <Avatar className="h-8 mr-5 w-8 rounded-lg">
+                              <AvatarImage
+                                src={item.conversaFoto}
+                                alt={item.conversaNome}
+                              />
+                              <AvatarFallback className="rounded-lg">
+                                CN
+                              </AvatarFallback>
+                            </Avatar>
+
+                            <div className="flex items-center justify-between w-full">
+                              <span className="font-medium truncate">
+                                {item.conversaNome}
+                              </span>
+                              <Badge
+                                variant="default"
+                                className="h-5 min-w-5 rounded-full px-1 text-xs shrink-0 whitespace-nowrap"
+                              >
+                                {mensagensVisualizados.length}
+                              </Badge>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center w-full">
+                            <span className="w-45 text-xs mr-2 truncate">
+                              {item.mensagens[0].mensagem}
+                            </span>
+
+                            <span
+                              style={{ fontSize: "10px" }}
+                              className="shrink-0 whitespace-nowrap"
+                            >
+                              {formatarData(
+                                item.mensagens[0].regidh,
+                                "dataehoratexto"
+                              )}
+                            </span>
+                          </div>
+                        </Link>
                       </div>
-                    </Link>
-                  ))
+                    );
+                  })
                 ) : (
                   <div className="p-2 flex justify-center items-center text-xs">
                     Nenhuma conversa encontrada.

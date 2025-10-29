@@ -3,6 +3,7 @@ export interface IMensagem {
   conversaId: number;
   usuarioId: number;
   mensagem: string;
+  visualizado: Date;
   regidh: Date;
   regiusu: number;
   regadh?: Date;
