@@ -13,11 +13,11 @@ namespace api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ConvesaUsuariosController : ControllerBase
+    public class ConversaUsuariosController : ControllerBase
     {
         private readonly ChatContext _context;
 
-        public ConvesaUsuariosController(ChatContext context)
+        public ConversaUsuariosController(ChatContext context)
         {
             _context = context;
         }
@@ -49,6 +49,46 @@ namespace api.Controllers
             }
 
             return conversausuario;
+        }
+
+        // GET: api/ConversaUsuarios/usuario/5
+        [HttpGet("usuario/{id}")]
+        public async Task<ActionResult<object>> GetConversaByUsuario(int id)
+        {
+            var conversaUsuario = await _context.Vwconversausuarios
+                     .AsNoTracking()
+                     .Where(e => e.UsuarioId == id)
+                     .FirstOrDefaultAsync();
+
+            if (conversaUsuario == null)
+                return null;
+
+            var mensagens = await _context.Mensagens
+                .Where(m => m.ConversaId == conversaUsuario.ConversaId)
+                .OrderByDescending(m => m.Regidh)
+                .ToListAsync();
+
+            var resultado = new
+            {
+                conversaUsuario.ConversaId,
+                conversaUsuario.UsuarioId,
+                conversaUsuario.ConversaNome,
+                conversaUsuario.ConversaFoto,
+                conversaUsuario.Grupo,
+                Mensagens = mensagens,
+                conversaUsuario.Regidh,
+                conversaUsuario.Regiusu,
+                conversaUsuario.Regadh,
+                conversaUsuario.Regausu
+            };
+
+
+            if (resultado == null)
+            {
+                return BadRequest(new Message<Vwconversausuario>("Ocorreu um erro ao obter a conversa com usuário", new Vwconversausuario { }, true));
+            }
+
+            return conversaUsuario;
         }
 
         // PUT: api/ConversaUsuarios/5

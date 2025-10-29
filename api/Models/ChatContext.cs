@@ -11,6 +11,8 @@ public partial class ChatContext : DbContext
     {
     }
 
+    public virtual DbSet<Amigo> Amigos { get; set; }
+
     public virtual DbSet<Conversa> Conversas { get; set; }
 
     public virtual DbSet<ConversaUsuario> ConversaUsuarios { get; set; }
@@ -18,6 +20,8 @@ public partial class ChatContext : DbContext
     public virtual DbSet<Mensagen> Mensagens { get; set; }
 
     public virtual DbSet<Usuario> Usuarios { get; set; }
+
+    public virtual DbSet<Vwconversausuario> Vwconversausuarios { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
@@ -28,6 +32,29 @@ public partial class ChatContext : DbContext
         modelBuilder
             .UseCollation("utf8mb4_0900_ai_ci")
             .HasCharSet("utf8mb4");
+
+        modelBuilder.Entity<Amigo>(entity =>
+        {
+            entity.HasKey(e => e.AmigoId).HasName("PRIMARY");
+
+            entity.ToTable("amigos");
+
+            entity.Property(e => e.AmigoId).HasColumnName("amigo_id");
+            entity.Property(e => e.Regadh)
+                .HasColumnType("datetime")
+                .HasColumnName("regadh");
+            entity.Property(e => e.Regausu).HasColumnName("regausu");
+            entity.Property(e => e.Regidh)
+                .HasColumnType("datetime")
+                .HasColumnName("regidh");
+            entity.Property(e => e.Regiusu).HasColumnName("regiusu");
+            entity.Property(e => e.Status)
+                .HasDefaultValueSql("'Pendente'")
+                .HasColumnType("enum('Pendente','Recusado','Aceito')")
+                .HasColumnName("status");
+            entity.Property(e => e.UsuarioAmigoId).HasColumnName("usuario_amigo_id");
+            entity.Property(e => e.UsuarioId).HasColumnName("usuario_id");
+        });
 
         modelBuilder.Entity<Conversa>(entity =>
         {
@@ -158,6 +185,40 @@ public partial class ChatContext : DbContext
             entity.Property(e => e.Status)
                 .HasMaxLength(255)
                 .HasColumnName("status");
+        });
+
+        modelBuilder.Entity<Vwconversausuario>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("vwconversausuarios");
+
+            entity.Property(e => e.Cargo)
+                .HasDefaultValueSql("'Membro'")
+                .HasColumnType("enum('Membro','Admin')")
+                .HasColumnName("cargo");
+            entity.Property(e => e.ConversaFoto)
+                .HasMaxLength(45)
+                .HasColumnName("conversa_foto");
+            entity.Property(e => e.ConversaId).HasColumnName("conversa_id");
+            entity.Property(e => e.ConversaNome)
+                .HasMaxLength(255)
+                .HasColumnName("conversa_nome");
+            entity.Property(e => e.Grupo)
+                .HasDefaultValueSql("'0'")
+                .HasColumnName("grupo");
+            entity.Property(e => e.Regadh)
+                .HasColumnType("datetime")
+                .HasColumnName("regadh");
+            entity.Property(e => e.Regausu).HasColumnName("regausu");
+            entity.Property(e => e.Regidh)
+                .HasColumnType("datetime")
+                .HasColumnName("regidh");
+            entity.Property(e => e.Regiusu).HasColumnName("regiusu");
+            entity.Property(e => e.UsuarioEntrou)
+                .HasColumnType("datetime")
+                .HasColumnName("usuario_entrou");
+            entity.Property(e => e.UsuarioId).HasColumnName("usuario_id");
         });
 
         OnModelCreatingPartial(modelBuilder);

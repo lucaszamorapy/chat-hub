@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Configuration;
+using api.Services;
 
 namespace api.Models
 {
@@ -33,7 +34,8 @@ namespace api.Models
         private async Task BeforeSaveChanges()
         {
 
-            var userid = Convert.ToInt32(HttpContext?.HttpContext?.User?.FindFirst(ClaimTypes.SerialNumber)?.Value);
+            var context = HttpContext?.HttpContext;
+            var userId = TokenService.GetTokenUserId(context);
             ChangeTracker.DetectChanges();
 
             foreach (var entry in ChangeTracker.Entries())
@@ -43,14 +45,14 @@ namespace api.Models
                     case EntityState.Added:
                         //entry.CurrentValues.Properties.Where(e=>e.FindColumn)
                         entry.Properties.Where(e => e.Metadata.Name == "Regidh").FirstOrDefault().CurrentValue = DateTime.Now;
-                        entry.Properties.Where(e => e.Metadata.Name == "Regiusu").FirstOrDefault().CurrentValue = userid;
+                        entry.Properties.Where(e => e.Metadata.Name == "Regiusu").FirstOrDefault().CurrentValue = userId;
                         entry.Properties.Where(e => e.Metadata.Name == "Regadh").FirstOrDefault().CurrentValue = DateTime.Now;
-                        entry.Properties.Where(e => e.Metadata.Name == "Regausu").FirstOrDefault().CurrentValue = userid;
+                        entry.Properties.Where(e => e.Metadata.Name == "Regausu").FirstOrDefault().CurrentValue = userId;
                         break;
                     case EntityState.Modified:
                         //var p = entry.Properties.Where(e => e.Metadata.Name == "Regadh").FirstOrDefault();
                         entry.Properties.Where(e => e.Metadata.Name == "Regadh").FirstOrDefault().CurrentValue = DateTime.Now;
-                        entry.Properties.Where(e => e.Metadata.Name == "Regausu").FirstOrDefault().CurrentValue = userid;
+                        entry.Properties.Where(e => e.Metadata.Name == "Regausu").FirstOrDefault().CurrentValue = userId;
                         entry.Properties.Where(e => e.Metadata.Name == "Regiusu").FirstOrDefault().IsModified = false;
                         entry.Properties.Where(e => e.Metadata.Name == "Regidh").FirstOrDefault().IsModified = false;
                         break;
