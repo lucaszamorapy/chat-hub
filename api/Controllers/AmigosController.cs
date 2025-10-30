@@ -53,7 +53,7 @@ namespace api.Controllers
                 return NotFound(new Message<List<Vwamigo>>("Ocorreu um erro ao obter o seu amigo", new List<Vwamigo>(), true));
             }
 
-            return amigos;
+            return Ok(new Message<List<Vwamigo>>("", amigos, false));
         }
 
 

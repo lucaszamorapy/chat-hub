@@ -41,7 +41,7 @@ const ConversaCard = ({
           className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground flex flex-col gap-2 border-b p-4 text-sm leading-tight last:border-b-0"
         >
           <div className="flex items-center w-full">
-            <Avatar className="h-8 mr-5 w-8 rounded-lg">
+            <Avatar className="h-8 mr-3 w-8 rounded-lg">
               <AvatarImage
                 src={conversa.conversaFoto}
                 alt={conversa.conversaNome}

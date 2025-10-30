@@ -26,8 +26,11 @@ import { toast } from "sonner";
 import { IMensagem } from "../types/mensagens";
 import { useCallback, useEffect, useState } from "react";
 import ConversaCard from "./conversa-card";
+import { getAmigosByUsuario } from "../_actions/amigos";
+import AmigoAccordion from "./amigo-accordion";
 
 const items = {
+  //talvez colocar a funcao de GET para ser um callback no onClick do item
   navMain: [
     {
       title: "Conversas",
@@ -49,6 +52,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [conversas, setConversas] = useState<IConversa[]>();
   const [conversasClone, setConversasClone] = useState<IConversa[]>();
   const [amigos, setAmigos] = useState<IAmigo[]>();
+  const [amigosClone, setAmigosClone] = useState<IAmigo[]>();
   const [filtro, setFiltro] = useState("conversas");
   const { setOpen } = useSidebar();
   const { auth } = useAuth();
@@ -75,6 +79,28 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     }
   }, [auth.usuarioId]);
 
+  const getAmigos = async () => {
+    try {
+      if (auth.usuarioId) {
+        const amigosData = await getAmigosByUsuario(auth.usuarioId);
+        if (!amigosData.erro) {
+          setAmigos(amigosData.resultado);
+          setAmigosClone(amigosData.resultado);
+        } else {
+          console.error(amigosData.mensagem);
+          toast.error(amigosData.mensagem);
+        }
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error(error.message);
+        toast.error(error.message);
+      } else {
+        console.error("Ocorreu um erro:", error);
+      }
+    }
+  };
+
   const filtrar = (e: React.ChangeEvent<HTMLInputElement>) => {
     const valor = e.target.value.toLocaleLowerCase();
     if (filtro === "conversas") {
@@ -91,6 +117,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         }
       );
       setConversas(conversasFiltradas || conversasClone);
+    } else {
+      const amigosFiltrados = amigosClone?.filter((amigo: IAmigo) => {
+        const nomeInclui = amigo.nomeAmigo!.toLocaleLowerCase().includes(valor);
+        const apelidoInclui = amigo
+          .apelidoAmigo!.toLocaleLowerCase()
+          .includes(valor);
+        return nomeInclui || apelidoInclui;
+      });
+      setAmigos(amigosFiltrados || amigosClone);
     }
   };
 
@@ -153,6 +188,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         setOpen(true);
                         if (item.title === "Conversas") {
                           getConversas();
+                        } else if (item.title === "Amigos") {
+                          getAmigos();
                         }
                       }}
                       isActive={activeItem?.title === item.title}
@@ -193,11 +230,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             placeholder="O que você procura...?"
           />
         </SidebarHeader>
-        {activeItem.filtro === "conversas" ? (
-          <SidebarContent>
-            <SidebarGroup className="p-0 border-b">
-              <SidebarGroupContent>
-                {conversas && conversas.length > 0 ? (
+        <SidebarContent>
+          <SidebarGroup className="p-0 border-b">
+            <SidebarGroupContent>
+              {activeItem.filtro === "conversas" ? (
+                conversas && conversas.length > 0 ? (
                   conversas.map((item: IConversa) => {
                     const mensagensVisualizadas = item.mensagens.filter(
                       (mensagem) => !mensagem.visualizada
@@ -214,11 +251,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <div className="p-2 flex justify-center items-center text-xs">
                     Nenhuma conversa encontrada.
                   </div>
-                )}
-              </SidebarGroupContent>
-            </SidebarGroup>
-          </SidebarContent>
-        ) : null}
+                )
+              ) : amigos && amigos.length > 0 ? (
+                <AmigoAccordion amigos={amigos} />
+              ) : (
+                <div className="p-2 flex justify-center items-center text-xs">
+                  Nenhum amigo encontrado.
+                </div>
+              )}
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent>
       </Sidebar>
     </Sidebar>
   );
