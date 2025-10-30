@@ -4,6 +4,7 @@ using api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Linq;
 using NuGet.Configuration;
 using System.Configuration;
 
@@ -88,6 +89,26 @@ namespace api.Controllers
                 }
             }
             return Ok(new Message<Usuario>("Usuário alterado com sucesso.", usuario, false));
+        }
+
+        // POST: api/Usuarios/filtro
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPost("filtro")]
+        public async Task<ActionResult<IEnumerable<Usuario>>> GetUsuarioWithFilter(JObject filtro)
+        {
+            if (filtro == null || filtro.Properties().All(p => string.IsNullOrEmpty(p.Value?.ToString())))
+            {
+                return Ok(new List<Usuario>());
+            }
+
+            string apelido = filtro["apelido"]?.ToString() ?? "";
+
+            var usuarios = await _context.Usuarios
+                    .Where(e =>
+                        ((string.IsNullOrEmpty(apelido) || e.Nome.Contains(apelido)) || (string.IsNullOrEmpty(apelido) || e.Apelido.Contains(apelido))))
+                        .Take(2000)
+                        .ToListAsync();
+            return Ok(usuarios);
         }
 
         // POST: api/Usuarios

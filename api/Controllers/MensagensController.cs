@@ -87,6 +87,36 @@ namespace api.Controllers
 
         // POST: api/Mensagens
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPost("visualizar")]
+        public async Task<ActionResult<Mensagen>> PostVisualizarMensagem(List<MensagenDTO> mensagens)
+        {
+
+            foreach (var msg in mensagens)
+            {
+                try
+                {
+
+                    var mensagem = await _context.Mensagens.FindAsync(msg.MensagemId);
+                    if (mensagem != null)
+                    {
+                        mensagem.Visualizada = DateTime.Now;
+                        _context.Entry(mensagem).State = EntityState.Modified;
+                    }
+                }
+                catch
+                {
+                    return BadRequest(new Message<Mensagen>("Ocorreu um erro ao marcar a mensagem como visualizada.", new Mensagen { }, true));
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            return Ok(new Message<Mensagen>("Mensagem marcada como visualizada.", new Mensagen { }, false));
+
+        }
+
+
+        // POST: api/Mensagens
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<Mensagen>> PostMensagen(MensagenDTO mensagemDto)
         {

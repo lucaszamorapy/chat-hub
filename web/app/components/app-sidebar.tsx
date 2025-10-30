@@ -1,7 +1,6 @@
 "use client";
 
 import { Command, MessageCircle, Users2 } from "lucide-react";
-
 import { NavUser } from "@/app/components/nav-user";
 import { Label } from "@/app/components/ui/label";
 import {
@@ -24,11 +23,9 @@ import { getConversasByUsuario } from "../_actions/conversas";
 import { useAuth } from "../contexts/auth-provider";
 import { IAmigo } from "../types/amigos";
 import { toast } from "sonner";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { formatarData } from "../utils";
 import { IMensagem } from "../types/mensagens";
 import { useCallback, useEffect, useState } from "react";
-import { Badge } from "./ui/badge";
+import ConversaCard from "./conversa-card";
 
 const items = {
   navMain: [
@@ -97,6 +94,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     }
   };
 
+  const filtrarNaoLidas = (ativo: boolean) => {
+    const conversasFiltradas = conversasClone?.filter((conversa: IConversa) => {
+      const mensagemNaoVisualizada = conversa.mensagens.some((msg) =>
+        ativo ? !msg.visualizada : conversasClone
+      );
+      return mensagemNaoVisualizada;
+    });
+    setConversas(conversasFiltradas);
+  };
+
   useEffect(() => {
     const fetchConversas = async () => {
       await getConversas();
@@ -144,7 +151,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         setFiltro(item.filtro);
                         setActiveItem(item);
                         setOpen(true);
-                        getConversas();
+                        if (item.title === "Conversas") {
+                          getConversas();
+                        }
                       }}
                       isActive={activeItem?.title === item.title}
                       className="px-2.5 md:px-2 cursor-pointer"
@@ -172,7 +181,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             {filtro === "conversas" && (
               <Label className="flex items-center gap-2 text-sm">
                 <span>Não lidas</span>
-                <Switch className="shadow-none" />
+                <Switch
+                  className="shadow-none"
+                  onCheckedChange={(ativo) => filtrarNaoLidas(ativo)}
+                />
               </Label>
             )}
           </div>
@@ -187,57 +199,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <SidebarGroupContent>
                 {conversas && conversas.length > 0 ? (
                   conversas.map((item: IConversa) => {
-                    const mensagensVisualizados = item.mensagens.filter(
-                      (mensagem) => !mensagem.visualizado
+                    const mensagensVisualizadas = item.mensagens.filter(
+                      (mensagem) => !mensagem.visualizada
                     );
-
                     return (
-                      <div key={item.conversaId}>
-                        <Link
-                          href={`/conversa/${item.conversaId}`}
-                          className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground flex flex-col gap-2 border-b p-4 text-sm leading-tight last:border-b-0"
-                        >
-                          <div className="flex items-center w-full">
-                            <Avatar className="h-8 mr-5 w-8 rounded-lg">
-                              <AvatarImage
-                                src={item.conversaFoto}
-                                alt={item.conversaNome}
-                              />
-                              <AvatarFallback className="rounded-lg">
-                                CN
-                              </AvatarFallback>
-                            </Avatar>
-
-                            <div className="flex items-center justify-between w-full">
-                              <span className="font-medium truncate">
-                                {item.conversaNome}
-                              </span>
-                              <Badge
-                                variant="default"
-                                className="h-5 min-w-5 rounded-full px-1 text-xs shrink-0 whitespace-nowrap"
-                              >
-                                {mensagensVisualizados.length}
-                              </Badge>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center w-full">
-                            <span className="w-45 text-xs mr-2 truncate">
-                              {item.mensagens[0].mensagem}
-                            </span>
-
-                            <span
-                              style={{ fontSize: "10px" }}
-                              className="shrink-0 whitespace-nowrap"
-                            >
-                              {formatarData(
-                                item.mensagens[0].regidh,
-                                "dataehoratexto"
-                              )}
-                            </span>
-                          </div>
-                        </Link>
-                      </div>
+                      <ConversaCard
+                        key={item.conversaId}
+                        conversa={item}
+                        mensagensVisualizadas={mensagensVisualizadas}
+                      />
                     );
                   })
                 ) : (

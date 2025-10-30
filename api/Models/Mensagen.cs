@@ -13,7 +13,7 @@ public partial class Mensagen
 
     public string Mensagem { get; set; } = null!;
 
-    public DateTime? Visualizado { get; set; }
+    public DateTime? Visualizada { get; set; }
 
     public DateTime Regidh { get; set; }
 

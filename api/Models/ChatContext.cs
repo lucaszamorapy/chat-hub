@@ -10,6 +10,7 @@ public partial class ChatContext : DbContext
     public ChatContext()
     {
     }
+
     public virtual DbSet<Amigo> Amigos { get; set; }
 
     public virtual DbSet<Conversa> Conversas { get; set; }
@@ -156,9 +157,9 @@ public partial class ChatContext : DbContext
                 .HasColumnName("regidh");
             entity.Property(e => e.Regiusu).HasColumnName("regiusu");
             entity.Property(e => e.UsuarioId).HasColumnName("usuario_id");
-            entity.Property(e => e.Visualizado)
+            entity.Property(e => e.Visualizada)
                 .HasColumnType("datetime")
-                .HasColumnName("visualizado");
+                .HasColumnName("visualizada");
 
             entity.HasOne(d => d.Conversa).WithMany(p => p.Mensagens)
                 .HasForeignKey(d => d.ConversaId)
