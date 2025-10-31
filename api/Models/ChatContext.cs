@@ -245,11 +245,16 @@ public partial class ChatContext : DbContext
                 .HasColumnName("regidh");
             entity.Property(e => e.Regiusu).HasColumnName("regiusu");
             entity.Property(e => e.Status)
-                .HasMaxLength(255)
+                .HasDefaultValueSql("'Pendente'")
+                .HasColumnType("enum('Pendente','Recusado','Aceito')")
                 .HasColumnName("status");
             entity.Property(e => e.StatusAmigo)
                 .HasMaxLength(255)
                 .HasColumnName("status_amigo");
+            entity.Property(e => e.StatusUsuario)
+                .HasMaxLength(255)
+                .HasColumnName("status_usuario");
+            entity.Property(e => e.UsuarioAmigoId).HasColumnName("usuario_amigo_id");
             entity.Property(e => e.UsuarioId).HasColumnName("usuario_id");
         });
 

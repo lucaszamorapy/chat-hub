@@ -114,13 +114,13 @@ namespace api.Controllers
             var amigo = await _context.Amigos.FindAsync(id);
             if (amigo == null)
             {
-                return NotFound (new Message<Amigo>($"Ocorreu um erro ao exluir o seu amigo", new Amigo { }, true));
+                return NotFound (new Message<Amigo>("Ocorreu um erro ao exluir o seu amigo", new Amigo { }, true));
             }
 
             _context.Amigos.Remove(amigo);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok(new Message<Amigo>("Amigo removido com sucesso!", new Amigo { }, false));
         }
 
         private bool AmigoExists(int id)

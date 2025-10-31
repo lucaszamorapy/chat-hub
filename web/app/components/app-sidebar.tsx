@@ -29,26 +29,8 @@ import ConversaCard from "./conversa-card";
 import { getAmigosByUsuario } from "../_actions/amigos";
 import AmigoAccordion from "./amigo-accordion";
 
-const items = {
-  //talvez colocar a funcao de GET para ser um callback no onClick do item
-  navMain: [
-    {
-      title: "Conversas",
-      icon: MessageCircle,
-      isActive: true,
-      filtro: "conversas",
-    },
-    {
-      title: "Amigos",
-      icon: Users2,
-      isActive: true,
-      filtro: "amigos",
-    },
-  ],
-};
-
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const [activeItem, setActiveItem] = useState(items.navMain[0]);
+  const [itemAtivo, setItemAtivo] = useState("Conversas");
   const [conversas, setConversas] = useState<IConversa[]>();
   const [conversasClone, setConversasClone] = useState<IConversa[]>();
   const [amigos, setAmigos] = useState<IAmigo[]>();
@@ -101,6 +83,23 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     }
   };
 
+  const items = [
+    {
+      titulo: "Conversas",
+      icone: MessageCircle,
+      isActive: true,
+      filtro: "conversas",
+      onClick: getConversas,
+    },
+    {
+      titulo: "Amigos",
+      icone: Users2,
+      isActive: true,
+      filtro: "amigos",
+      onClick: getAmigos,
+    },
+  ];
+
   const filtrar = (e: React.ChangeEvent<HTMLInputElement>) => {
     const valor = e.target.value.toLocaleLowerCase();
     if (filtro === "conversas") {
@@ -109,7 +108,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           const nomeInclui = conversa.conversaNome
             .toLocaleLowerCase()
             .includes(valor);
-          const mensagemInclui = conversa.mensagens.some(
+          const mensagemInclui = conversa.mensagens?.some(
             (mensagem: IMensagem) =>
               mensagem.mensagem.toLocaleLowerCase().includes(valor)
           );
@@ -130,12 +129,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   };
 
   const filtrarNaoLidas = (ativo: boolean) => {
-    const conversasFiltradas = conversasClone?.filter((conversa: IConversa) => {
-      const mensagemNaoVisualizada = conversa.mensagens.some((msg) =>
-        ativo ? !msg.visualizada : conversasClone
-      );
-      return mensagemNaoVisualizada;
-    });
+    const conversasFiltradas = ativo
+      ? conversasClone?.filter(
+          (conversa: IConversa) =>
+            conversa.mensagens?.some((msg) => !msg.visualizada) ?? false
+        )
+      : conversasClone;
+
     setConversas(conversasFiltradas);
   };
 
@@ -175,28 +175,24 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarGroup>
             <SidebarGroupContent className="px-1.5 md:px-0">
               <SidebarMenu>
-                {items.navMain.map((item) => (
-                  <SidebarMenuItem key={item.title}>
+                {items.map((item) => (
+                  <SidebarMenuItem key={item.titulo}>
                     <SidebarMenuButton
                       tooltip={{
-                        children: item.title,
+                        children: item.titulo,
                         hidden: false,
                       }}
                       onClick={() => {
                         setFiltro(item.filtro);
-                        setActiveItem(item);
+                        setItemAtivo(item.titulo);
                         setOpen(true);
-                        if (item.title === "Conversas") {
-                          getConversas();
-                        } else if (item.title === "Amigos") {
-                          getAmigos();
-                        }
+                        return item.onClick();
                       }}
-                      isActive={activeItem?.title === item.title}
+                      isActive={itemAtivo === item.titulo}
                       className="px-2.5 md:px-2 cursor-pointer"
                     >
-                      <item.icon />
-                      <span>{item.title}</span>
+                      <item.icone />
+                      <span>{item.titulo}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}
@@ -213,7 +209,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarHeader className="gap-3.5 border-b p-4">
           <div className="flex w-full items-center justify-between">
             <div className="text-foreground text-base font-medium">
-              {activeItem?.title}
+              {itemAtivo}
             </div>
             {filtro === "conversas" && (
               <Label className="flex items-center gap-2 text-sm">
@@ -231,19 +227,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           />
         </SidebarHeader>
         <SidebarContent>
-          <SidebarGroup className="p-0 border-b">
+          <SidebarGroup className="p-0 ">
             <SidebarGroupContent>
-              {activeItem.filtro === "conversas" ? (
+              {filtro === "conversas" ? (
                 conversas && conversas.length > 0 ? (
                   conversas.map((item: IConversa) => {
-                    const mensagensVisualizadas = item.mensagens.filter(
+                    const mensagensVisualizadas = item.mensagens?.filter(
                       (mensagem) => !mensagem.visualizada
                     );
                     return (
                       <ConversaCard
                         key={item.conversaId}
                         conversa={item}
-                        mensagensVisualizadas={mensagensVisualizadas}
+                        mensagensVisualizadas={mensagensVisualizadas!}
                       />
                     );
                   })

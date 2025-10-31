@@ -2,6 +2,7 @@
 
 import { IMensagem } from '@/app/types/mensagens';
 import { api } from '..';
+import { IConversa, IConversaUsuario } from '@/app/types/conversas';
 
 export const getConversasByUsuario = async (usuarioId: number) => {
   try {
@@ -16,6 +17,26 @@ export const getConversasByUsuario = async (usuarioId: number) => {
 export const visualizarMensagens = async (mensagens: IMensagem[]) => {
   try {
     const { data } = await api.post("/Mensagens/visualizar", mensagens)
+    return data;
+  } catch (error: any) {
+    console.error(error)
+    return error.response?.data;
+  }
+}
+
+export const criarConversa = async (conversa: IConversa) => {
+  try {
+    const { data } = await api.post("/Conversas", conversa)
+    return data;
+  } catch (error: any) {
+    console.error(error)
+    return error.response?.data;
+  }
+}
+
+export const criarConversaUsuarios = async (conversaUsuarios: IConversaUsuario) => {
+  try {
+    const { data } = await api.post("/ConversaUsuarios", conversaUsuarios)
     return data;
   } catch (error: any) {
     console.error(error)

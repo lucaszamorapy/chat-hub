@@ -26,19 +26,25 @@ const AmigoAccordion = ({ amigos }: AmigosAccordionProps) => {
     amigosRecusados: [],
   });
 
-  const inicializarAccordions = useCallback(() => {
+  const inicializarAccordions = useCallback((amigos: IAmigo[]) => {
     const amigosAceitos = amigos.filter((a) => a.status === "Aceito");
     const amigosPendentes = amigos.filter((a) => a.status === "Pendente");
     const amigosRecusados = amigos.filter((a) => a.status === "Recusado");
     setAccordions({ amigosAceitos, amigosPendentes, amigosRecusados });
-  }, [amigos]);
+  }, []);
+
+  const removerAmigoLista = (amigoId: number) => {
+    const novosAmigos = amigos.filter((amigo) => amigo.amigoId !== amigoId);
+    console.log("novos amigos", novosAmigos);
+    inicializarAccordions(novosAmigos);
+  };
 
   useEffect(() => {
     const inicializar = () => {
-      inicializarAccordions();
+      inicializarAccordions(amigos);
     };
     inicializar();
-  }, [inicializarAccordions]);
+  }, [inicializarAccordions, amigos]);
 
   return (
     <Accordion
@@ -62,7 +68,12 @@ const AmigoAccordion = ({ amigos }: AmigosAccordionProps) => {
         <AccordionContent>
           {accordions.amigosAceitos.length > 0 ? (
             accordions.amigosAceitos.map((amigo) => (
-              <AmigoCard key={amigo.amigoId} amigo={amigo} />
+              <AmigoCard
+                key={amigo.amigoId}
+                amigo={amigo}
+                status={"Aceito"}
+                removerAmigoLista={() => removerAmigoLista}
+              />
             ))
           ) : (
             <div className="text-xs text-muted-foreground p-2">
@@ -87,7 +98,12 @@ const AmigoAccordion = ({ amigos }: AmigosAccordionProps) => {
         <AccordionContent>
           {accordions.amigosPendentes.length > 0 ? (
             accordions.amigosPendentes.map((amigo) => (
-              <AmigoCard key={amigo.amigoId} amigo={amigo} />
+              <AmigoCard
+                key={amigo.amigoId}
+                amigo={amigo}
+                status={"Pendente"}
+                removerAmigoLista={() => removerAmigoLista}
+              />
             ))
           ) : (
             <div className="text-xs text-muted-foreground p-2">
@@ -112,7 +128,12 @@ const AmigoAccordion = ({ amigos }: AmigosAccordionProps) => {
         <AccordionContent>
           {accordions.amigosRecusados.length > 0 ? (
             accordions.amigosRecusados.map((amigo) => (
-              <AmigoCard key={amigo.amigoId} amigo={amigo} />
+              <AmigoCard
+                key={amigo.amigoId}
+                amigo={amigo}
+                status={"Recusado"}
+                removerAmigoLista={(id: number) => removerAmigoLista(id)}
+              />
             ))
           ) : (
             <div className="text-xs text-muted-foreground p-2">

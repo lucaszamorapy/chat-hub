@@ -97,7 +97,7 @@ namespace api.Controllers
         // PUT: api/ConversaUsuarios/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutGrupo(int id, ConversaUsuarioDTO conversausuario)
+        public async Task<IActionResult> PutGrupo(int id, ConversaUsuario conversausuario)
         {
             var conversausuarioexiste = await _context.ConversaUsuarios.Where(e => e.ConversaUsuariosId == id).FirstOrDefaultAsync();
 
@@ -130,29 +130,29 @@ namespace api.Controllers
 
         // POST: api/ConversaUsuarios
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<ConversaUsuario>> PostConversaUsuario([FromBody] ConversaUsuarioDTO request)
-        {
-            foreach (var usuarioId in request.UsuariosIds)
-            {
-                var usuario = await _context.Usuarios.FindAsync(usuarioId);
-                if (usuario == null)
-                {
-                    return BadRequest(new Message<ConversaUsuario>($"Usuário com ID {usuarioId} não encontrado.", new ConversaUsuario { }, true));
-                }
-                var novo = new ConversaUsuario
-                {
-                    ConversaId = request.ConversaId,
-                    UsuarioId = usuarioId,
-                    UsuarioEntrou = request.UsuarioEntrou,
-                    Cargo = request.Cargo
-                };
+        //[HttpPost]
+        //public async Task<ActionResult<ConversaUsuario>> PostConversaUsuario([FromBody] ConversaUsuarioDTO request)
+        //{
+        //    foreach (var usuarioId in request.UsuariosIds)
+        //    {
+        //        var usuario = await _context.Usuarios.FindAsync(usuarioId);
+        //        if (usuario == null)
+        //        {
+        //            return BadRequest(new Message<ConversaUsuario>($"Usuário com ID {usuarioId} não encontrado.", new ConversaUsuario { }, true));
+        //        }
+        //        var novo = new ConversaUsuario
+        //        {
+        //            ConversaId = request.ConversaId,
+        //            UsuarioId = usuarioId,
+        //            UsuarioEntrou = request.UsuarioEntrou,
+        //            Cargo = request.Cargo
+        //        };
 
-                _context.ConversaUsuarios.Add(novo);
-                await _context.SaveChangesAsync();
-            }
-            return NoContent();
-        }
+        //        _context.ConversaUsuarios.Add(novo);
+        //        await _context.SaveChangesAsync();
+        //    }
+        //    return NoContent();
+        //}
 
         // DELETE: api/ConversaUsuarios/5
         [HttpDelete("{id}")]

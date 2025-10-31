@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using api.Services;
 using api.Models;
+using api.DTO;
 
 namespace api.Controllers
 {
@@ -116,22 +117,52 @@ namespace api.Controllers
         // POST: api/Conversas
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Conversa>> PostConversa(Conversa conversa)
+        public async Task<ActionResult<Conversa>> PostConversa(ConversaDTO conversaDto)
         {
+            var usuarioIds = conversaDto.ConversaUsuarios.Select(u => u.UsuarioId).ToList();
+            var conversaExiste = await _context.Vwconversausuarios.Where(e => e.ConversaNome == conversaDto.ConversaNome && usuarioIds.Contains(e.UsuarioId)).FirstOrDefaultAsync();
+            if(conversaExiste != null)
+            {
+                return Ok(new Message<Vwconversausuario>(null, conversaExiste, false));
+            }
+            await using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                _context.Conversas.Add(conversa);
+                var nova = new Conversa
+                {
+                    ConversaNome = conversaDto.ConversaNome,
+                    ConversaFoto = conversaDto.ConversaFoto,
+                    Grupo = conversaDto.Grupo
+                };
+
+                _context.Conversas.Add(nova);
                 await _context.SaveChangesAsync();
 
-                CreatedAtAction("GetConversa", new { id = conversa.ConversaId }, conversa);
+                foreach (var e in conversaDto.ConversaUsuarios)
+                {
+                    _context.ConversaUsuarios.Add(new ConversaUsuario
+                    {
+                        ConversaId = nova.ConversaId,
+                        UsuarioId = e.UsuarioId,
+                        Cargo = e.Cargo,
+                        UsuarioEntrou = DateTime.Now
+                    });
+                }
 
-                return Ok(new Message<Conversa>("Conversa criada com sucesso!", conversa, false));
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return Ok(new Message<Conversa>("Conversa criada com sucesso!", nova, false));
             }
-            catch
+            catch (Exception ex)
             {
-                return BadRequest(new Message<Conversa>("Ocorreu um erro tentar criar uma conversa", new Conversa { }, true));
+                await transaction.RollbackAsync();
+                return BadRequest(new Message<Conversa>(
+                    $"Erro ao criar conversa: {ex.Message}", new Conversa(), true
+                ));
             }
         }
+
 
         // DELETE: api/Conversas/5
         [HttpDelete("{id}")]

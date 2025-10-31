@@ -11,3 +11,13 @@ export const getAmigosByUsuario = async (usuarioId: number) => {
     return error.response?.data;
   }
 }
+
+export const excluirAmigo = async (amigoId: number) => {
+  try {
+    const { data } = await api.delete(`/Amigos/${amigoId}`)
+    return data;
+  } catch (error: any) {
+    console.error(error)
+    return error.response?.data;
+  }
+}

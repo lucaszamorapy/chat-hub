@@ -19,7 +19,7 @@ import {
   FormLabel,
   FormMessage,
 } from "./ui/form";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import Link from "next/link";

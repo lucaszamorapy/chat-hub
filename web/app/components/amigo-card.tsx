@@ -9,14 +9,74 @@ import {
 } from "./ui/dropdown-menu";
 import { Button } from "./ui/button";
 import { MoreHorizontalIcon, SendHorizonal, Trash } from "lucide-react";
+import { criarConversa } from "../_actions/conversas";
+import { toast } from "sonner";
+import { IConversa, IConversaUsuario } from "../types/conversas";
+import { useRouter } from "next/navigation";
+import { excluirAmigo } from "../_actions/amigos";
 
 interface AmigoProps {
   amigo: IAmigo;
+  status?: string;
+  removerAmigoLista: (id: number) => void;
 }
 
-const AmigoCard = ({ amigo }: AmigoProps) => {
-  const iniciarConversa = async () => {};
-  const excluirAmigo = async () => {};
+const AmigoCard = ({ amigo, status, removerAmigoLista }: AmigoProps) => {
+  const rota = useRouter();
+
+  const iniciarConversa = async () => {
+    try {
+      const usuarios = [amigo.amigoId!, amigo.usuarioAmigoId!];
+      let novaConversa: IConversa = {
+        conversaNome: amigo.nomeAmigo!,
+        conversaFoto: amigo.perfilFotoAmigo ? amigo.perfilFotoAmigo : null,
+        grupo: false,
+      };
+      const novaConversaUsuario: IConversaUsuario[] = usuarios.map(
+        (usuario: number) => {
+          return {
+            usuarioId: usuario,
+            cargo: "Admin",
+          };
+        }
+      );
+      novaConversa = { ...novaConversa, conversaUsuarios: novaConversaUsuario };
+      const conversa = await criarConversa(novaConversa);
+      if (!conversa.erro) {
+        rota.push(`conversa/${conversa.resultado.conversaId}`);
+      } else {
+        console.error(conversa.mensagem);
+        toast.error(conversa.mensagem);
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error(error.message);
+        toast.error(error.message);
+      } else {
+        console.error("Ocorreu um erro:", error);
+      }
+    }
+  };
+  const removerAmigo = async () => {
+    try {
+      const data = await excluirAmigo(amigo.amigoId!);
+      console.log("data", data);
+      if (!data.erro) {
+        removerAmigoLista(amigo.amigoId!);
+        toast.success(data.mensagem);
+      } else {
+        console.error(data.mensagem);
+        toast.error(data.mensagem);
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error(error.message);
+        toast.error(error.message);
+      } else {
+        console.error("Ocorreu um erro:", error);
+      }
+    }
+  };
   return (
     <>
       <div key={amigo.amigoId}>
@@ -36,19 +96,15 @@ const AmigoCard = ({ amigo }: AmigoProps) => {
                 <span className="text-xs truncate">{amigo.apelidoAmigo}</span>
               </div>
             </div>
-            {amigo.status === "Aceito" && (
-              <DropdownMenu modal={false}>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    aria-label="Open menu"
-                    size="icon-sm"
-                  >
-                    <MoreHorizontalIcon />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-40" align="end">
-                  <DropdownMenuGroup>
+            <DropdownMenu modal={false}>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" aria-label="Open menu" size="icon-sm">
+                  <MoreHorizontalIcon />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-40" align="end">
+                <DropdownMenuGroup>
+                  {status === "Aceito" && (
                     <DropdownMenuItem
                       className="text-xs cursor-pointer"
                       onSelect={() => iniciarConversa()}
@@ -58,19 +114,23 @@ const AmigoCard = ({ amigo }: AmigoProps) => {
                         <SendHorizonal className="text-primary" size={1} />
                       </div>
                     </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="text-xs cursor-pointer"
-                      onSelect={() => excluirAmigo()}
-                    >
-                      <div className="flex w-full justify-between">
+                  )}
+                  <DropdownMenuItem
+                    className="text-xs cursor-pointer"
+                    onSelect={() => removerAmigo()}
+                  >
+                    <div className="flex w-full justify-between">
+                      {status === "Aceito" ? (
                         <span>Excluir amigo</span>
-                        <Trash className="text-destructive " size={1} />
-                      </div>
-                    </DropdownMenuItem>
-                  </DropdownMenuGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
+                      ) : (
+                        <span>Cancelar pedido</span>
+                      )}
+                      <Trash className="text-destructive " size={1} />
+                    </div>
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </div>
