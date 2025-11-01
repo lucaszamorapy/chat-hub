@@ -43,7 +43,7 @@ export default function ProtecaoRota({
     <SidebarProvider
       style={
         {
-          "--sidebar-width": "360px",
+          "--sidebar-width": "400px",
         } as React.CSSProperties
       }
     >

@@ -25,7 +25,8 @@ namespace api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Amigo>>> GetAmigos()
         {
-            return await _context.Amigos.ToListAsync();
+            var amigos =  await _context.Amigos.ToListAsync();
+            return Ok(new Message<List<Amigo>>("", amigos, false));
         }
 
         // GET: api/Amigos/5
@@ -39,7 +40,7 @@ namespace api.Controllers
                 return NotFound(new Message<List<Amigo>>("Ocorreu um erro ao obter o seu amigo", new List<Amigo>(), true));
             }
 
-            return amigo;
+            return Ok(new Message<Amigo>("", amigo, false));
         }
 
         // GET: api/Amigos/usuario/5
@@ -85,7 +86,7 @@ namespace api.Controllers
                 }
             }
 
-            return NoContent();
+            return Ok(new Message<Amigo>("Amigo atualizado com sucesso!.", amigo, false));
         }
 
         // POST: api/Amigos
@@ -98,8 +99,8 @@ namespace api.Controllers
 
                 _context.Amigos.Add(amigo);
                 await _context.SaveChangesAsync();
-
-                return CreatedAtAction("GetAmigo", new { id = amigo.AmigoId }, amigo);
+                CreatedAtAction("GetAmigo", new { id = amigo.AmigoId }, amigo);
+                return Ok(new Message<Amigo>("Pedido de amigo enviado com sucesso!", amigo, false));
             }
             catch (Exception ex)
             {
@@ -114,13 +115,13 @@ namespace api.Controllers
             var amigo = await _context.Amigos.FindAsync(id);
             if (amigo == null)
             {
-                return NotFound (new Message<Amigo>("Ocorreu um erro ao exluir o seu amigo", new Amigo { }, true));
+                return NotFound (new Message<Amigo>("Ocorreu um erro ao excluir o seu amigo", new Amigo { }, true));
             }
 
             _context.Amigos.Remove(amigo);
             await _context.SaveChangesAsync();
 
-            return Ok(new Message<Amigo>("Amigo removido com sucesso!", new Amigo { }, false));
+            return Ok(new Message<Amigo>("Amigo excluído com sucesso!", new Amigo { }, false));
         }
 
         private bool AmigoExists(int id)

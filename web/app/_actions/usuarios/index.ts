@@ -52,3 +52,12 @@ export const logout = async () => {
   const cookieStore = await cookies();
   cookieStore.delete("token");
 }
+
+export const getUsuarios = async () => {
+  try {
+    const { data } = await api.get("/Usuarios");
+    return data
+  } catch (error: any) {
+    return error.response?.data;
+  }
+}

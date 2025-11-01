@@ -1,3 +1,5 @@
+"use client";
+
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { IAmigo } from "../types/amigos";
 import {
@@ -8,7 +10,12 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Button } from "./ui/button";
-import { MoreHorizontalIcon, SendHorizonal, Trash } from "lucide-react";
+import {
+  MailPlus,
+  MoreHorizontalIcon,
+  SendHorizonal,
+  Trash,
+} from "lucide-react";
 import { criarConversa } from "../_actions/conversas";
 import { toast } from "sonner";
 import { IConversa, IConversaUsuario } from "../types/conversas";
@@ -60,8 +67,8 @@ const AmigoCard = ({ amigo, status, removerAmigoLista }: AmigoProps) => {
   const removerAmigo = async () => {
     try {
       const data = await excluirAmigo(amigo.amigoId!);
-      console.log("data", data);
       if (!data.erro) {
+        console.log(amigo.amigoId);
         removerAmigoLista(amigo.amigoId!);
         toast.success(data.mensagem);
       } else {
@@ -117,7 +124,7 @@ const AmigoCard = ({ amigo, status, removerAmigoLista }: AmigoProps) => {
                   )}
                   <DropdownMenuItem
                     className="text-xs cursor-pointer"
-                    onSelect={() => removerAmigo()}
+                    onSelect={removerAmigo}
                   >
                     <div className="flex w-full justify-between">
                       {status === "Aceito" ? (

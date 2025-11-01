@@ -13,8 +13,8 @@ export interface IAmigo {
   perfilFotoAmigo?: string;
   statusAmigo?: string;
   status: "Pendente" | "Recusado" | "Aceito";
-  regidh: Date;
-  regiusu: number;
+  regidh?: Date;
+  regiusu?: number;
   regadh?: Date;
   regausu?: number
 }

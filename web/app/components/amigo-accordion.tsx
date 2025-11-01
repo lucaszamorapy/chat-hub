@@ -1,3 +1,5 @@
+"use client";
+
 import { useCallback, useEffect, useState } from "react";
 import {
   Accordion,
@@ -20,6 +22,7 @@ interface Accordions {
 }
 
 const AmigoAccordion = ({ amigos }: AmigosAccordionProps) => {
+  const [amigosInternos, setAmigosInternos] = useState<IAmigo[]>([]);
   const [accordions, setAccordions] = useState<Accordions>({
     amigosAceitos: [],
     amigosPendentes: [],
@@ -34,17 +37,18 @@ const AmigoAccordion = ({ amigos }: AmigosAccordionProps) => {
   }, []);
 
   const removerAmigoLista = (amigoId: number) => {
-    const novosAmigos = amigos.filter((amigo) => amigo.amigoId !== amigoId);
-    console.log("novos amigos", novosAmigos);
-    inicializarAccordions(novosAmigos);
+    setAmigosInternos((prev) =>
+      prev.filter((amigo) => amigo.amigoId !== amigoId)
+    );
   };
 
   useEffect(() => {
-    const inicializar = () => {
-      inicializarAccordions(amigos);
-    };
-    inicializar();
-  }, [inicializarAccordions, amigos]);
+    setAmigosInternos(amigos);
+  }, [amigos]);
+
+  useEffect(() => {
+    inicializarAccordions(amigosInternos);
+  }, [amigosInternos, inicializarAccordions]);
 
   return (
     <Accordion
@@ -72,7 +76,7 @@ const AmigoAccordion = ({ amigos }: AmigosAccordionProps) => {
                 key={amigo.amigoId}
                 amigo={amigo}
                 status={"Aceito"}
-                removerAmigoLista={() => removerAmigoLista}
+                removerAmigoLista={removerAmigoLista}
               />
             ))
           ) : (
@@ -102,7 +106,7 @@ const AmigoAccordion = ({ amigos }: AmigosAccordionProps) => {
                 key={amigo.amigoId}
                 amigo={amigo}
                 status={"Pendente"}
-                removerAmigoLista={() => removerAmigoLista}
+                removerAmigoLista={removerAmigoLista}
               />
             ))
           ) : (
@@ -132,7 +136,7 @@ const AmigoAccordion = ({ amigos }: AmigosAccordionProps) => {
                 key={amigo.amigoId}
                 amigo={amigo}
                 status={"Recusado"}
-                removerAmigoLista={(id: number) => removerAmigoLista(id)}
+                removerAmigoLista={removerAmigoLista}
               />
             ))
           ) : (

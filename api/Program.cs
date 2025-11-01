@@ -1,4 +1,4 @@
-using api.Models;
+﻿using api.Models;
 using api.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +14,10 @@ builder.Services.AddControllers().AddNewtonsoftJson(options =>
         options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
     );
 
+builder.Services.AddControllers(options =>
+    options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true //configura��o para n�o haver valida��o da model
+);
+
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSignalR();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -26,7 +30,7 @@ builder.Services.AddMvc(options =>
 builder.Services.AddDbContext<ChatContext>(options =>
     options.UseMySql(
         builder.Configuration.GetConnectionString("MySQL"),
-        new MySqlServerVersion(new Version(8, 0, 42)) // ajuste para a sua vers�o do MySQL
+        new MySqlServerVersion(new Version(8, 0, 42)) // ajuste para a sua versão do MySQL
     )
 );
 

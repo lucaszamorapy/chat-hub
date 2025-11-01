@@ -125,7 +125,7 @@ namespace api.Controllers
                 }
             }
 
-            return NoContent();
+            return Ok(new Message<ConversaUsuario>("Conversa usuário atualizado com sucesso!.", conversausuarioexiste, true));
         }
 
         // POST: api/ConversaUsuarios
@@ -167,7 +167,7 @@ namespace api.Controllers
             _context.ConversaUsuarios.Remove(conversausuario);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok(new Message<ConversaUsuario>("Conversa usuário excluído com sucesso!", new ConversaUsuario { }, false));
         }
 
         private bool ConversaUsuariosExists(int id)

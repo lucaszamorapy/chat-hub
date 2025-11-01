@@ -44,27 +44,27 @@ namespace api.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Mensagen>> GetMensagen(int id)
         {
-            var mensagen = await _context.Mensagens.FindAsync(id);
+            var mensagem = await _context.Mensagens.FindAsync(id);
 
-            if (mensagen == null)
+            if (mensagem == null)
             {
                 return BadRequest(new Message<Mensagen>("Ocorreu um erro ao obter a mensagem", new Mensagen { }, true));
             }
 
-            return mensagen;
+            return Ok(new Message<Mensagen>("", mensagem, false));
         }
 
         // PUT: api/Mensagens/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutMensagen(int id, Mensagen mensagen)
+        public async Task<IActionResult> PutMensagen(int id, Mensagen mensagem)
         {
-            if (id != mensagen.MensagemId)
+            if (id != mensagem.MensagemId)
             {
                 return BadRequest(new Message<Mensagen>("Mensagem não encontrada.", new Mensagen { }, true));
             }
 
-            _context.Entry(mensagen).State = EntityState.Modified;
+            _context.Entry(mensagem).State = EntityState.Modified;
 
             try
             {
@@ -82,7 +82,7 @@ namespace api.Controllers
                 }
             }
 
-            return NoContent();
+            return Ok(new Message<Mensagen>("Mensagem atualizada com sucesso!", mensagem, false));
         }
 
         // POST: api/Mensagens
@@ -152,16 +152,16 @@ namespace api.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMensagen(int id)
         {
-            var mensagen = await _context.Mensagens.FindAsync(id);
-            if (mensagen == null)
+            var mensagem = await _context.Mensagens.FindAsync(id);
+            if (mensagem == null)
             {
-                return BadRequest(new Message<Mensagen>("Mensagem não encontrada.", new Mensagen { }, true));
+                return NotFound(new Message<Mensagen>("Mensagem não encontrada.", new Mensagen { }, true));
             }
 
-            _context.Mensagens.Remove(mensagen);
+            _context.Mensagens.Remove(mensagem);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok(new Message<Mensagen>("Mensagem excluído com sucesso!", new Mensagen { }, false));
         }
 
         private bool MensagenExists(int id)

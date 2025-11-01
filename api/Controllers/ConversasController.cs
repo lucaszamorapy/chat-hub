@@ -33,7 +33,7 @@ namespace api.Controllers
                     .Include(e => e.Mensagens)
                     .ToListAsync();
 
-                return Ok(conversas);
+                return Ok(new Message<List<Conversa>>("", conversas, false));
             }
             catch
             {
@@ -43,7 +43,7 @@ namespace api.Controllers
 
         // GET: api/Conversas/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<object>> GetConversa(int id)
+        public async Task<ActionResult<Conversa>> GetConversa(int id)
         {
             var conversa = await _context.Conversas
                 .Where(c => c.ConversaId == id)
@@ -79,7 +79,7 @@ namespace api.Controllers
                 return BadRequest(new Message<Conversa>("Conversa não encontrada.", new Conversa { }, true));
             }
 
-            return Ok(conversa);
+            return Ok(new Message<object>("", conversa, false));
         }
 
 
@@ -103,7 +103,7 @@ namespace api.Controllers
             {
                 if (!ConversaExists(id))
                 {
-                    return NotFound();
+                    return NotFound((new Message<Conversa>("Conversa não encontrada.", new Conversa { }, true));
                 }
                 else
                 {

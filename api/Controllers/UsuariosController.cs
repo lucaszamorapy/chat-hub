@@ -30,7 +30,8 @@ namespace api.Controllers
         {
             try
             {
-                return await _context.Usuarios.ToListAsync();
+                var usuarios = await _context.Usuarios.ToListAsync();
+                return Ok(new Message<List<Usuario>>("", usuarios, false));
             }
             catch
             {

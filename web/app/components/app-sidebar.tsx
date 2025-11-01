@@ -28,6 +28,7 @@ import { useCallback, useEffect, useState } from "react";
 import ConversaCard from "./conversa-card";
 import { getAmigosByUsuario } from "../_actions/amigos";
 import AmigoAccordion from "./amigo-accordion";
+import AdicionarAmigo from "./adicionar-amigo";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [itemAtivo, setItemAtivo] = useState("Conversas");
@@ -101,16 +102,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   ];
 
   const filtrar = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const valor = e.target.value.toLocaleLowerCase();
+    const valor = e.target.value.toLowerCase();
     if (filtro === "conversas") {
       const conversasFiltradas = conversasClone?.filter(
         (conversa: IConversa) => {
           const nomeInclui = conversa.conversaNome
-            .toLocaleLowerCase()
+            .toLowerCase()
             .includes(valor);
           const mensagemInclui = conversa.mensagens?.some(
             (mensagem: IMensagem) =>
-              mensagem.mensagem.toLocaleLowerCase().includes(valor)
+              mensagem.mensagem.toLowerCase().includes(valor)
           );
           return nomeInclui || mensagemInclui;
         }
@@ -118,10 +119,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       setConversas(conversasFiltradas || conversasClone);
     } else {
       const amigosFiltrados = amigosClone?.filter((amigo: IAmigo) => {
-        const nomeInclui = amigo.nomeAmigo!.toLocaleLowerCase().includes(valor);
-        const apelidoInclui = amigo
-          .apelidoAmigo!.toLocaleLowerCase()
-          .includes(valor);
+        const nomeInclui = amigo.nomeAmigo!.toLowerCase().includes(valor);
+        const apelidoInclui = amigo.apelidoAmigo!.toLowerCase().includes(valor);
         return nomeInclui || apelidoInclui;
       });
       setAmigos(amigosFiltrados || amigosClone);
@@ -165,7 +164,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                     <Command className="size-4" />
                   </div>
-                  <div className="grid flex-1 text-left text-sm leading-tight"></div>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -208,8 +206,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <Sidebar collapsible="none" className="hidden flex-1 md:flex">
         <SidebarHeader className="gap-3.5 border-b p-4">
           <div className="flex w-full items-center justify-between">
-            <div className="text-foreground text-base font-medium">
-              {itemAtivo}
+            <div className="flex items-center gap-1">
+              <span className="text-foreground text-base font-medium">
+                {itemAtivo}
+              </span>
+              {itemAtivo === "Amigos" && amigos && (
+                <AdicionarAmigo
+                  amigosIds={amigos!.map((amigo: IAmigo) => {
+                    return amigo.usuarioAmigoId!;
+                  })}
+                  getAmigos={async () => await getAmigos()}
+                  usuarioId={auth.usuarioId!}
+                />
+              )}
             </div>
             {filtro === "conversas" && (
               <Label className="flex items-center gap-2 text-sm">
