@@ -42,6 +42,10 @@ const AmigoAccordion = ({ amigos }: AmigosAccordionProps) => {
     );
   };
 
+  const adicionarAmigoLista = (amigo: IAmigo) => {
+    setAmigosInternos((prev) => [...prev, amigo]);
+  };
+
   useEffect(() => {
     setAmigosInternos(amigos);
   }, [amigos]);
@@ -107,6 +111,7 @@ const AmigoAccordion = ({ amigos }: AmigosAccordionProps) => {
                 amigo={amigo}
                 status={"Pendente"}
                 removerAmigoLista={removerAmigoLista}
+                adicionarAmigoLista={adicionarAmigoLista}
               />
             ))
           ) : (

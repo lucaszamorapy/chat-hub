@@ -1,7 +1,7 @@
 "use server"
 
 import { IMensagem } from '@/app/types/mensagens';
-import { api } from '..';
+import { api, formatarError } from '..';
 import { IConversa, IConversaUsuario } from '@/app/types/conversas';
 
 export const getConversasByUsuario = async (usuarioId: number) => {
@@ -10,7 +10,7 @@ export const getConversasByUsuario = async (usuarioId: number) => {
     return data;
   } catch (error: any) {
     console.error(error)
-    return error.response?.data;
+    return formatarError(error.response?.data.mensagem || error.response?.data.title);
   }
 }
 
@@ -20,7 +20,7 @@ export const visualizarMensagens = async (mensagens: IMensagem[]) => {
     return data;
   } catch (error: any) {
     console.error(error)
-    return error.response?.data;
+    return formatarError(error.response?.data.mensagem || error.response?.data.title);
   }
 }
 
@@ -30,7 +30,7 @@ export const criarConversa = async (conversa: IConversa) => {
     return data;
   } catch (error: any) {
     console.error(error)
-    return error.response?.data;
+    return formatarError(error.response?.data.mensagem || error.response?.data.title);
   }
 }
 
@@ -40,6 +40,6 @@ export const criarConversaUsuarios = async (conversaUsuarios: IConversaUsuario) 
     return data;
   } catch (error: any) {
     console.error(error)
-    return error.response?.data;
+    return formatarError(error.response?.data.mensagem || error.response?.data.title);
   }
 }

@@ -5,7 +5,7 @@ export interface IConversa {
   usuarioId?: number;
   conversaNome: string;
   conversaFoto?: string | null;
-  grupo: boolean;
+  grupo: number;
   mensagens?: IMensagem[];
   conversaUsuarios?: IConversaUsuario[];
   regidh?: Date;

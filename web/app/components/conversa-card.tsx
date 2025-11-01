@@ -33,6 +33,7 @@ const ConversaCard = ({
       console.error(error);
     }
   };
+
   return (
     <>
       <div key={conversa.conversaId} onClick={() => visualizarTodasMensagens()}>

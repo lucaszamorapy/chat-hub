@@ -1,7 +1,7 @@
 "use server";
 
 import { ILogin, IUsuario } from '@/app/types/usuarios';
-import { api } from '..';
+import { api, formatarError } from '..';
 import { cookies } from 'next/headers';
 
 export const login = async (credenciais: ILogin) => {
@@ -17,7 +17,7 @@ export const login = async (credenciais: ILogin) => {
 
     return data;
   } catch (error: any) {
-    return error.response?.data;
+    return formatarError(error.response?.data.mensagem || error.response?.data.title);
   }
 };
 
@@ -35,7 +35,7 @@ export const cadastro = async (credenciais: IUsuario) => {
 
     return data;
   } catch (error: any) {
-    return error.response?.data;
+    return formatarError(error.response?.data.mensagem || error.response?.data.title);
   }
 };
 
@@ -44,7 +44,7 @@ export const alterar = async (usuario: IUsuario) => {
     const { data } = await api.put(`/Usuarios/${usuario.usuarioId}`, usuario);
     return data
   } catch (error: any) {
-    return error.response?.data;
+    return formatarError(error.response?.data.mensagem || error.response?.data.title);
   }
 }
 
@@ -58,6 +58,17 @@ export const getUsuarios = async () => {
     const { data } = await api.get("/Usuarios");
     return data
   } catch (error: any) {
-    return error.response?.data;
+    return formatarError(error.response?.data.mensagem || error.response?.data.title);
+  }
+}
+
+export const getUsuario = async (usuarioId: number) => {
+  try {
+    const { data } = await api.get(`/Usuarios/${usuarioId}`);
+    console.log(data)
+    return data
+  } catch (error: any) {
+    console.log(error)
+    return formatarError(error.response?.data.mensagem || error.response?.data.title);
   }
 }

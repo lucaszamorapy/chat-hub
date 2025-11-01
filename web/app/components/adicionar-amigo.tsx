@@ -18,44 +18,18 @@ import { Input } from "./ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { adicionarAmigo } from "../_actions/amigos";
 import { IAmigo } from "../types/amigos";
+import { Skeleton } from "./ui/skeleton";
 
 interface AdicionarAmigoProps {
-  amigosIds: number[];
-  getAmigos: () => Promise<void>;
+  getAmigos: () => Promise<IAmigo[]>;
   usuarioId: number;
 }
 
-const AdicionarAmigo = ({
-  amigosIds,
-  getAmigos,
-  usuarioId,
-}: AdicionarAmigoProps) => {
+const AdicionarAmigo = ({ getAmigos, usuarioId }: AdicionarAmigoProps) => {
   const [usuarios, setUsuarios] = useState<IUsuario[]>([]);
   const [usuariosClone, setUsuariosClone] = useState<IUsuario[]>([]);
   const [carregando, setCarregando] = useState<boolean>(false);
-
-  const getAllUsuarios = useCallback(async () => {
-    try {
-      const data = await getUsuarios();
-      const usuariosNaoAmigos = data.resultado.filter(
-        (item: IUsuario) =>
-          !amigosIds.includes(item.usuarioId!) && usuarioId !== item.usuarioId
-      );
-      if (!data.erro) {
-        setUsuarios(usuariosNaoAmigos);
-        setUsuariosClone(usuariosNaoAmigos);
-      } else {
-        toast.error(data.mensagem);
-      }
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error(error.message);
-        toast.error(error.message);
-      } else {
-        console.error("Ocorreu um erro:", error);
-      }
-    }
-  }, [amigosIds, usuarioId]);
+  const [open, setOpen] = useState(false);
 
   const filtrar = (e: React.ChangeEvent<HTMLInputElement>) => {
     const valor = e.target.value.toLowerCase();
@@ -98,14 +72,31 @@ const AdicionarAmigo = ({
   };
 
   useEffect(() => {
+    if (!open) return;
     const fetchUsuarios = async () => {
-      await getAllUsuarios();
+      setCarregando(true);
+      const data = await getUsuarios();
+      const amigos = await getAmigos();
+      const amigosIds = amigos.map((a) => a.usuarioAmigoId!);
+      const usuariosNaoAmigos = data.resultado.filter(
+        (item: IUsuario) =>
+          !amigosIds.includes(item.usuarioId!) && usuarioId !== item.usuarioId
+      );
+
+      if (!data.erro) {
+        setUsuarios(usuariosNaoAmigos);
+        setUsuariosClone(usuariosNaoAmigos);
+      } else {
+        toast.error(data.mensagem);
+      }
+      setCarregando(false);
     };
+
     fetchUsuarios();
-  }, [getAllUsuarios]);
+  }, [open, usuarioId]);
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="ghost" size="icon">
           <UserRoundPlus className="text-primary " />
@@ -128,42 +119,61 @@ const AdicionarAmigo = ({
           className={`${usuarios.length > 0 ? "overflow-y-scroll" : ""} h-60`}
         >
           {usuarios && usuarios.length > 0 ? (
-            usuarios.map((usuario: IUsuario) => (
-              <div
-                key={usuario.usuarioId}
-                className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground flex flex-col gap-2 border-b p-4 text-sm leading-tight last:border-b-0"
-              >
-                <div className="flex w-full justify-between">
-                  <div className="flex items-center">
-                    <Avatar className="h-8 mr-3 w-8 rounded-lg">
-                      <AvatarImage
-                        src={usuario.perfilFoto}
-                        alt={usuario.apelido}
-                      />
-                      <AvatarFallback className="rounded-lg">CN</AvatarFallback>
-                    </Avatar>
-
-                    <div className="flex flex-col items-center w-full">
-                      <span className="font-medium truncate">
-                        {usuario.nome}
-                      </span>
-                      <span className="text-xs truncate">
-                        {usuario.apelido}
-                      </span>
+            usuarios.map((usuario: IUsuario) => {
+              if (carregando) {
+                return (
+                  <div
+                    key={usuario.usuarioId}
+                    className="flex items-center mt-5 space-x-4"
+                  >
+                    <Skeleton className="h-12 w-12 rounded-full" />
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-[250px]" />
+                      <Skeleton className="h-4 w-[200px]" />
                     </div>
                   </div>
-                  <div className="flex ">
-                    <Button
-                      loading={carregando}
-                      variant={"ghost"}
-                      onClick={() => adicionar(usuario)}
-                    >
-                      <MailPlus className="text-primary" size={1} />
-                    </Button>
+                );
+              } else {
+                return (
+                  <div
+                    key={usuario.usuarioId}
+                    className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground flex flex-col gap-2 border-b p-4 text-sm leading-tight last:border-b-0"
+                  >
+                    <div className="flex w-full justify-between">
+                      <div className="flex items-center">
+                        <Avatar className="h-8 mr-3 w-8 rounded-lg">
+                          <AvatarImage
+                            src={usuario.perfilFoto}
+                            alt={usuario.apelido}
+                          />
+                          <AvatarFallback className="rounded-lg">
+                            CN
+                          </AvatarFallback>
+                        </Avatar>
+
+                        <div className="flex flex-col items-center w-full">
+                          <span className="font-medium truncate">
+                            {usuario.nome}
+                          </span>
+                          <span className="text-xs truncate">
+                            {usuario.apelido}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex ">
+                        <Button
+                          loading={carregando}
+                          variant={"ghost"}
+                          onClick={() => adicionar(usuario)}
+                        >
+                          <MailPlus className="text-primary" size={1} />
+                        </Button>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-            ))
+                );
+              }
+            })
           ) : (
             <div className="text-xs text-center text-muted-foreground p-2">
               Nenhum usuário encontrado.

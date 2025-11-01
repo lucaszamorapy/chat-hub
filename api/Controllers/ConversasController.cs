@@ -1,13 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using api.DTO;
+using api.Models;
+using api.Services;
+using Humanizer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using api.Services;
-using api.Models;
-using api.DTO;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace api.Controllers
 {
@@ -103,7 +104,7 @@ namespace api.Controllers
             {
                 if (!ConversaExists(id))
                 {
-                    return NotFound((new Message<Conversa>("Conversa não encontrada.", new Conversa { }, true));
+                    return NotFound((new Message<Conversa>("Conversa não encontrada.", new Conversa { }, true)));
                 }
                 else
                 {
@@ -138,16 +139,15 @@ namespace api.Controllers
                 _context.Conversas.Add(nova);
                 await _context.SaveChangesAsync();
 
-                foreach (var e in conversaDto.ConversaUsuarios)
+                var usuariosParaAdicionar = conversaDto.ConversaUsuarios.Select(u => new ConversaUsuario
                 {
-                    _context.ConversaUsuarios.Add(new ConversaUsuario
-                    {
-                        ConversaId = nova.ConversaId,
-                        UsuarioId = e.UsuarioId,
-                        Cargo = e.Cargo,
-                        UsuarioEntrou = DateTime.Now
-                    });
-                }
+                    ConversaId = nova.ConversaId,
+                    UsuarioId = u.UsuarioId,
+                    Cargo = u.Cargo,
+                    UsuarioEntrou = DateTime.Now
+                }).ToList();
+
+                _context.ConversaUsuarios.AddRange(usuariosParaAdicionar);
 
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();

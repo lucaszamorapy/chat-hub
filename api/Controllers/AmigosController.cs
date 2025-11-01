@@ -47,7 +47,7 @@ namespace api.Controllers
         [HttpGet("usuario/{id}")]
         public async Task<ActionResult<IEnumerable<Vwamigo>>> GetAmigoByUsuario(int id)
         {
-            var amigos = await _context.Vwamigos.Where(e => e.UsuarioId == id).ToListAsync();
+            var amigos = await _context.Vwamigos.Where(e => e.UsuarioId == id || e.UsuarioAmigoId == id).ToListAsync();
 
             if (amigos == null)
             {
@@ -63,6 +63,8 @@ namespace api.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutAmigo(int id, Amigo amigo)
         {
+            Vwamigo amigoView = new Vwamigo();
+
             if (id != amigo.AmigoId)
             {
                 return BadRequest(new Message<List<Amigo>>("Ocorreu um erro ao alterar o seu amigo", new List<Amigo>(), true));
@@ -73,6 +75,8 @@ namespace api.Controllers
             try
             {
                 await _context.SaveChangesAsync();
+                amigoView = await _context.Vwamigos.Where(e => e.AmigoId == amigo.AmigoId).FirstOrDefaultAsync();
+
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -86,7 +90,7 @@ namespace api.Controllers
                 }
             }
 
-            return Ok(new Message<Amigo>("Amigo atualizado com sucesso!.", amigo, false));
+            return Ok(new Message<Vwamigo>("Pedido de amizade aceito com sucesso!.", amigoView, false));
         }
 
         // POST: api/Amigos

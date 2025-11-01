@@ -63,6 +63,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   }, [auth.usuarioId]);
 
   const getAmigos = async () => {
+    let resultado;
     try {
       if (auth.usuarioId) {
         const amigosData = await getAmigosByUsuario(auth.usuarioId);
@@ -73,6 +74,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           console.error(amigosData.mensagem);
           toast.error(amigosData.mensagem);
         }
+        resultado = amigosData.resultado;
       }
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -81,7 +83,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       } else {
         console.error("Ocorreu um erro:", error);
       }
+      resultado = [];
     }
+    return resultado;
   };
 
   const items = [
@@ -212,9 +216,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               </span>
               {itemAtivo === "Amigos" && amigos && (
                 <AdicionarAmigo
-                  amigosIds={amigos!.map((amigo: IAmigo) => {
-                    return amigo.usuarioAmigoId!;
-                  })}
                   getAmigos={async () => await getAmigos()}
                   usuarioId={auth.usuarioId!}
                 />

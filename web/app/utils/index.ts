@@ -43,3 +43,4 @@ export const formatarData = (data: string | number | Date, formato: string = "pa
   }
   return retorno;
 }
+

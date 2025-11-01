@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using NuGet.Configuration;
+using System;
 using System.Configuration;
 
 
@@ -50,7 +51,7 @@ namespace api.Controllers
                 return BadRequest(new Message<Usuario>("Ocorreu um erro ao obter o usuário.", new Usuario { }, true));
             }
 
-            return usuario;
+            return Ok(new Message<Usuario>("", usuario, false));
         }
 
         // PUT: api/Usuarios/5
