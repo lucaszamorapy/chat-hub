@@ -23,6 +23,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import Link from "next/link";
+import { InputFile } from "./ui/input-file";
 
 const formSchema = z.object({
   email: z.string().email({
@@ -38,6 +39,8 @@ const formSchema = z.object({
 const CadastroForm = ({ className, ...props }: React.ComponentProps<"div">) => {
   const [visualizar, setVisualizar] = useState<boolean>(false);
   const [carregando, setCarregando] = useState<boolean>(false);
+  const [perfilFoto, setPerfilFoto] = useState<File | null>(null);
+
   const { setAuth } = useAuth();
   const rota = useRouter();
 
@@ -54,14 +57,22 @@ const CadastroForm = ({ className, ...props }: React.ComponentProps<"div">) => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setCarregando(true);
     try {
-      const data = await cadastro(values);
-      console.log("data", data);
+      const formData = new FormData();
+      formData.append("email", values.email);
+      formData.append("nome", values.nome);
+      formData.append("apelido", values.apelido);
+      formData.append("senha", values.senha);
+
+      if (perfilFoto) {
+        formData.append("perfilFoto", perfilFoto);
+      }
+      const data = await cadastro(formData);
       if (!data.erro) {
         setAuth({
           nome: data.resultado.usuario.nome,
           usuarioId: data.resultado.usuario.usuarioId,
           apelido: data.resultado.usuario.apelido,
-          perfilFoto: data.resultado.perfilFoto,
+          perfilFoto: data.resultado.usuario.perfilFoto,
         });
         localStorage.setItem("usuario", JSON.stringify(data.resultado.usuario));
         rota.push("/");
@@ -120,6 +131,14 @@ const CadastroForm = ({ className, ...props }: React.ComponentProps<"div">) => {
                       <FormMessage />
                     </FormItem>
                   )}
+                />
+                <InputFile
+                  label="Foto de Perfil"
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    if (e.target.files && e.target.files.length > 0) {
+                      setPerfilFoto(e.target.files[0]);
+                    }
+                  }}
                 />
                 <FormField
                   control={form.control}

@@ -33,9 +33,13 @@ namespace api.Models
         }
         private async Task BeforeSaveChanges()
         {
-
+            int? userId = null;
             var context = HttpContext?.HttpContext;
-            var userId = TokenService.GetTokenUserId(context);
+            if (context != null && context.Request.Headers.ContainsKey("Authorization"))
+            {
+                userId = TokenService.GetTokenUserId(context);
+            }
+
             ChangeTracker.DetectChanges();
 
             foreach (var entry in ChangeTracker.Entries())
@@ -45,9 +49,10 @@ namespace api.Models
                     case EntityState.Added:
                         //entry.CurrentValues.Properties.Where(e=>e.FindColumn)
                         entry.Properties.Where(e => e.Metadata.Name == "Regidh").FirstOrDefault().CurrentValue = DateTime.Now;
-                        entry.Properties.Where(e => e.Metadata.Name == "Regiusu").FirstOrDefault().CurrentValue = userId;
+                        entry.Properties.FirstOrDefault(e => e.Metadata.Name == "Regiusu")!.CurrentValue = userId ?? 0;
                         entry.Properties.Where(e => e.Metadata.Name == "Regadh").FirstOrDefault().CurrentValue = DateTime.Now;
-                        entry.Properties.Where(e => e.Metadata.Name == "Regausu").FirstOrDefault().CurrentValue = userId;
+                        entry.Properties.FirstOrDefault(e => e.Metadata.Name == "Regausu")!.CurrentValue = userId ?? 0;
+
                         break;
                     case EntityState.Modified:
                         //var p = entry.Properties.Where(e => e.Metadata.Name == "Regadh").FirstOrDefault();

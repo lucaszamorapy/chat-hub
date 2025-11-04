@@ -21,7 +21,7 @@ export const login = async (credenciais: ILogin) => {
   }
 };
 
-export const cadastro = async (credenciais: IUsuario) => {
+export const cadastro = async (credenciais: FormData) => {
   try {
     const { data } = await api.post("/Usuarios", credenciais);
     const cookieStore = await cookies();

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using api.Services;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace PGMTApi.Services
@@ -7,15 +8,11 @@ namespace PGMTApi.Services
     {
         public void OnException(ExceptionContext context)
         {
-            var result = new ObjectResult(new
+            var resultado = new Message<object>(context.Exception.Message + (context.Exception.InnerException != null ? context.Exception.InnerException.Message : ""), null, true);
+            context.Result = new ObjectResult(resultado)
             {
-                code = 500,
-                message = context.Exception.Message + (context.Exception.InnerException != null ? context.Exception.InnerException.Message : ""),
-                stacktrace = context.Exception.StackTrace
-            });
-
-            result.StatusCode = 500;
-            context.Result = result;
+                StatusCode = 500
+            };
         }
     }
 }

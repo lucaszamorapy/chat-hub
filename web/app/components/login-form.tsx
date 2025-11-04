@@ -54,7 +54,7 @@ const LoginForm = ({ className, ...props }: React.ComponentProps<"div">) => {
           nome: data.resultado.usuario.nome,
           usuarioId: data.resultado.usuario.usuarioId,
           apelido: data.resultado.usuario.apelido,
-          perfilFoto: data.resultado.perfilFoto,
+          perfilFoto: data.resultado.usuario.perfilFoto,
         });
         localStorage.setItem("usuario", JSON.stringify(data.resultado.usuario));
         rota.push("/");

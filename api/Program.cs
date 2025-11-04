@@ -2,6 +2,7 @@
 using api.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using PGMTApi.Services;
 using System.Text;
@@ -20,6 +21,7 @@ builder.Services.AddControllers(options =>
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSignalR();
+builder.Services.AddScoped<GeralService>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -56,6 +58,11 @@ builder.Services.AddAuthentication(x =>
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
+using (var scope = app.Services.CreateScope())
+{
+    var geralService = scope.ServiceProvider.GetRequiredService<GeralService>();
+    geralService.CriarPasta(["usuarios", "mensagens"]); // Cria a pasta geral automaticamente
+}
 app.MapHub<ChatHub>("/chatHub");
 
 
@@ -68,6 +75,15 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+var caminhoUploads = builder.Configuration["caminhoPasta"];
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(caminhoUploads),
+    RequestPath = "/api/uploads"
+});
+
 
 app.UseHttpsRedirection();
 

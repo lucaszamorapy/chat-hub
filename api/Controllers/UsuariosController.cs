@@ -116,32 +116,59 @@ namespace api.Controllers
         // POST: api/Usuarios
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Usuario>> PostUsuario(Usuario usuario)
+        public async Task<ActionResult<Usuario>> PostUsuario([FromForm] UsuarioDTO usuarioDto)
         {
-            var existenome = _context.Usuarios.Any(u => u.Apelido == usuario.Apelido && u.UsuarioId != usuario.UsuarioId);
-            if (existenome)
+            var existeNome = _context.Usuarios.Any(u => u.Apelido == usuarioDto.Apelido);
+            if (existeNome)
             {
                 return BadRequest(new Message<object>("Apelido já cadastrado no sistema.", new { }, true));
             }
 
-            usuario.Senha = BCrypt.Net.BCrypt.HashPassword(usuario.Senha);
+            var senhaCriptografada = BCrypt.Net.BCrypt.HashPassword(usuarioDto.Senha);
+
+            var usuario = new Usuario
+            {
+                Nome = usuarioDto.Nome,
+                Apelido = usuarioDto.Apelido,
+                Senha = senhaCriptografada,
+                Email = usuarioDto.Email,
+            };
 
             _context.Usuarios.Add(usuario);
             await _context.SaveChangesAsync();
 
+            var caminho = Path.Combine("usuarios", $"usuario_{usuario.UsuarioId}", "perfil");
+            List<string> caminhoLista = new List<string> { caminho };
+
+            var geralService = new GeralService(_configuration);
+            geralService.CriarPasta(caminhoLista);
+
+            if (usuarioDto.PerfilFoto != null)
+            {
+                var caminhoArquivo = await geralService.SalvarArquivo(
+                    usuarioDto.PerfilFoto,
+                    caminho
+                );
+
+                usuario.PerfilFoto = Path.GetFileName(caminhoArquivo);
+                await _context.SaveChangesAsync();
+            }
+
             var token = TokenService.GenerateToken(usuario);
             usuario.Senha = "";
+
             return Ok(new Message<object>($"Bem-vindo, {usuario.Nome}!", new
             {
-                usuario = usuario,
-                token = token
+                usuario,
+                token
             }, false));
         }
+
 
         // POST: api/Usuarios/login
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost("login")]
-        public async Task<ActionResult<Usuario>> PostUsuarioLogin(UsuarioDTO usuario)
+        public async Task<ActionResult<Usuario>> PostUsuarioLogin(Usuario usuario)
         {
             var existeusuario = await _context.Usuarios.Where(u => u.Apelido == usuario.Apelido).FirstOrDefaultAsync();
 
