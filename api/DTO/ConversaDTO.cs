@@ -3,8 +3,8 @@
     public class ConversaDTO
     {
         public string ConversaNome { get; set; } = null!;
-        public string? ConversaFoto { get; set; }
-        public sbyte Grupo { get; set; }
+        public IFormFile? ConversaFoto { get; set; }
+        public string Grupo { get; set; }
         public List<ConversaUsuarioDTO> ConversaUsuarios { get; set; } = new();
     }
 

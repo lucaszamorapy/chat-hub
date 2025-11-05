@@ -1,4 +1,5 @@
-﻿using api.Models;
+﻿using api.DTO;
+using api.Models;
 using api.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -25,7 +26,7 @@ namespace api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Amigo>>> GetAmigos()
         {
-            var amigos =  await _context.Amigos.ToListAsync();
+            var amigos = await _context.Amigos.ToListAsync();
             return Ok(new Message<List<Amigo>>("", amigos, false));
         }
 
@@ -48,13 +49,45 @@ namespace api.Controllers
         public async Task<ActionResult<IEnumerable<Vwamigo>>> GetAmigoByUsuario(int id)
         {
             var amigos = await _context.Vwamigos.Where(e => e.UsuarioId == id || e.UsuarioAmigoId == id).ToListAsync();
+            var usuario = await _context.Usuarios.FindAsync(id);
+
+            List<Vwamigo> amigosFiltrados = new List<Vwamigo>();
+
+            foreach (var amigo in amigos)
+            {
+                bool usuarioEhUsuarioId = amigo.UsuarioId == id;
+
+                var amigoFiltrado = new Vwamigo
+                {
+                    UsuarioId = id, 
+                    UsuarioAmigoId = usuarioEhUsuarioId ? amigo.UsuarioAmigoId : amigo.UsuarioId, 
+                    AmigoId = usuarioEhUsuarioId ? amigo.UsuarioAmigoId : amigo.UsuarioId,
+                    NomeAmigo = usuarioEhUsuarioId ? amigo.NomeAmigo : amigo.Nome,
+                    ApelidoAmigo = usuarioEhUsuarioId ? amigo.ApelidoAmigo : amigo.Apelido,
+                    EmailAmigo = usuarioEhUsuarioId ? amigo.EmailAmigo : amigo.Email,
+                    PerfilFotoAmigo = usuarioEhUsuarioId ? amigo.PerfilFotoAmigo : amigo.PerfilFoto,
+                    Status = amigo.Status,
+                    StatusAmigo = usuarioEhUsuarioId ? amigo.StatusAmigo : amigo.StatusUsuario,
+                    Regidh = amigo.Regidh,
+                    Regiusu = amigo.Regiusu,
+                    Regadh = amigo.Regadh,
+                    Regausu = amigo.Regausu
+                };
+
+                amigosFiltrados.Add(amigoFiltrado);
+            }
+
+
+            var resultado = amigosFiltrados
+                   .Where(a => a.UsuarioAmigoId != id)
+                   .ToList();
 
             if (amigos == null)
             {
                 return NotFound(new Message<List<Vwamigo>>("Ocorreu um erro ao obter o seu amigo", new List<Vwamigo>(), true));
             }
 
-            return Ok(new Message<List<Vwamigo>>("", amigos, false));
+            return Ok(new Message<List<Vwamigo>>("", resultado, false));
         }
 
 
@@ -119,7 +152,7 @@ namespace api.Controllers
             var amigo = await _context.Amigos.FindAsync(id);
             if (amigo == null)
             {
-                return NotFound (new Message<Amigo>("Ocorreu um erro ao excluir o seu amigo", new Amigo { }, true));
+                return NotFound(new Message<Amigo>("Ocorreu um erro ao excluir o seu amigo", new Amigo { }, true));
             }
 
             _context.Amigos.Remove(amigo);

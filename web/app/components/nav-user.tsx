@@ -20,7 +20,6 @@ import {
   useSidebar,
 } from "@/app/components/ui/sidebar";
 import { IAuth } from "../contexts/auth-provider";
-import { Button } from "./ui/button";
 import { logout } from "../_actions/usuarios";
 
 interface UsuariosProps {
@@ -29,11 +28,7 @@ interface UsuariosProps {
 
 export function NavUser({ usuario }: UsuariosProps) {
   const { isMobile } = useSidebar();
-
-  const baseUrl =
-    typeof window !== "undefined" ? process.env.NEXT_PUBLIC_APP_URL : "";
-
-  const imageUrl = `${baseUrl}/uploads/usuarios/usuario_${usuario.usuarioId}/perfil/${usuario.perfilFoto}`;
+  const imageUrl = `${process.env.NEXT_PUBLIC_APP_URL}/uploads/usuarios/usuario_${usuario.usuarioId}/perfil/${usuario.perfilFoto}`;
 
   return (
     <SidebarMenu>

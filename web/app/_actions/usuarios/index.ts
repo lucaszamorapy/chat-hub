@@ -31,8 +31,6 @@ export const cadastro = async (credenciais: FormData) => {
       httpOnly: true,
       sameSite: "lax",
     });
-
-
     return data;
   } catch (error: any) {
     return formatarError(error.response?.data.mensagem || error.response?.data.title);
@@ -65,7 +63,6 @@ export const getUsuarios = async () => {
 export const getUsuario = async (usuarioId: number) => {
   try {
     const { data } = await api.get(`/Usuarios/${usuarioId}`);
-    console.log(data)
     return data
   } catch (error: any) {
     console.log(error)

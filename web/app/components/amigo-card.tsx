@@ -47,16 +47,34 @@ const AmigoCard = ({
         conversaFoto: amigo.perfilFotoAmigo ? amigo.perfilFotoAmigo : null,
         grupo: 0,
       };
+
+      console.log(novaConversa);
+
       const novaConversaUsuario: IConversaUsuario[] = usuarios.map(
-        (usuario: number) => {
-          return {
-            usuarioId: usuario,
-            cargo: "Admin",
-          };
-        }
+        (usuario: number) => ({
+          usuarioId: usuario,
+          cargo: "Admin",
+        })
       );
+
       novaConversa = { ...novaConversa, conversaUsuarios: novaConversaUsuario };
-      const conversa = await criarConversa(novaConversa);
+
+      const formData = new FormData();
+      formData.append("conversaNome", novaConversa.conversaNome);
+      formData.append("grupo", novaConversa.grupo.toString());
+
+      if (novaConversa.conversaFoto) {
+        formData.append("conversaFoto", novaConversa.conversaFoto);
+      }
+
+      novaConversa.conversaUsuarios!.forEach((usuario, index) => {
+        formData.append(
+          `conversaUsuarios[${index}].usuarioId`,
+          usuario.usuarioId.toString()
+        );
+        formData.append(`conversaUsuarios[${index}].cargo`, usuario.cargo);
+      });
+      const conversa = await criarConversa(formData);
       if (!conversa.erro) {
         rota.push(`conversa/${conversa.resultado.conversaId}`);
       } else {

@@ -29,6 +29,7 @@ import ConversaCard from "./conversa-card";
 import { getAmigosByUsuario } from "../_actions/amigos";
 import AmigoAccordion from "./amigo-accordion";
 import AdicionarAmigo from "./adicionar-amigo";
+import AdicionarGrupo from "./adicionar-grupo";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [itemAtivo, setItemAtivo] = useState("Conversas");
@@ -216,6 +217,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               </span>
               {itemAtivo === "Amigos" && amigos && (
                 <AdicionarAmigo
+                  getAmigos={async () => await getAmigos()}
+                  usuarioId={auth.usuarioId!}
+                />
+              )}
+              {itemAtivo === "Conversas" && (
+                <AdicionarGrupo
                   getAmigos={async () => await getAmigos()}
                   usuarioId={auth.usuarioId!}
                 />

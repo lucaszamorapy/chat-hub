@@ -11,7 +11,7 @@ import {
   DialogTrigger,
 } from "./ui/dialog";
 import { IUsuario } from "../types/usuarios";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { getUsuarios } from "../_actions/usuarios";
 import { Input } from "./ui/input";

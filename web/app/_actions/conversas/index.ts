@@ -24,7 +24,7 @@ export const visualizarMensagens = async (mensagens: IMensagem[]) => {
   }
 }
 
-export const criarConversa = async (conversa: IConversa) => {
+export const criarConversa = async (conversa: FormData) => {
   try {
     const { data } = await api.post("/Conversas", conversa)
     return data;

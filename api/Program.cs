@@ -9,33 +9,48 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// ---------------------
+// 🔧 Configuração de Serviços
+// ---------------------
 
 builder.Services.AddControllers().AddNewtonsoftJson(options =>
-        options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
-    );
+    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+);
 
 builder.Services.AddControllers(options =>
-    options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true //configura��o para n�o haver valida��o da model
+    options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true
 );
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSignalR();
 builder.Services.AddScoped<GeralService>();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
 builder.Services.AddMvc(options =>
 {
     options.Filters.Add(typeof(JsonExceptionFilter));
 });
+
 builder.Services.AddDbContext<ChatContext>(options =>
     options.UseMySql(
         builder.Configuration.GetConnectionString("MySQL"),
-        new MySqlServerVersion(new Version(8, 0, 42)) // ajuste para a sua versão do MySQL
+        new MySqlServerVersion(new Version(8, 0, 42))
     )
 );
 
+// 🧱 CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll",
+        policy => policy
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader());
+});
+
+// 🔐 JWT
 var key = Encoding.ASCII.GetBytes(api.Config.Secret);
 builder.Services.AddAuthentication(x =>
 {
@@ -57,25 +72,31 @@ builder.Services.AddAuthentication(x =>
 
 builder.Services.AddAuthorization();
 
+// ---------------------
+// 🚀 Build e Configuração do Pipeline
+// ---------------------
+
 var app = builder.Build();
+
+app.UseCors("AllowAll");
+
+// Cria pastas iniciais
 using (var scope = app.Services.CreateScope())
 {
     var geralService = scope.ServiceProvider.GetRequiredService<GeralService>();
-    geralService.CriarPasta(["usuarios", "mensagens"]); // Cria a pasta geral automaticamente
+    geralService.CriarPasta(["usuarios", "conversas"]);
 }
+
 app.MapHub<ChatHub>("/chatHub");
 
-
-//Scaffold-DbContext "server=localhost;port=3306;database=chat;user=root;password=Betoven2606" Pomelo.EntityFrameworkCore.MySql -OutputDir Models  -Force
-
-
-// Configure the HTTP request pipeline.
+// Swagger
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
+// 📂 Configuração de arquivos estáticos
 var caminhoUploads = builder.Configuration["caminhoPasta"];
 
 app.UseStaticFiles(new StaticFileOptions
@@ -84,9 +105,7 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = "/api/uploads"
 });
 
-
 app.UseHttpsRedirection();
-
 app.UseAuthentication();
 app.UseAuthorization();
 
