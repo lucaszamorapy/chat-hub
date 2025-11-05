@@ -2,11 +2,6 @@
 
 import { ChevronsUpDown, LogOut } from "lucide-react";
 import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/app/components/ui/avatar";
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -21,6 +16,7 @@ import {
 } from "@/app/components/ui/sidebar";
 import { IAuth } from "../contexts/auth-provider";
 import { logout } from "../_actions/usuarios";
+import CAvatar from "./ui/c-avatar";
 
 interface UsuariosProps {
   usuario: IAuth;
@@ -39,11 +35,7 @@ export function NavUser({ usuario }: UsuariosProps) {
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground md:h-8 md:p-0"
             >
-              <Avatar className="h-8 w-8 rounded-4xl">
-                <AvatarImage src={imageUrl} alt={usuario.nome!} />
-                <AvatarFallback className="rounded-lg">CN</AvatarFallback>
-              </Avatar>
-
+              <CAvatar src={imageUrl} alt={usuario.apelido!} />
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{usuario.nome}</span>
                 <span className="truncate text-xs">{usuario.apelido}</span>
@@ -59,10 +51,7 @@ export function NavUser({ usuario }: UsuariosProps) {
           >
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                <Avatar className="h-8 w-8 rounded-4xl">
-                  <AvatarImage src={imageUrl} alt={usuario.nome!} />
-                  <AvatarFallback className="rounded-lg">CN</AvatarFallback>
-                </Avatar>
+                <CAvatar src={imageUrl} alt={usuario.apelido!} />
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">{usuario.nome}</span>
                   <span className="truncate text-xs">{usuario.apelido}</span>

@@ -14,7 +14,6 @@ import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { getUsuarios } from "../_actions/usuarios";
 import { Input } from "./ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { IAmigo } from "../types/amigos";
 import { Skeleton } from "./ui/skeleton";
 import z from "zod";
@@ -33,6 +32,7 @@ import { useRouter } from "next/navigation";
 import { criarConversa } from "../_actions/conversas";
 import { IConversaUsuario } from "../types/conversas";
 import { useAuth } from "../contexts/auth-provider";
+import CAvatar from "./ui/c-avatar";
 
 interface AdicionarAmigoProps {
   getAmigos: () => Promise<IAmigo[]>;
@@ -243,16 +243,10 @@ const AdicionarGrupo = ({ getAmigos, usuarioId }: AdicionarAmigoProps) => {
                       >
                         <div className="flex w-full justify-between">
                           <div className="flex items-center">
-                            <Avatar className="h-8 mr-3 w-8 rounded-4xl">
-                              <AvatarImage
-                                src={`${process.env.NEXT_PUBLIC_APP_URL}/uploads/usuarios/usuario_${amigo.usuarioAmigoId}/perfil/${amigo.perfilFotoAmigo}`}
-                                alt={amigo.apelidoAmigo}
-                              />
-                              <AvatarFallback className="rounded-lg">
-                                CN
-                              </AvatarFallback>
-                            </Avatar>
-
+                            <CAvatar
+                              src={`${process.env.NEXT_PUBLIC_APP_URL}/uploads/usuarios/usuario_${amigo.usuarioAmigoId}/perfil/${amigo.perfilFotoAmigo}`}
+                              alt={amigo.apelidoAmigo!}
+                            />
                             <div className="flex flex-col items-center w-full">
                               <span className="font-medium truncate">
                                 {amigo.nomeAmigo}

@@ -2,11 +2,11 @@ import { useState } from "react";
 import { IConversa } from "../types/conversas";
 import { formatarData } from "../utils";
 import { Badge } from "./ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import Link from "next/link";
 import { IMensagem } from "../types/mensagens";
 import { toast } from "sonner";
 import { visualizarMensagens } from "../_actions/conversas";
+import CAvatar from "./ui/c-avatar";
 
 interface ConversaCardProps {
   conversa: IConversa;
@@ -33,7 +33,6 @@ const ConversaCard = ({
       console.error(error);
     }
   };
-
   return (
     <>
       <div key={conversa.conversaId} onClick={() => visualizarTodasMensagens()}>
@@ -42,15 +41,11 @@ const ConversaCard = ({
           className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground flex flex-col gap-2  border-b p-4 text-sm leading-tight"
         >
           <div className="flex items-center w-full">
-            <Avatar className="h-8 mr-3 w-8 rounded-lg">
-              <AvatarImage
-                src={conversa.conversaFoto ? conversa.conversaFoto : ""}
-                alt={conversa.conversaNome}
-              />
-              <AvatarFallback className="rounded-lg">CN</AvatarFallback>
-            </Avatar>
-
-            <div className="flex items-center justify-between w-full">
+            <CAvatar
+              src={`${process.env.NEXT_PUBLIC_APP_URL}/uploads/conversas/conversa_${conversa.conversaId}/perfil/${conversa.conversaFoto}`}
+              alt={conversa.conversaNome}
+            />
+            <div className="flex items-center ml-2 justify-between w-full">
               <span className="font-medium truncate">
                 {conversa.conversaNome}
               </span>

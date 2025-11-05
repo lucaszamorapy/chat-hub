@@ -2,7 +2,7 @@
 
 import { IMensagem } from '@/app/types/mensagens';
 import { api, formatarError } from '..';
-import { IConversa, IConversaUsuario } from '@/app/types/conversas';
+import { IConversaUsuario } from '@/app/types/conversas';
 
 export const getConversasByUsuario = async (usuarioId: number) => {
   try {

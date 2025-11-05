@@ -57,7 +57,7 @@ namespace api.Controllers
         {
             var conversasUsuario = await _context.Vwconversausuarios
                 .AsNoTracking()
-                .Where(e => e.UsuarioId == id)
+                .Where(e => e.UsuarioId == id).Distinct()
                 .ToListAsync();
 
             if (conversasUsuario == null || !conversasUsuario.Any())

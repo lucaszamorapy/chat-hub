@@ -137,7 +137,7 @@ namespace api.Controllers
                 .Where(e => e.ConversaNome == conversaDto.ConversaNome && usuarioIds.Contains(e.UsuarioId))
                 .FirstOrDefaultAsync();
 
-            if (conversaExiste != null)
+            if (conversaExiste != null && grupo == 0)
             {
                 return Ok(new Message<Vwconversausuario>(null, conversaExiste, false));
             }

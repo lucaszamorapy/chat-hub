@@ -15,10 +15,10 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { getUsuarios } from "../_actions/usuarios";
 import { Input } from "./ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { adicionarAmigo } from "../_actions/amigos";
 import { IAmigo } from "../types/amigos";
 import { Skeleton } from "./ui/skeleton";
+import CAvatar from "./ui/c-avatar";
 
 interface AdicionarAmigoProps {
   getAmigos: () => Promise<IAmigo[]>;
@@ -141,16 +141,10 @@ const AdicionarAmigo = ({ getAmigos, usuarioId }: AdicionarAmigoProps) => {
                   >
                     <div className="flex w-full justify-between">
                       <div className="flex items-center">
-                        <Avatar className="h-8 mr-3 w-8 rounded-lg">
-                          <AvatarImage
-                            src={usuario.perfilFoto}
-                            alt={usuario.apelido}
-                          />
-                          <AvatarFallback className="rounded-lg">
-                            CN
-                          </AvatarFallback>
-                        </Avatar>
-
+                        <CAvatar
+                          src={`${process.env.NEXT_PUBLIC_APP_URL}/uploads/usuarios/usuario_${usuario.usuarioId}/perfil/${usuario.perfilFoto}`}
+                          alt={usuario.apelido}
+                        />
                         <div className="flex flex-col items-center w-full">
                           <span className="font-medium truncate">
                             {usuario.nome}
