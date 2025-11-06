@@ -13,37 +13,29 @@ import { Badge } from "./ui/badge";
 
 interface AmigosAccordionProps {
   amigos: IAmigo[];
+  getAmigos: () => Promise<IAmigo[]>;
 }
 
 interface Accordions {
   amigosAceitos: IAmigo[];
   amigosPendentes: IAmigo[];
-  amigosRecusados: IAmigo[];
 }
 
-const AmigoAccordion = ({ amigos }: AmigosAccordionProps) => {
+const AmigoAccordion = ({ amigos, getAmigos }: AmigosAccordionProps) => {
   const [amigosInternos, setAmigosInternos] = useState<IAmigo[]>([]);
   const [accordions, setAccordions] = useState<Accordions>({
     amigosAceitos: [],
     amigosPendentes: [],
-    amigosRecusados: [],
   });
 
   const inicializarAccordions = useCallback((amigos: IAmigo[]) => {
     const amigosAceitos = amigos.filter((a) => a.status === "Aceito");
     const amigosPendentes = amigos.filter((a) => a.status === "Pendente");
-    const amigosRecusados = amigos.filter((a) => a.status === "Recusado");
-    setAccordions({ amigosAceitos, amigosPendentes, amigosRecusados });
+    setAccordions({ amigosAceitos, amigosPendentes });
   }, []);
 
-  const removerAmigoLista = (amigoId: number) => {
-    setAmigosInternos((prev) =>
-      prev.filter((amigo) => amigo.amigoId !== amigoId)
-    );
-  };
-
-  const adicionarAmigoLista = (amigo: IAmigo) => {
-    setAmigosInternos((prev) => [...prev, amigo]);
+  const atualizarListaAmigos = async () => {
+    await getAmigos();
   };
 
   useEffect(() => {
@@ -80,7 +72,7 @@ const AmigoAccordion = ({ amigos }: AmigosAccordionProps) => {
                 key={amigo.amigoId}
                 amigo={amigo}
                 status={"Aceito"}
-                removerAmigoLista={removerAmigoLista}
+                atualizar={() => atualizarListaAmigos()}
               />
             ))
           ) : (
@@ -110,43 +102,12 @@ const AmigoAccordion = ({ amigos }: AmigosAccordionProps) => {
                 key={amigo.amigoId}
                 amigo={amigo}
                 status={"Pendente"}
-                removerAmigoLista={removerAmigoLista}
-                adicionarAmigoLista={adicionarAmigoLista}
+                atualizar={() => atualizarListaAmigos()}
               />
             ))
           ) : (
             <div className="text-xs text-muted-foreground p-2">
               Nenhum pedido de amizade pendente.
-            </div>
-          )}
-        </AccordionContent>
-      </AccordionItem>
-
-      <AccordionItem className="px-4" value="item-3">
-        <AccordionTrigger className="cursor-pointer text-inherit no-underline hover:no-underline hover:text-inherit">
-          <div className="flex items-center gap-2">
-            Recusados
-            <Badge
-              variant="default"
-              className="h-5 min-w-5 rounded-full px-1 text-xs shrink-0 whitespace-nowrap"
-            >
-              {accordions.amigosRecusados.length}
-            </Badge>
-          </div>
-        </AccordionTrigger>
-        <AccordionContent>
-          {accordions.amigosRecusados.length > 0 ? (
-            accordions.amigosRecusados.map((amigo) => (
-              <AmigoCard
-                key={amigo.amigoId}
-                amigo={amigo}
-                status={"Recusado"}
-                removerAmigoLista={removerAmigoLista}
-              />
-            ))
-          ) : (
-            <div className="text-xs text-muted-foreground p-2">
-              Nenhum pedido de amizade recusado.
             </div>
           )}
         </AccordionContent>

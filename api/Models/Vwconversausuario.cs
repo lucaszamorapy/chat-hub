@@ -13,7 +13,7 @@ public partial class Vwconversausuario
 
     public string Cargo { get; set; } = null!;
 
-    public string? ConversaNome { get; set; }
+    public string ConversaNome { get; set; } = null!;
 
     public string? ConversaFoto { get; set; }
 

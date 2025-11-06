@@ -75,25 +75,11 @@ namespace api.Controllers
                     .OrderByDescending(m => m.Regidh)
                     .ToListAsync();
 
-                var usuarioId = TokenService.GetTokenUserId(HttpContext);
-                Usuario outroUsuario = new Usuario();
-
-                if (conversaUsuario.Grupo == 0) 
-                {
-                    outroUsuario = await _context.Usuarios
-                        .Where(u => _context.Vwconversausuarios
-                            .Where(cu => cu.ConversaId == conversaUsuario.ConversaId && cu.UsuarioId != usuarioId)
-                            .Select(cu => cu.UsuarioId)
-                            .Contains(u.UsuarioId)) //se existe no IN ele faz o first or default
-                        .FirstOrDefaultAsync();
-                }
-
-
                 resultado.Add(new
                 {
                     conversaUsuario.ConversaId,
                     conversaUsuario.UsuarioId,
-                    ConversaNome = conversaUsuario.Grupo == 1 ? conversaUsuario.ConversaNome : outroUsuario.Nome,
+                    conversaUsuario.ConversaNome,
                     conversaUsuario.ConversaFoto,
                     conversaUsuario.Grupo,
                     Mensagens = mensagens,

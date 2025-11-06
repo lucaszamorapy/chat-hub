@@ -11,6 +11,7 @@ public partial class ChatContext : DbContext
     {
     }
 
+
     public virtual DbSet<Amigo> Amigos { get; set; }
 
     public virtual DbSet<Conversa> Conversas { get; set; }
@@ -78,12 +79,6 @@ public partial class ChatContext : DbContext
             entity.ToTable("conversas");
 
             entity.Property(e => e.ConversaId).HasColumnName("conversa_id");
-            entity.Property(e => e.ConversaFoto)
-                .HasMaxLength(45)
-                .HasColumnName("conversa_foto");
-            entity.Property(e => e.ConversaNome)
-                .HasMaxLength(255)
-                .HasColumnName("conversa_nome");
             entity.Property(e => e.Grupo).HasColumnName("grupo");
             entity.Property(e => e.Regadh)
                 .HasColumnType("datetime")
@@ -110,7 +105,13 @@ public partial class ChatContext : DbContext
                 .HasDefaultValueSql("'Membro'")
                 .HasColumnType("enum('Membro','Admin')")
                 .HasColumnName("cargo");
+            entity.Property(e => e.ConversaFoto)
+                .HasMaxLength(45)
+                .HasColumnName("conversa_foto");
             entity.Property(e => e.ConversaId).HasColumnName("conversa_id");
+            entity.Property(e => e.ConversaNome)
+                .HasMaxLength(255)
+                .HasColumnName("conversa_nome");
             entity.Property(e => e.Regadh)
                 .HasColumnType("datetime")
                 .HasColumnName("regadh");

@@ -7,10 +7,6 @@ public partial class Conversa
 {
     public int ConversaId { get; set; }
 
-    public string ConversaNome { get; set; } = null!;
-
-    public string? ConversaFoto { get; set; }
-
     public sbyte Grupo { get; set; }
 
     public DateTime Regidh { get; set; }

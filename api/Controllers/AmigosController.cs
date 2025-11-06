@@ -61,7 +61,7 @@ namespace api.Controllers
                 {
                     UsuarioId = id, 
                     UsuarioAmigoId = usuarioEhUsuarioId ? amigo.UsuarioAmigoId : amigo.UsuarioId, 
-                    AmigoId = usuarioEhUsuarioId ? amigo.UsuarioAmigoId : amigo.UsuarioId,
+                    AmigoId = amigo.AmigoId,
                     NomeAmigo = usuarioEhUsuarioId ? amigo.NomeAmigo : amigo.Nome,
                     ApelidoAmigo = usuarioEhUsuarioId ? amigo.ApelidoAmigo : amigo.Apelido,
                     EmailAmigo = usuarioEhUsuarioId ? amigo.EmailAmigo : amigo.Email,

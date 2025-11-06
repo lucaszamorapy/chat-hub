@@ -11,6 +11,10 @@ public partial class ConversaUsuario
 
     public int UsuarioId { get; set; }
 
+    public string? ConversaFoto { get; set; }
+
+    public string ConversaNome { get; set; } = null!;
+
     public DateTime UsuarioEntrou { get; set; }
 
     public string Cargo { get; set; } = null!;

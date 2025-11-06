@@ -1,6 +1,5 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { IAmigo } from "../types/amigos";
 import {
   DropdownMenu,
@@ -22,20 +21,15 @@ import { IConversa, IConversaUsuario } from "../types/conversas";
 import { useRouter } from "next/navigation";
 import { alterarAmigo, excluirAmigo } from "../_actions/amigos";
 import { useAuth } from "../contexts/auth-provider";
+import CAvatar from "./ui/c-avatar";
 
 interface AmigoProps {
   amigo: IAmigo;
   status?: string;
-  removerAmigoLista: (id: number) => void;
-  adicionarAmigoLista?: (amigo: IAmigo) => void;
+  atualizar?: () => void;
 }
 
-const AmigoCard = ({
-  amigo,
-  status,
-  removerAmigoLista,
-  adicionarAmigoLista,
-}: AmigoProps) => {
+const AmigoCard = ({ amigo, status, atualizar }: AmigoProps) => {
   const rota = useRouter();
   const { auth } = useAuth();
 
@@ -43,13 +37,8 @@ const AmigoCard = ({
     try {
       const usuarios = [amigo.usuarioId, amigo.usuarioAmigoId!];
       let novaConversa: IConversa = {
-        conversaNome: amigo.nomeAmigo!,
-        conversaFoto: amigo.perfilFotoAmigo ? amigo.perfilFotoAmigo : null,
         grupo: 0,
       };
-
-      console.log(novaConversa);
-
       const novaConversaUsuario: IConversaUsuario[] = usuarios.map(
         (usuario: number) => ({
           usuarioId: usuario,
@@ -60,12 +49,7 @@ const AmigoCard = ({
       novaConversa = { ...novaConversa, conversaUsuarios: novaConversaUsuario };
 
       const formData = new FormData();
-      formData.append("conversaNome", novaConversa.conversaNome);
       formData.append("grupo", novaConversa.grupo.toString());
-
-      if (novaConversa.conversaFoto) {
-        formData.append("conversaFoto", novaConversa.conversaFoto);
-      }
 
       novaConversa.conversaUsuarios!.forEach((usuario, index) => {
         formData.append(
@@ -94,7 +78,9 @@ const AmigoCard = ({
     try {
       const data = await excluirAmigo(amigo.amigoId!);
       if (!data.erro) {
-        removerAmigoLista(amigo.amigoId!);
+        if (atualizar) {
+          atualizar();
+        }
         toast.success(data.mensagem);
       } else {
         console.error(data.mensagem);
@@ -118,10 +104,8 @@ const AmigoCard = ({
       };
       const data = await alterarAmigo(amigoAceito);
       if (!data.erro) {
-        if (adicionarAmigoLista) {
-          console.log(data);
-          removerAmigoLista(amigo.amigoId!);
-          adicionarAmigoLista(data.resultado);
+        if (atualizar) {
+          atualizar();
           toast.success(data.mensagem);
         }
       } else {
@@ -143,30 +127,15 @@ const AmigoCard = ({
       <div key={amigo.amigoId}>
         <div className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground flex flex-col gap-2 border-b p-4 text-sm leading-tight last:border-b-0">
           <div className="flex w-full justify-between">
-            <div className="flex items-center ">
-              <Avatar className="h-8 mr-3 w-8 rounded-lg">
-                <AvatarImage
-                  src={
-                    auth.usuarioId === amigo.usuarioAmigoId
-                      ? amigo.perfilFoto
-                      : amigo.perfilFotoAmigo
-                  }
-                  alt={amigo.apelidoAmigo}
-                />
-                <AvatarFallback className="rounded-lg">CN</AvatarFallback>
-              </Avatar>
+            <div className="flex items-center gap-2">
+              <CAvatar
+                src={`${process.env.NEXT_PUBLIC_APP_URL}/uploads/usuarios/usuario_${amigo.usuarioAmigoId}/perfil/${amigo.perfilFotoAmigo}`}
+                alt={amigo.apelidoAmigo!}
+              />
 
-              <div className="flex flex-col items-center w-full">
-                <span className="font-medium truncate">
-                  {auth.usuarioId === amigo.usuarioAmigoId
-                    ? amigo.nome
-                    : amigo.nomeAmigo}
-                </span>
-                <span className="text-xs truncate">
-                  {auth.usuarioId === amigo.usuarioAmigoId
-                    ? amigo.apelido
-                    : amigo.apelidoAmigo}
-                </span>
+              <div className="flex flex-col w-full">
+                <span className="font-medium truncate">{amigo.nomeAmigo}</span>
+                <span className="text-xs truncate">{amigo.apelidoAmigo}</span>
               </div>
             </div>
             <DropdownMenu modal={false}>
@@ -188,7 +157,7 @@ const AmigoCard = ({
                       </div>
                     </DropdownMenuItem>
                   )}
-                  {auth.usuarioId !== amigo.usuarioId &&
+                  {auth.usuarioId !== amigo.usuarioAmigoId &&
                     status === "Pendente" && (
                       <DropdownMenuItem
                         className="text-xs cursor-pointer"

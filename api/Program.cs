@@ -112,3 +112,5 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+//Scaffold-DbContext "server=localhost;port=3306;database=chat;user=root;password=Betoven2606" Pomelo.EntityFrameworkCore.MySql -OutputDir Models  -Force

@@ -53,9 +53,9 @@ namespace api.Controllers
                 .Select(c => new
                 {
                     c.ConversaId,
-                    c.ConversaNome,
                     ConversaUsuarios = c.ConversaUsuarios.Select(g => new
                     {
+                        g.ConversaNome,
                         g.ConversaUsuariosId,
                         g.Cargo,
                         Usuario = new
@@ -121,6 +121,9 @@ namespace api.Controllers
         public async Task<ActionResult<Conversa>> PostConversa([FromForm] ConversaDTO conversaDto)
         {
             sbyte grupo = 0;
+            var usuariosParaAdicionar = new List<ConversaUsuario>();
+            string? fotoConversa = null;
+            string? nomeConversa = null;
 
             if (int.TryParse(conversaDto.Grupo.ToString(), out int numero))
             {
@@ -133,22 +136,26 @@ namespace api.Controllers
 
             var usuarioIds = conversaDto.ConversaUsuarios.Select(u => u.UsuarioId).ToList();
 
-            var conversaExiste = await _context.Vwconversausuarios
-                .Where(e => e.ConversaNome == conversaDto.ConversaNome && usuarioIds.Contains(e.UsuarioId))
-                .FirstOrDefaultAsync();
+            var conversaExiste = await _context.Conversas
+             .Where(c => c.Grupo == 0)
+             .Where(c =>
+                 c.ConversaUsuarios.Count == 2 &&
+                 c.ConversaUsuarios.All(cu => usuarioIds.Contains(cu.UsuarioId))
+             )
+             .FirstOrDefaultAsync();
 
             if (conversaExiste != null && grupo == 0)
             {
-                return Ok(new Message<Vwconversausuario>(null, conversaExiste, false));
+                return Ok(new Message<Conversa>(null, conversaExiste, false));
             }
 
             await using var transaction = await _context.Database.BeginTransactionAsync();
 
             try
             {
+
                 var nova = new Conversa
                 {
-                    ConversaNome = conversaDto.ConversaNome,
                     Grupo = grupo
                 };
 
@@ -160,55 +167,69 @@ namespace api.Controllers
                 var caminhoConversa = Path.Combine("conversas", $"conversa_{nova.ConversaId}", "perfil");
                 geralService.CriarPasta(new List<string> { caminhoConversa });
 
-                if (grupo == 0)
+                //caso seja grupo
+                if (grupo == 1)
                 {
-                    foreach (var usuario in conversaDto.ConversaUsuarios)
+                    if (conversaDto.ConversaUsuarios[0].ConversaFoto != null)
                     {
-                        var usuarioDb = await _context.Usuarios.FindAsync(usuario.UsuarioId);
+                        var caminhoArquivo = await geralService.SalvarArquivo(
+                            conversaDto.ConversaUsuarios[0].ConversaFoto,
+                            caminhoConversa);
+                        fotoConversa = Path.GetFileName(caminhoArquivo);
+                    }
 
-                        if (usuarioDb != null)
+                    nomeConversa = conversaDto.ConversaUsuarios[0].ConversaNome;
+                }
+
+                var usuariosIds = conversaDto.ConversaUsuarios.Select(u => u.UsuarioId).ToList();
+                var usuarios = await _context.Usuarios
+                    .Where(u => usuariosIds.Contains(u.UsuarioId))
+                    .ToListAsync();
+
+                foreach (var usuario in conversaDto.ConversaUsuarios)
+                {
+                    //se for conversa privada, pegar a foto do outro usuário
+                    if (grupo == 0)
+                    {
+                        var parceiro = usuarios.FirstOrDefault(u => u.UsuarioId != usuario.UsuarioId);
+
+                        if (parceiro != null)
                         {
-                            if (!string.IsNullOrEmpty(usuarioDb.PerfilFoto))
+                            if (parceiro.PerfilFoto != null)
                             {
-                                var origem = Path.Combine(_configuration["caminhoPasta"], "usuarios", $"usuario_{usuario.UsuarioId}", "perfil", usuarioDb.PerfilFoto); //caminho absoluto!!
-                                var destino = Path.Combine(_configuration["caminhoPasta"], caminhoConversa, usuarioDb.PerfilFoto); //caminho absoluto!!
+                                var origem = Path.Combine(_configuration["caminhoPasta"], "usuarios", $"usuario_{parceiro.UsuarioId}", "perfil", parceiro.PerfilFoto); //caminho absoluto!!
+                                var destino = Path.Combine(_configuration["caminhoPasta"], caminhoConversa, parceiro.PerfilFoto); //caminho absoluto!!
 
                                 if (System.IO.File.Exists(origem))
                                 {
                                     System.IO.File.Copy(origem, destino, overwrite: true);
-                                    nova.ConversaFoto = usuarioDb.PerfilFoto;
-                                    break;
                                 }
+
+                                fotoConversa = parceiro.PerfilFoto;
+                                nomeConversa = parceiro.Nome;
                             }
+                            else
+                            {
+                                fotoConversa = null;
+                            }
+
                         }
                     }
+
+                    usuariosParaAdicionar.Add(new ConversaUsuario
+                    {
+                        ConversaNome = nomeConversa,
+                        ConversaId = nova.ConversaId,
+                        UsuarioId = usuario.UsuarioId,
+                        Cargo = usuario.Cargo,
+                        UsuarioEntrou = DateTime.Now,
+                        ConversaFoto = fotoConversa
+                    });
+
                 }
-
-                if (conversaDto.ConversaFoto != null)
-                {
-                    var caminhoArquivo = await geralService.SalvarArquivo(
-                        conversaDto.ConversaFoto,
-                        caminhoConversa
-                    );
-
-                    nova.ConversaFoto = Path.GetFileName(caminhoArquivo);
-                }
-
-                await _context.SaveChangesAsync();
-
-                var usuariosParaAdicionar = conversaDto.ConversaUsuarios.Select(u => new ConversaUsuario
-                {
-                    ConversaId = nova.ConversaId,
-                    UsuarioId = u.UsuarioId,
-                    Cargo = u.Cargo,
-                    UsuarioEntrou = DateTime.Now
-                }).ToList();
-
                 _context.ConversaUsuarios.AddRange(usuariosParaAdicionar);
-
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
-
                 return Ok(new Message<Conversa>("Conversa criada com sucesso!", nova, false));
             }
             catch (Exception ex)

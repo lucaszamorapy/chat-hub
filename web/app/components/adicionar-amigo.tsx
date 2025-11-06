@@ -140,12 +140,12 @@ const AdicionarAmigo = ({ getAmigos, usuarioId }: AdicionarAmigoProps) => {
                     className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground flex flex-col gap-2 border-b p-4 text-sm leading-tight last:border-b-0"
                   >
                     <div className="flex w-full justify-between">
-                      <div className="flex items-center">
+                      <div className="flex gap-2">
                         <CAvatar
                           src={`${process.env.NEXT_PUBLIC_APP_URL}/uploads/usuarios/usuario_${usuario.usuarioId}/perfil/${usuario.perfilFoto}`}
                           alt={usuario.apelido}
                         />
-                        <div className="flex flex-col items-center w-full">
+                        <div className="flex flex-col w-full">
                           <span className="font-medium truncate">
                             {usuario.nome}
                           </span>

@@ -111,8 +111,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     if (filtro === "conversas") {
       const conversasFiltradas = conversasClone?.filter(
         (conversa: IConversa) => {
-          const nomeInclui = conversa.conversaNome
-            .toLowerCase()
+          const nomeInclui = conversa
+            .conversaNome!.toLowerCase()
             .includes(valor);
           const mensagemInclui = conversa.mensagens?.some(
             (mensagem: IMensagem) =>
@@ -266,7 +266,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   </div>
                 )
               ) : amigos && amigos.length > 0 ? (
-                <AmigoAccordion amigos={amigos} />
+                <AmigoAccordion
+                  amigos={amigos}
+                  getAmigos={async () => await getAmigos()}
+                />
               ) : (
                 <div className="p-2 flex justify-center items-center text-xs">
                   Nenhum amigo encontrado.

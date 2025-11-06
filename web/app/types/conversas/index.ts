@@ -3,8 +3,7 @@ import { IMensagem } from "../mensagens";
 export interface IConversa {
   conversaId?: number;
   usuarioId?: number;
-  conversaNome: string;
-  conversaFoto?: string | null;
+  conversaNome?: string;
   grupo: number;
   mensagens?: IMensagem[];
   conversaUsuarios?: IConversaUsuario[];
@@ -16,8 +15,10 @@ export interface IConversa {
 
 export interface IConversaUsuario {
   conversaUsuarioId?: string;
+  conversaNome?: string;
   usuarioId: number;
   conversaId?: number;
   usuarioEntrou?: Date;
+  conversaFoto?: string | null;
   cargo: "Membro" | "Admin"
 }

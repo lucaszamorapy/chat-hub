@@ -95,6 +95,7 @@ const AdicionarGrupo = ({ getAmigos, usuarioId }: AdicionarAmigoProps) => {
       setAmigosSelecionados(novosAmigos);
 
       if (amigosSelecionados.length === 0) {
+        setCarregando(false);
         return toast.error(
           "Por favor, selecione pelo menos um amigo para o seu grupo."
         );
@@ -109,18 +110,21 @@ const AdicionarGrupo = ({ getAmigos, usuarioId }: AdicionarAmigoProps) => {
         }
       );
       const formData = new FormData();
-      formData.append("conversaNome", values.conversaNome);
       formData.append("grupo", String(1));
       novaConversaUsuario.forEach((amigo, index) => {
+        formData.append(
+          `conversaUsuarios[${index}].conversaNome`,
+          values.conversaNome
+        );
         formData.append(
           `conversaUsuarios[${index}].usuarioId`,
           amigo.usuarioId.toString()
         );
         formData.append(`conversaUsuarios[${index}].cargo`, amigo.cargo);
+        if (grupoFoto) {
+          formData.append(`conversaUsuarios[${index}].conversaFoto`, grupoFoto);
+        }
       });
-      if (grupoFoto) {
-        formData.append("conversaFoto", grupoFoto);
-      }
       const data = await criarConversa(formData);
       if (!data.erro) {
         rota.push(`/conversa/${data.resultado.conversaId}`);
@@ -138,6 +142,7 @@ const AdicionarGrupo = ({ getAmigos, usuarioId }: AdicionarAmigoProps) => {
       }
     }
     setCarregando(false);
+    amigosGrupo(null, "limpar");
   };
 
   useEffect(() => {
@@ -152,8 +157,6 @@ const AdicionarGrupo = ({ getAmigos, usuarioId }: AdicionarAmigoProps) => {
         setCarregando(true);
         const data = await getUsuarios();
         const amigos = await getAmigos();
-
-        console.log(amigos);
 
         if (!data.erro) {
           setAmigos(amigos);
@@ -176,7 +179,7 @@ const AdicionarGrupo = ({ getAmigos, usuarioId }: AdicionarAmigoProps) => {
           <UserRoundPlus className="text-primary " />
         </Button>
       </DialogTrigger>
-      <DialogContent style={{ height: "65%" }} className="gap-5">
+      <DialogContent style={{ height: "70%" }} className="gap-5">
         <DialogHeader>
           <DialogTitle className="text-black">
             Adicionar <span className="text-primary">Grupo</span>
@@ -242,12 +245,12 @@ const AdicionarGrupo = ({ getAmigos, usuarioId }: AdicionarAmigoProps) => {
                         className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground flex flex-col gap-2 border-b p-4 text-sm leading-tight last:border-b-0"
                       >
                         <div className="flex w-full justify-between">
-                          <div className="flex items-center">
+                          <div className="flex gap-2">
                             <CAvatar
                               src={`${process.env.NEXT_PUBLIC_APP_URL}/uploads/usuarios/usuario_${amigo.usuarioAmigoId}/perfil/${amigo.perfilFotoAmigo}`}
                               alt={amigo.apelidoAmigo!}
                             />
-                            <div className="flex flex-col items-center w-full">
+                            <div className="flex flex-col w-full">
                               <span className="font-medium truncate">
                                 {amigo.nomeAmigo}
                               </span>
