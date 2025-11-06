@@ -130,7 +130,7 @@ const AdicionarGrupo = ({ getAmigos, usuarioId }: AdicionarAmigoProps) => {
         rota.push(`/conversa/${data.resultado.conversaId}`);
         toast.success(data.mensagem);
       } else {
-        console.error(data.mensagem);
+        console.error(data.mensagemApi);
         toast.error(data.mensagem);
       }
     } catch (error: unknown) {

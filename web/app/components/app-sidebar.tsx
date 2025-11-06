@@ -18,7 +18,7 @@ import {
 } from "@/app/components/ui/sidebar";
 import { Switch } from "@/app/components/ui/switch";
 import Link from "next/link";
-import { IConversa } from "../types/conversas";
+import { IConversa, IConversaUsuario } from "../types/conversas";
 import { getConversasByUsuario } from "../_actions/conversas";
 import { useAuth } from "../contexts/auth-provider";
 import { IAmigo } from "../types/amigos";
@@ -33,8 +33,8 @@ import AdicionarGrupo from "./adicionar-grupo";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [itemAtivo, setItemAtivo] = useState("Conversas");
-  const [conversas, setConversas] = useState<IConversa[]>();
-  const [conversasClone, setConversasClone] = useState<IConversa[]>();
+  const [conversas, setConversas] = useState<IConversaUsuario[]>();
+  const [conversasClone, setConversasClone] = useState<IConversaUsuario[]>();
   const [amigos, setAmigos] = useState<IAmigo[]>();
   const [amigosClone, setAmigosClone] = useState<IAmigo[]>();
   const [filtro, setFiltro] = useState("conversas");
@@ -49,7 +49,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           setConversas(conversasData.resultado);
           setConversasClone(conversasData.resultado);
         } else {
-          console.error(conversasData.mensagem);
+          console.error(conversasData.mensagemApi);
           toast.error(conversasData.mensagem);
         }
       }
@@ -72,7 +72,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           setAmigos(amigosData.resultado);
           setAmigosClone(amigosData.resultado);
         } else {
-          console.error(amigosData.mensagem);
+          console.error(amigosData.mensagemApi);
           toast.error(amigosData.mensagem);
         }
         resultado = amigosData.resultado;
@@ -110,7 +110,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const valor = e.target.value.toLowerCase();
     if (filtro === "conversas") {
       const conversasFiltradas = conversasClone?.filter(
-        (conversa: IConversa) => {
+        (conversa: IConversaUsuario) => {
           const nomeInclui = conversa
             .conversaNome!.toLowerCase()
             .includes(valor);
@@ -135,7 +135,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const filtrarNaoLidas = (ativo: boolean) => {
     const conversasFiltradas = ativo
       ? conversasClone?.filter(
-          (conversa: IConversa) =>
+          (conversa: IConversaUsuario) =>
             conversa.mensagens?.some((msg) => !msg.visualizada) ?? false
         )
       : conversasClone;
@@ -248,7 +248,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarGroupContent>
               {filtro === "conversas" ? (
                 conversas && conversas.length > 0 ? (
-                  conversas.map((item: IConversa) => {
+                  conversas.map((item: IConversaUsuario) => {
                     const mensagensVisualizadas = item.mensagens?.filter(
                       (mensagem) => !mensagem.visualizada
                     );

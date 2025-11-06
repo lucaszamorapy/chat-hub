@@ -3,6 +3,7 @@ using api.Models;
 using api.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -33,7 +34,7 @@ namespace api.Controllers
             }
             catch
             {
-                return BadRequest(new Message<List<Vwconversausuario>>("Ocorreu um erro ao obter a conversa com usuário", new List<Vwconversausuario>(), true));
+                return BadRequest(new Message<List<Vwconversausuario>>("Ocorreu um erro ao obter a conversa com usuário", new List<Vwconversausuario>(), true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status400BadRequest)));
             }
         }
 
@@ -45,7 +46,7 @@ namespace api.Controllers
 
             if (conversausuario == null)
             {
-                return BadRequest(new Message<Vwconversausuario>("Ocorreu um erro ao obter a conversa com usuário", new Vwconversausuario { }, true));
+                return BadRequest(new Message<Vwconversausuario>("Ocorreu um erro ao obter a conversa com usuário", new Vwconversausuario { }, true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status400BadRequest)));
             }
 
             return Ok(new Message<Vwconversausuario>("", conversausuario, false));
@@ -62,7 +63,7 @@ namespace api.Controllers
 
             if (conversasUsuario == null || !conversasUsuario.Any())
             {
-                return Ok(new Message<List<object>>("Nenhuma conversa encontrada", new List<object>(), false));
+                return BadRequest(new Message<List<object>>("Nenhuma conversa encontrada", new List<object>(), false, ReasonPhrases.GetReasonPhrase(StatusCodes.Status400BadRequest)));
 
             }
 
@@ -103,7 +104,7 @@ namespace api.Controllers
 
             if (conversausuarioexiste == null)
             {
-                return BadRequest(new Message<ConversaUsuario>("Conversa usuário não existe.", new ConversaUsuario { }, true));
+                return BadRequest(new Message<ConversaUsuario>("Conversa usuário não existe.", new ConversaUsuario { }, true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status400BadRequest)));
             }
 
             conversausuarioexiste.Cargo = conversausuario.Cargo;
@@ -161,7 +162,7 @@ namespace api.Controllers
             var conversausuario = await _context.ConversaUsuarios.FindAsync(id);
             if (conversausuario == null)
             {
-                return BadRequest(new Message<ConversaUsuario>("Conversa usuário não encontrado.", new ConversaUsuario { }, true));
+                return BadRequest(new Message<ConversaUsuario>("Conversa usuário não encontrado.", new ConversaUsuario { }, true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status400BadRequest)));
             }
 
             _context.ConversaUsuarios.Remove(conversausuario);

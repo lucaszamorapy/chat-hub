@@ -4,6 +4,7 @@ using api.Services;
 using Humanizer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -40,7 +41,7 @@ namespace api.Controllers
             }
             catch
             {
-                return BadRequest(new Message<List<Conversa>>("Ocorreu um erro ao obter a listagem de conversas", new List<Conversa>(), true));
+                return BadRequest(new Message<List<Conversa>>("Ocorreu um erro ao obter a listagem de conversas", new List<Conversa>(), true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status400BadRequest)));
             }
         }
 
@@ -79,7 +80,7 @@ namespace api.Controllers
 
             if (conversa == null)
             {
-                return BadRequest(new Message<Conversa>("Conversa não encontrada.", new Conversa { }, true));
+                return BadRequest(new Message<Conversa>("Conversa não encontrada.", new Conversa { }, true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status404NotFound)));
             }
 
             return Ok(new Message<object>("", conversa, false));
@@ -93,7 +94,7 @@ namespace api.Controllers
         {
             if (id != conversa.ConversaId)
             {
-                return BadRequest(new Message<Conversa>("Conversa não encontrada.", new Conversa { }, true));
+                return BadRequest(new Message<Conversa>("Conversa não encontrada.", new Conversa { }, true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status404NotFound)));
             }
 
             _context.Entry(conversa).State = EntityState.Modified;
@@ -106,7 +107,7 @@ namespace api.Controllers
             {
                 if (!ConversaExists(id))
                 {
-                    return NotFound((new Message<Conversa>("Conversa não encontrada.", new Conversa { }, true)));
+                    return NotFound((new Message<Conversa>("Conversa não encontrada.", new Conversa { }, true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status404NotFound))));
                 }
                 else
                 {
@@ -237,9 +238,10 @@ namespace api.Controllers
                 await transaction.RollbackAsync();
 
                 return BadRequest(new Message<Conversa>(
-                    $"Erro ao criar conversa: {ex.Message}",
-                    new Conversa(),
-                    true
+                    "Ocorreu um erro ao criar sua conversa",
+                    new Conversa { },
+                    true,
+                    ex.Message
                 ));
             }
         }
@@ -252,7 +254,7 @@ namespace api.Controllers
             var conversa = await _context.Conversas.FindAsync(id);
             if (conversa == null)
             {
-                return BadRequest(new Message<Conversa>("Conversa não encontrada", new Conversa { }, true));
+                return NotFound(new Message<Conversa>("Conversa não encontrada", new Conversa { }, true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status404NotFound)));
             }
 
             _context.Conversas.Remove(conversa);

@@ -3,6 +3,7 @@ using api.Models;
 using api.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -38,7 +39,7 @@ namespace api.Controllers
 
             if (amigo == null)
             {
-                return NotFound(new Message<List<Amigo>>("Ocorreu um erro ao obter o seu amigo", new List<Amigo>(), true));
+                return NotFound(new Message<List<Amigo>>("Ocorreu um erro ao obter o seu amigo", new List<Amigo>(), true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status404NotFound)));
             }
 
             return Ok(new Message<Amigo>("", amigo, false));
@@ -84,7 +85,7 @@ namespace api.Controllers
 
             if (amigos == null)
             {
-                return NotFound(new Message<List<Vwamigo>>("Ocorreu um erro ao obter o seu amigo", new List<Vwamigo>(), true));
+                return NotFound(new Message<List<Vwamigo>>("Ocorreu um erro ao obter o seu amigo", new List<Vwamigo>(), true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status404NotFound)));
             }
 
             return Ok(new Message<List<Vwamigo>>("", resultado, false));
@@ -100,7 +101,7 @@ namespace api.Controllers
 
             if (id != amigo.AmigoId)
             {
-                return BadRequest(new Message<List<Amigo>>("Ocorreu um erro ao alterar o seu amigo", new List<Amigo>(), true));
+                return BadRequest(new Message<List<Amigo>>("Ocorreu um erro ao alterar o seu amigo", new List<Amigo>(), true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status400BadRequest)));
             }
 
             _context.Entry(amigo).State = EntityState.Modified;
@@ -141,7 +142,7 @@ namespace api.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new Message<Amigo>($"Ocorreu um erro ao adicionar o amigo: {ex.Message}", new Amigo { }, true));
+                return BadRequest(new Message<Amigo>("Ocorreu um erro ao adicionar o amigo", new Amigo { }, true, ex.Message));
             }
         }
 
@@ -152,7 +153,7 @@ namespace api.Controllers
             var amigo = await _context.Amigos.FindAsync(id);
             if (amigo == null)
             {
-                return NotFound(new Message<Amigo>("Ocorreu um erro ao excluir o seu amigo", new Amigo { }, true));
+                return NotFound(new Message<Amigo>("Ocorreu um erro ao excluir o seu amigo", new Amigo { }, true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status404NotFound)));
             }
 
             _context.Amigos.Remove(amigo);

@@ -3,6 +3,7 @@ using api.Models;
 using api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using NuGet.Configuration;
@@ -36,7 +37,7 @@ namespace api.Controllers
             }
             catch
             {
-                return BadRequest(new Message<List<Usuario>>("Ocorreu um erro ao obter a listagem de usuários", new List<Usuario>(), true));
+                return BadRequest(new Message<List<Usuario>>("Ocorreu um erro ao obter a listagem de usuários", new List<Usuario>(), true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status400BadRequest)));
             }
         }
 
@@ -48,7 +49,7 @@ namespace api.Controllers
 
             if (usuario == null)
             {
-                return BadRequest(new Message<Usuario>("Ocorreu um erro ao obter o usuário.", new Usuario { }, true));
+                return BadRequest(new Message<Usuario>("Ocorreu um erro ao obter o usuário.", new Usuario { }, true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status400BadRequest)));
             }
 
             return Ok(new Message<Usuario>("", usuario, false));
@@ -61,7 +62,7 @@ namespace api.Controllers
         {
             if (id != usuario.UsuarioId)
             {
-                return BadRequest(new Message<Usuario>("ID do usuário não foi encontrado.", new Usuario { }, true));
+                return BadRequest(new Message<Usuario>("ID do usuário não foi encontrado.", new Usuario { }, true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status400BadRequest)));
             }
 
             _context.Entry(usuario).State = EntityState.Modified;
@@ -70,7 +71,7 @@ namespace api.Controllers
 
             if (existeapelido)
             {
-                return BadRequest(new Message<Usuario>("Apelido já cadastrado no sistema.", new Usuario { }, true));
+                return BadRequest(new Message<Usuario>("Apelido já cadastrado no sistema.", new Usuario { }, true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status400BadRequest)));
             }
 
             usuario.Senha = BCrypt.Net.BCrypt.HashPassword(usuario.Senha);
@@ -83,7 +84,7 @@ namespace api.Controllers
             {
                 if (!UsuarioExists(id))
                 {
-                    return BadRequest(new Message<Usuario>("Usuário não existe no sistema.", new Usuario { }, true));
+                    return NotFound(new Message<Usuario>("Usuário não existe no sistema.", new Usuario { }, true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status404NotFound)));
                 }
                 else
                 {
@@ -121,7 +122,7 @@ namespace api.Controllers
             var existeNome = _context.Usuarios.Any(u => u.Apelido == usuarioDto.Apelido);
             if (existeNome)
             {
-                return BadRequest(new Message<object>("Apelido já cadastrado no sistema.", new { }, true));
+                return BadRequest(new Message<object>("Apelido já cadastrado no sistema.", new { }, true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status400BadRequest)));
             }
 
             var senhaCriptografada = BCrypt.Net.BCrypt.HashPassword(usuarioDto.Senha);
@@ -174,12 +175,12 @@ namespace api.Controllers
 
             if (existeusuario == null)
             {
-                return NotFound(new Message<object>("Usuário não encontrado.", new { }, true));
+                return NotFound(new Message<Usuario>("Usuário não encontrado.", new Usuario { }, true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status404NotFound)));
             }
 
             if (usuario.Senha == null || !BCrypt.Net.BCrypt.Verify(usuario.Senha, existeusuario.Senha))
             {
-                return BadRequest(new Message<object>("Senha inválida.", new { }, true));
+                return BadRequest(new Message<Usuario>("Senha inválida.", new Usuario { }, true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status400BadRequest)));
             }
 
             var token = TokenService.GenerateToken(existeusuario);
@@ -199,13 +200,13 @@ namespace api.Controllers
             var usuario = await _context.Usuarios.FindAsync(id);
             if (usuario == null)
             {
-                return NotFound();
+                return NotFound(new Message<Usuario>("Usuário não encontrado.", new Usuario { }, true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status404NotFound)));
             }
 
             _context.Usuarios.Remove(usuario);
             await _context.SaveChangesAsync();
 
-            return Ok(new Message<object>("Usuário excluído com sucesso!", new { }, false));
+            return Ok(new Message<Usuario>("Usuário excluído com sucesso!", new Usuario{ }, false));
         }
 
         private bool UsuarioExists(int id)

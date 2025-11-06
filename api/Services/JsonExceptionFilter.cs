@@ -8,7 +8,8 @@ namespace PGMTApi.Services
     {
         public void OnException(ExceptionContext context)
         {
-            var resultado = new Message<object>(context.Exception.Message + (context.Exception.InnerException != null ? context.Exception.InnerException.Message : ""), null, true);
+            var mensagemApi = context.Exception.Message + (context.Exception.InnerException != null ? context.Exception.InnerException.Message : "");
+            var resultado = new Message<object>(mensagemApi, null, true, mensagemApi);
             context.Result = new ObjectResult(resultado)
             {
                 StatusCode = 500

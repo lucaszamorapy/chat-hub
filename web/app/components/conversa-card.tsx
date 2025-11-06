@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { IConversa } from "../types/conversas";
+import { IConversa, IConversaUsuario } from "../types/conversas";
 import { formatarData } from "../utils";
 import { Badge } from "./ui/badge";
 import Link from "next/link";
@@ -9,7 +9,7 @@ import { visualizarMensagens } from "../_actions/conversas";
 import CAvatar from "./ui/c-avatar";
 
 interface ConversaCardProps {
-  conversa: IConversa;
+  conversa: IConversaUsuario;
   mensagensVisualizadas: IMensagem[];
 }
 
@@ -25,7 +25,7 @@ const ConversaCard = ({
     try {
       const data = await visualizarMensagens(mensagensVisualizadas);
       if (data.erro) {
-        console.error(data.mensagem);
+        console.error(data.mensagemApi);
         toast.error(data.mensagem);
       }
       setMsgVisualizadasQtd(0);
@@ -43,7 +43,7 @@ const ConversaCard = ({
           <div className="flex items-center w-full">
             <CAvatar
               src={`${process.env.NEXT_PUBLIC_APP_URL}/uploads/conversas/conversa_${conversa.conversaId}/perfil/${conversa.conversaFoto}`}
-              alt={conversa.conversaNome}
+              alt={conversa.conversaNome!}
             />
             <div className="flex items-center ml-2 justify-between w-full">
               <span className="font-medium truncate">

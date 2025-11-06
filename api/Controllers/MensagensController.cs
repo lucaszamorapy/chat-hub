@@ -4,6 +4,7 @@ using api.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -36,7 +37,7 @@ namespace api.Controllers
             }
             catch
             {
-                return BadRequest(new Message<List<Mensagen>>("Ocorreu um erro ao obter a listagem de mensagens", new List<Mensagen>(), true));
+                return BadRequest(new Message<List<Mensagen>>("Ocorreu um erro ao obter a listagem de mensagens", new List<Mensagen>(), true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status400BadRequest)));
             }
         }
 
@@ -48,7 +49,7 @@ namespace api.Controllers
 
             if (mensagem == null)
             {
-                return BadRequest(new Message<Mensagen>("Ocorreu um erro ao obter a mensagem", new Mensagen { }, true));
+                return NotFound(new Message<Mensagen>("Ocorreu um erro ao obter a mensagem", new Mensagen { }, true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status404NotFound)));
             }
 
             return Ok(new Message<Mensagen>("", mensagem, false));
@@ -61,7 +62,7 @@ namespace api.Controllers
         {
             if (id != mensagem.MensagemId)
             {
-                return BadRequest(new Message<Mensagen>("Mensagem não encontrada.", new Mensagen { }, true));
+                return BadRequest(new Message<Mensagen>("Mensagem não encontrada.", new Mensagen { }, true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status400BadRequest)));
             }
 
             _context.Entry(mensagem).State = EntityState.Modified;
@@ -105,7 +106,7 @@ namespace api.Controllers
                 }
                 catch
                 {
-                    return BadRequest(new Message<Mensagen>("Ocorreu um erro ao marcar a mensagem como visualizada.", new Mensagen { }, true));
+                    return BadRequest(new Message<Mensagen>("Ocorreu um erro ao marcar a mensagem como visualizada.", new Mensagen { }, true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status400BadRequest)));
                 }
             }
 
@@ -144,7 +145,7 @@ namespace api.Controllers
             }
             catch
             {
-                return BadRequest(new Message<Mensagen>("Ocorreu um erro ao enviar mensagem.", new Mensagen { }, true));
+                return BadRequest(new Message<Mensagen>("Ocorreu um erro ao enviar mensagem.", new Mensagen { }, true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status400BadRequest)));
             }
         }
 
@@ -155,7 +156,7 @@ namespace api.Controllers
             var mensagem = await _context.Mensagens.FindAsync(id);
             if (mensagem == null)
             {
-                return NotFound(new Message<Mensagen>("Mensagem não encontrada.", new Mensagen { }, true));
+                return NotFound(new Message<Mensagen>("Mensagem não encontrada.", new Mensagen { }, true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status404NotFound)));
             }
 
             _context.Mensagens.Remove(mensagem);

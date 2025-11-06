@@ -58,6 +58,7 @@ const AdicionarAmigo = ({ getAmigos, usuarioId }: AdicionarAmigoProps) => {
         setUsuarios(usuariosFiltrados);
         await getAmigos();
       } else {
+        console.error(data.mensagemApi);
         toast.error(data.mensagem);
       }
     } catch (error: unknown) {

@@ -8,8 +8,8 @@ export const getAmigosByUsuario = async (usuarioId: number) => {
     const { data } = await api.get(`/Amigos/usuario/${usuarioId}`)
     return data;
   } catch (error: any) {
-    console.error(error)
-    return formatarError(error.response?.data.mensagem || error.response?.data.title);
+    console.error(error.response?.data.mensagemApi)
+    return formatarError(error.response?.data || error.response?.data.title);
   }
 }
 
@@ -18,8 +18,8 @@ export const excluirAmigo = async (amigoId: number) => {
     const { data } = await api.delete(`/Amigos/${amigoId}`)
     return data;
   } catch (error: any) {
-    console.error(error)
-    return formatarError(error.response?.data.mensagem || error.response?.data.title);
+    console.error(error.response?.data.mensagemApi)
+    return formatarError(error.response?.data || error.response?.data.title);
   }
 }
 
@@ -28,8 +28,8 @@ export const adicionarAmigo = async (amigo: IAmigo) => {
     const { data } = await api.post(`/Amigos`, amigo)
     return data;
   } catch (error: any) {
-    console.error(error)
-    return formatarError(error.response?.data.mensagem || error.response?.data.title);
+    console.error(error.response?.data.mensagemApi)
+    return formatarError(error.response?.data || error.response?.data.title);
   }
 }
 
@@ -38,6 +38,7 @@ export const alterarAmigo = async (amigo: IAmigo) => {
     const { data } = await api.put(`/Amigos/${amigo.amigoId}`, amigo)
     return data;
   } catch (error: any) {
-    return formatarError(error.response?.data.title);
+    console.error(error.response?.data.mensagemApi)
+    return formatarError(error.response?.data || error.response?.data.title);
   }
 }

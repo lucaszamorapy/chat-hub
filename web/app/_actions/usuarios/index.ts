@@ -17,7 +17,8 @@ export const login = async (credenciais: ILogin) => {
 
     return data;
   } catch (error: any) {
-    return formatarError(error.response?.data.mensagem || error.response?.data.title);
+    console.error(error.response?.data.mensagemApi)
+    return formatarError(error.response?.data || error.response?.data.title);
   }
 };
 
@@ -33,7 +34,8 @@ export const cadastro = async (credenciais: FormData) => {
     });
     return data;
   } catch (error: any) {
-    return formatarError(error.response?.data.mensagem || error.response?.data.title);
+    console.error(error.response?.data.mensagemApi)
+    return formatarError(error.response?.data || error.response?.data.title);
   }
 };
 
@@ -42,7 +44,8 @@ export const alterar = async (usuario: IUsuario) => {
     const { data } = await api.put(`/Usuarios/${usuario.usuarioId}`, usuario);
     return data
   } catch (error: any) {
-    return formatarError(error.response?.data.mensagem || error.response?.data.title);
+    console.error(error.response?.data.mensagemApi)
+    return formatarError(error.response?.data || error.response?.data.title);
   }
 }
 
@@ -56,7 +59,8 @@ export const getUsuarios = async () => {
     const { data } = await api.get("/Usuarios");
     return data
   } catch (error: any) {
-    return formatarError(error.response?.data.mensagem || error.response?.data.title);
+    console.error(error.response?.data.mensagemApi)
+    return formatarError(error.response?.data || error.response?.data.title);
   }
 }
 
@@ -65,7 +69,7 @@ export const getUsuario = async (usuarioId: number) => {
     const { data } = await api.get(`/Usuarios/${usuarioId}`);
     return data
   } catch (error: any) {
-    console.log(error)
-    return formatarError(error.response?.data.mensagem || error.response?.data.title);
+    console.error(error.response?.data.mensagemApi)
+    return formatarError(error.response?.data || error.response?.data.title);
   }
 }

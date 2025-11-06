@@ -62,7 +62,7 @@ const AmigoCard = ({ amigo, status, atualizar }: AmigoProps) => {
       if (!conversa.erro) {
         rota.push(`conversa/${conversa.resultado.conversaId}`);
       } else {
-        console.error(conversa.mensagem);
+        console.error(conversa.mensagemApi);
         toast.error(conversa.mensagem);
       }
     } catch (error: unknown) {
@@ -83,7 +83,7 @@ const AmigoCard = ({ amigo, status, atualizar }: AmigoProps) => {
         }
         toast.success(data.mensagem);
       } else {
-        console.error(data.mensagem);
+        console.error(data.mensagemApi);
         toast.error(data.mensagem);
       }
     } catch (error: unknown) {
@@ -109,7 +109,7 @@ const AmigoCard = ({ amigo, status, atualizar }: AmigoProps) => {
           toast.success(data.mensagem);
         }
       } else {
-        console.error(data.mensagem);
+        console.error(data.mensagemApi);
         toast.error(data.mensagem);
       }
     } catch (error: unknown) {

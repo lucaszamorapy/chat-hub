@@ -28,12 +28,14 @@ api.interceptors.request.use(async (config) => {
 interface IError {
   erro: boolean;
   mensagem: string;
+  mensagemApi: string;
 }
 
 export const formatarError = async (error: any) => {
   const erroFormatado: IError = {
     erro: true,
-    mensagem: error
+    mensagem: error.mensagem,
+    mensagemApi: error.mensagemApi
   }
   return erroFormatado
 }

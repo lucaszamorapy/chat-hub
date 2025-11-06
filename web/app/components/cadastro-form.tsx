@@ -78,7 +78,7 @@ const CadastroForm = ({ className, ...props }: React.ComponentProps<"div">) => {
         rota.push("/");
         toast.success(data.mensagem);
       } else {
-        console.error(data.mensagem);
+        console.error(data.mensagemApi);
         toast.error(data.mensagem);
       }
     } catch (error: unknown) {

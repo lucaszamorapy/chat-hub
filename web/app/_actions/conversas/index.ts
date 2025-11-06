@@ -9,8 +9,8 @@ export const getConversasByUsuario = async (usuarioId: number) => {
     const { data } = await api.get(`/ConversaUsuarios/usuario/${usuarioId}`)
     return data;
   } catch (error: any) {
-    console.error(error)
-    return formatarError(error.response?.data.mensagem || error.response?.data.title);
+    console.error(error.response?.data.mensagemApi)
+    return formatarError(error.response?.data || error.response?.data.title);
   }
 }
 
@@ -19,8 +19,8 @@ export const visualizarMensagens = async (mensagens: IMensagem[]) => {
     const { data } = await api.post("/Mensagens/visualizar", mensagens)
     return data;
   } catch (error: any) {
-    console.error(error)
-    return formatarError(error.response?.data.mensagem || error.response?.data.title);
+    console.error(error.response?.data.mensagemApi)
+    return formatarError(error.response?.data || error.response?.data.title);
   }
 }
 
@@ -29,8 +29,8 @@ export const criarConversa = async (conversa: FormData) => {
     const { data } = await api.post("/Conversas", conversa)
     return data;
   } catch (error: any) {
-    console.error(error)
-    return formatarError(error.response?.data.mensagem || error.response?.data.title);
+    console.error(error.response?.data.mensagemApi)
+    return formatarError(error.response?.data || error.response?.data.title);
   }
 }
 
@@ -39,7 +39,7 @@ export const criarConversaUsuarios = async (conversaUsuarios: IConversaUsuario) 
     const { data } = await api.post("/ConversaUsuarios", conversaUsuarios)
     return data;
   } catch (error: any) {
-    console.error(error)
-    return formatarError(error.response?.data.mensagem || error.response?.data.title);
+    console.error(error.response?.data.mensagemApi)
+    return formatarError(error.response?.data || error.response?.data.title);
   }
 }
