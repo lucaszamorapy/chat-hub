@@ -49,14 +49,28 @@ namespace api.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Conversa>> GetConversa(int id)
         {
+            var usuarioId = TokenService.GetTokenUserId(HttpContext);
             var conversa = await _context.Conversas
                 .Where(c => c.ConversaId == id)
                 .Select(c => new
                 {
                     c.ConversaId,
-                    ConversaUsuarios = c.ConversaUsuarios.Select(g => new
+                    ConversaUsuarios = c.Grupo == 0 ? c.ConversaUsuarios.Where(u => u.UsuarioId == usuarioId).Select(g => new
                     {
                         g.ConversaNome,
+                        g.ConversaFoto,
+                        g.ConversaUsuariosId,
+                        g.Cargo,
+                        Usuario = new
+                        {
+                            g.Usuario.UsuarioId,
+                            g.Usuario.Nome
+                        }
+                    }) :
+                    c.ConversaUsuarios.Select(g => new
+                    {
+                        g.ConversaNome,
+                        g.ConversaFoto,
                         g.ConversaUsuariosId,
                         g.Cargo,
                         Usuario = new
@@ -207,7 +221,6 @@ namespace api.Controllers
                                 }
 
                                 fotoConversa = parceiro.PerfilFoto;
-                                nomeConversa = parceiro.Nome;
                             }
                             else
                             {
@@ -215,6 +228,8 @@ namespace api.Controllers
                             }
 
                         }
+                        nomeConversa = parceiro.Nome;
+
                     }
 
                     usuariosParaAdicionar.Add(new ConversaUsuario

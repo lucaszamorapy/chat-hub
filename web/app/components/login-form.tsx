@@ -58,9 +58,9 @@ const LoginForm = ({ className, ...props }: React.ComponentProps<"div">) => {
         });
         localStorage.setItem("usuario", JSON.stringify(data.resultado.usuario));
         rota.push("/");
-        toast.success(data.mensagemApi);
+        toast.success(data.mensagem);
       } else {
-        console.error(data.mensagem);
+        console.error(data.mensagemApi);
         toast.error(data.mensagem);
       }
     } catch (error: unknown) {

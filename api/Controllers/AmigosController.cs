@@ -60,8 +60,8 @@ namespace api.Controllers
 
                 var amigoFiltrado = new Vwamigo
                 {
-                    UsuarioId = id, 
-                    UsuarioAmigoId = usuarioEhUsuarioId ? amigo.UsuarioAmigoId : amigo.UsuarioId, 
+                    UsuarioId = amigo.UsuarioId,
+                    UsuarioAmigoId = amigo.UsuarioAmigoId,
                     AmigoId = amigo.AmigoId,
                     NomeAmigo = usuarioEhUsuarioId ? amigo.NomeAmigo : amigo.Nome,
                     ApelidoAmigo = usuarioEhUsuarioId ? amigo.ApelidoAmigo : amigo.Apelido,
@@ -75,20 +75,17 @@ namespace api.Controllers
                     Regausu = amigo.Regausu
                 };
 
+
                 amigosFiltrados.Add(amigoFiltrado);
             }
 
-
-            var resultado = amigosFiltrados
-                   .Where(a => a.UsuarioAmigoId != id)
-                   .ToList();
 
             if (amigos == null)
             {
                 return NotFound(new Message<List<Vwamigo>>("Ocorreu um erro ao obter o seu amigo", new List<Vwamigo>(), true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status404NotFound)));
             }
 
-            return Ok(new Message<List<Vwamigo>>("", resultado, false));
+            return Ok(new Message<List<Vwamigo>>("", amigosFiltrados, false));
         }
 
 

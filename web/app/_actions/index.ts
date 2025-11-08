@@ -31,11 +31,17 @@ interface IError {
   mensagemApi: string;
 }
 
-export const formatarError = async (error: any) => {
-  const erroFormatado: IError = {
+export const formatarError = async (error: any): Promise<IError> => {
+  const erroFormatado = {
     erro: true,
-    mensagem: error.mensagem,
-    mensagemApi: error.mensagemApi
-  }
-  return erroFormatado
-}
+    mensagem:
+      error?.mensagem ||
+      error?.response?.data?.mensagem ||
+      "Erro inesperado ou falha de conexão com o servidor.",
+    mensagemApi:
+      error?.mensagemApi ||
+      error?.response?.data?.mensagemApi ||
+      "Erro ao comunicar com a API."
+  };
+  return erroFormatado;
+};

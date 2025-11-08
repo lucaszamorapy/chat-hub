@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { IConversa, IConversaUsuario } from "../types/conversas";
+import { IConversaUsuario } from "../types/conversas";
 import { formatarData } from "../utils";
 import { Badge } from "./ui/badge";
 import Link from "next/link";
@@ -37,7 +37,7 @@ const ConversaCard = ({
     <>
       <div key={conversa.conversaId} onClick={() => visualizarTodasMensagens()}>
         <Link
-          href={`/conversa/${conversa.conversaId}`}
+          href={`/conversas/${conversa.conversaId}`}
           className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground flex flex-col gap-2  border-b p-4 text-sm leading-tight"
         >
           <div className="flex items-center w-full">
@@ -60,7 +60,7 @@ const ConversaCard = ({
             </div>
           </div>
 
-          <div className="flex items-center w-full">
+          <div className="flex items-center justify-between w-full">
             {conversa.mensagens && conversa.mensagens.length > 0 && (
               <span className="w-45 text-xs mr-2 truncate">
                 {conversa.mensagens[0].mensagem}
@@ -72,7 +72,7 @@ const ConversaCard = ({
                 style={{ fontSize: "10px" }}
                 className="shrink-0 whitespace-nowrap"
               >
-                {formatarData(conversa.mensagens[0].regidh, "dataehoratexto")}
+                {formatarData(conversa.mensagens[0].regidh!, "dataehoratexto")}
               </span>
             )}
           </div>

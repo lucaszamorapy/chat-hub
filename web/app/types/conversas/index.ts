@@ -3,7 +3,6 @@ import { IMensagem } from "../mensagens";
 export interface IConversa {
   conversaId?: number;
   usuarioId?: number;
-  conversaNome?: string;
   grupo: number;
   mensagens?: IMensagem[];
   conversaUsuarios?: IConversaUsuario[];

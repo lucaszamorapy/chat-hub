@@ -43,11 +43,12 @@ builder.Services.AddDbContext<ChatContext>(options =>
 // 🧱 CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll",
+    options.AddPolicy("AllowFrontend",
         policy => policy
-            .AllowAnyOrigin()
+            .WithOrigins("http://localhost:3000")
             .AllowAnyMethod()
-            .AllowAnyHeader());
+            .AllowAnyHeader()
+            .AllowCredentials());
 });
 
 // 🔐 JWT
@@ -78,7 +79,14 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-app.UseCors("AllowAll");
+app.UseCors("AllowFrontend");
+app.UseHttpsRedirection();
+app.UseAuthentication();
+app.UseAuthorization();
+
+
+app.MapHub<ChatHub>("/chatHub").RequireCors("AllowFrontend");
+app.MapControllers().RequireCors("AllowFrontend");
 
 // Cria pastas iniciais
 using (var scope = app.Services.CreateScope())
@@ -87,7 +95,6 @@ using (var scope = app.Services.CreateScope())
     geralService.CriarPasta(["usuarios", "conversas"]);
 }
 
-app.MapHub<ChatHub>("/chatHub");
 
 // Swagger
 if (app.Environment.IsDevelopment())
@@ -105,11 +112,8 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = "/api/uploads"
 });
 
-app.UseHttpsRedirection();
-app.UseAuthentication();
-app.UseAuthorization();
 
-app.MapControllers();
+
 
 app.Run();
 

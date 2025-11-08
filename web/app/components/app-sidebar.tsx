@@ -18,7 +18,7 @@ import {
 } from "@/app/components/ui/sidebar";
 import { Switch } from "@/app/components/ui/switch";
 import Link from "next/link";
-import { IConversa, IConversaUsuario } from "../types/conversas";
+import { IConversaUsuario } from "../types/conversas";
 import { getConversasByUsuario } from "../_actions/conversas";
 import { useAuth } from "../contexts/auth-provider";
 import { IAmigo } from "../types/amigos";
@@ -224,6 +224,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               {itemAtivo === "Conversas" && (
                 <AdicionarGrupo
                   getAmigos={async () => await getAmigos()}
+                  getConversas={async () => await getConversas()}
                   usuarioId={auth.usuarioId!}
                 />
               )}
@@ -250,7 +251,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 conversas && conversas.length > 0 ? (
                   conversas.map((item: IConversaUsuario) => {
                     const mensagensVisualizadas = item.mensagens?.filter(
-                      (mensagem) => !mensagem.visualizada
+                      (mensagem) =>
+                        !mensagem.visualizada &&
+                        mensagem.usuarioId !== auth.usuarioId
                     );
                     return (
                       <ConversaCard

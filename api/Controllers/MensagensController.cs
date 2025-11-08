@@ -141,7 +141,8 @@ namespace api.Controllers
                     await _hubContext.Clients.All.SendAsync("ReceiveMessage", usuario.Nome, mensagem.Mensagem);
                 }
 
-                return CreatedAtAction("GetMensagen", new { id = mensagem.MensagemId }, mensagemDto);
+                CreatedAtAction("GetMensagen", new { id = mensagem.MensagemId }, mensagemDto);
+                return Ok(new Message<Mensagen>("Mensagem enviada com sucesso!", mensagem, false));
             }
             catch
             {

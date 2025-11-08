@@ -60,7 +60,7 @@ const AmigoCard = ({ amigo, status, atualizar }: AmigoProps) => {
       });
       const conversa = await criarConversa(formData);
       if (!conversa.erro) {
-        rota.push(`conversa/${conversa.resultado.conversaId}`);
+        rota.push(`/conversas/${conversa.resultado.conversaId}`);
       } else {
         console.error(conversa.mensagemApi);
         toast.error(conversa.mensagem);
@@ -157,7 +157,7 @@ const AmigoCard = ({ amigo, status, atualizar }: AmigoProps) => {
                       </div>
                     </DropdownMenuItem>
                   )}
-                  {auth.usuarioId !== amigo.usuarioAmigoId &&
+                  {auth.usuarioId === amigo.usuarioAmigoId &&
                     status === "Pendente" && (
                       <DropdownMenuItem
                         className="text-xs cursor-pointer"

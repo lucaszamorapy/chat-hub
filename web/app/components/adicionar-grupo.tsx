@@ -36,6 +36,7 @@ import CAvatar from "./ui/c-avatar";
 
 interface AdicionarAmigoProps {
   getAmigos: () => Promise<IAmigo[]>;
+  getConversas: () => Promise<void>;
   usuarioId: number;
 }
 
@@ -45,7 +46,11 @@ const formSchema = z.object({
     .min(1, { message: "Por favor, preencha o nome do grupo." }),
 });
 
-const AdicionarGrupo = ({ getAmigos, usuarioId }: AdicionarAmigoProps) => {
+const AdicionarGrupo = ({
+  getAmigos,
+  getConversas,
+  usuarioId,
+}: AdicionarAmigoProps) => {
   const [amigos, setAmigos] = useState<IAmigo[]>([]);
   const [amigosClone, setAmigosClone] = useState<IAmigo[]>([]);
   const [amigosSelecionados, setAmigosSelecionados] = useState<number[]>([]);
@@ -92,16 +97,13 @@ const AdicionarGrupo = ({ getAmigos, usuarioId }: AdicionarAmigoProps) => {
     setCarregando(true);
     try {
       const novosAmigos = [...amigosSelecionados, auth.usuarioId!];
-      setAmigosSelecionados(novosAmigos);
-
       if (amigosSelecionados.length === 0) {
         setCarregando(false);
         return toast.error(
           "Por favor, selecione pelo menos um amigo para o seu grupo."
         );
       }
-      setAmigosSelecionados((prev) => [...prev, auth.usuarioId!]);
-      const novaConversaUsuario: IConversaUsuario[] = amigosSelecionados.map(
+      const novaConversaUsuario: IConversaUsuario[] = novosAmigos.map(
         (amigo: number) => {
           return {
             usuarioId: amigo,
@@ -127,7 +129,8 @@ const AdicionarGrupo = ({ getAmigos, usuarioId }: AdicionarAmigoProps) => {
       });
       const data = await criarConversa(formData);
       if (!data.erro) {
-        rota.push(`/conversa/${data.resultado.conversaId}`);
+        await getConversas();
+        rota.push(`/conversas/${data.resultado.conversaId}`);
         toast.success(data.mensagem);
       } else {
         console.error(data.mensagemApi);
@@ -143,6 +146,8 @@ const AdicionarGrupo = ({ getAmigos, usuarioId }: AdicionarAmigoProps) => {
     }
     setCarregando(false);
     amigosGrupo(null, "limpar");
+    form.reset();
+    setOpen(false);
   };
 
   useEffect(() => {
@@ -159,7 +164,9 @@ const AdicionarGrupo = ({ getAmigos, usuarioId }: AdicionarAmigoProps) => {
         const amigos = await getAmigos();
 
         if (!data.erro) {
-          setAmigos(amigos);
+          setAmigos(
+            amigos.filter((amigo: IAmigo) => amigo.status === "Aceito")
+          );
           setAmigosClone(amigos);
         } else {
           toast.error(data.mensagem);
