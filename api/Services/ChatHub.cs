@@ -4,10 +4,17 @@ namespace api.Services
 {
     public class ChatHub : Hub
     {
-        public async Task EnviarMensagem(string usuario, string mensagem)
-        //uso do cliente para enviar a mensagem para todos os clientes conectados
+        public async Task EnviarMensagem(int mensagemId, DateTime visualizada, int usuarioId, string nome, string mensagem, DateTime regidh)
         {
-            await Clients.All.SendAsync("ReceiveMessage", usuario, mensagem);
+            await Clients.All.SendAsync("ReceiveMessage", new
+            {
+                mensagemId,
+                visualizada,
+                mensagem,
+                usuarioId,
+                nome,
+                regidh
+            });
         }
     }
 }

@@ -1,8 +1,10 @@
+import { IUsuario } from "../usuarios";
+
 export interface IMensagem {
   mensagemId?: number;
   conversaId?: number;
-  usuarioId?: number;
-  usuarioNome?: string;
+  usuarioId?: number
+  usuario?: IUsuario
   mensagem: string;
   visualizada?: Date;
   regidh?: Date;

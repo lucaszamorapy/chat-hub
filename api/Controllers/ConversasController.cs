@@ -87,7 +87,9 @@ namespace api.Controllers
                         {
                             m.Usuario.UsuarioId,
                             m.Usuario.Nome,
-                        }
+                        },
+                        m.Visualizada,
+                        m.Regidh
                     }).ToList()
                 })
                 .FirstOrDefaultAsync();

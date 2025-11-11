@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import * as signalR from "@microsoft/signalr";
 import { IConversa } from "../types/conversas";
 import CAvatar from "./ui/c-avatar";
 import { Input } from "./ui/input";
@@ -11,53 +10,55 @@ import { IMensagem } from "../types/mensagens";
 import { enviarMensagem } from "../_actions/mensagens";
 import { toast } from "sonner";
 import { useAuth } from "../contexts/auth-provider";
+import MensagemTemplate from "./mensagem-template";
+import { IUsuario } from "../types/usuarios";
+import { conexaoSignalR } from "../_actions/signalr";
 
 interface ConversaTemplateProps {
   conversa: IConversa;
 }
 
+interface SignalRMensagem {
+  mensagemId: number;
+  mensagem: string;
+  visualizada: Date;
+  regidh: Date;
+  usuarioId: number;
+  nome: string;
+}
+
 const ConversaTemplate = ({ conversa }: ConversaTemplateProps) => {
   const [mensagem, setMensagem] = useState<string>("");
   const [carregando, setCarregando] = useState<boolean>();
-  const [connection, setConnection] = useState<signalR.HubConnection | null>(
-    null
-  );
   const [mensagens, setMensagens] = useState<IMensagem[]>(
     conversa.mensagens ?? []
   );
   const { auth } = useAuth();
-
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
 
-    const newConnection = new signalR.HubConnectionBuilder()
-      .withUrl("https://localhost:7043/chathub")
-      .withAutomaticReconnect()
-      .build();
-
-    newConnection
-      .start()
-      .then(() => {
-        console.log("Conectado ao SignalR");
-        setConnection(newConnection);
-
-        const handleReceiveMessage = (
-          usuarioNome: string,
-          mensagem: string
-        ) => {
-          setMensagens((prev) => [...prev, { usuarioNome, mensagem }]);
-        };
-
-        newConnection.on("ReceiveMessage", handleReceiveMessage);
-      })
-      .catch((err: any) => console.error(err));
+    const conexao = new conexaoSignalR();
+    conexao.con();
+    conexao.on((dados: SignalRMensagem) => {
+      setMensagens((prev) => [
+        ...prev,
+        {
+          mensagemId: dados.mensagemId,
+          mensagem: dados.mensagem,
+          regidh: dados.regidh,
+          visualizada: dados.visualizada,
+          usuario: {
+            usuarioId: dados.usuarioId,
+            nome: dados.nome,
+          } as IUsuario,
+        },
+      ]);
+    });
 
     return () => {
-      console.log("Desconectando do SignalR...");
-      newConnection.off("ReceiveMessage");
-      newConnection.stop();
+      conexao.stop();
     };
   }, [conversa.conversaId]);
 
@@ -108,7 +109,17 @@ const ConversaTemplate = ({ conversa }: ConversaTemplateProps) => {
       <div className="flex h-[700px] p-4 w-full mt-5 flex-col gap-5 overflow-y-scroll">
         {mensagens && mensagens.length > 0 ? (
           mensagens.map((msg, index) => {
-            return <span key={index}>{msg.mensagem}</span>;
+            if (msg.usuario) {
+              return (
+                <MensagemTemplate
+                  key={index}
+                  mensagem={msg.mensagem}
+                  usuarioId={msg.usuario.usuarioId!}
+                  hora={msg.regidh!}
+                  visualizada={msg.visualizada}
+                />
+              );
+            }
           })
         ) : (
           <div className="p-2 flex justify-center items-center text-xs">

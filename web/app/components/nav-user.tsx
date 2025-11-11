@@ -17,6 +17,7 @@ import {
 import { IAuth } from "../contexts/auth-provider";
 import { logout } from "../_actions/usuarios";
 import CAvatar from "./ui/c-avatar";
+import { useRouter } from "next/navigation";
 
 interface UsuariosProps {
   usuario: IAuth;
@@ -25,6 +26,7 @@ interface UsuariosProps {
 export function NavUser({ usuario }: UsuariosProps) {
   const { isMobile } = useSidebar();
   const imageUrl = `${process.env.NEXT_PUBLIC_APP_URL}/uploads/usuarios/usuario_${usuario.usuarioId}/perfil/${usuario.perfilFoto}`;
+  const rota = useRouter();
 
   return (
     <SidebarMenu>
@@ -58,7 +60,13 @@ export function NavUser({ usuario }: UsuariosProps) {
                 </div>
               </div>
             </DropdownMenuLabel>
-            <DropdownMenuItem className="cursor-pointer" onClick={logout}>
+            <DropdownMenuItem
+              className="cursor-pointer"
+              onClick={async () => {
+                await logout();
+                rota.push("/login");
+              }}
+            >
               <LogOut />
               Sair
             </DropdownMenuItem>

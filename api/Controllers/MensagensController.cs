@@ -138,7 +138,16 @@ namespace api.Controllers
 
                 if (usuario != null)
                 {
-                    await _hubContext.Clients.All.SendAsync("ReceiveMessage", usuario.Nome, mensagem.Mensagem);
+                    await _hubContext.Clients.All.SendAsync("ReceiveMessage", new
+                    {
+                        mensagemId = mensagem.MensagemId,
+                        mensagem = mensagem.Mensagem,
+                        visualizada = mensagem.Visualizada,
+                        regidh = mensagem.Regidh,
+                        usuarioId = usuario.UsuarioId,
+                        nome = usuario.Nome
+                    });
+
                 }
 
                 CreatedAtAction("GetMensagen", new { id = mensagem.MensagemId }, mensagemDto);
