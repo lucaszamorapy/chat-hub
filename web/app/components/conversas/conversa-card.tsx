@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { IConversaUsuario } from "../types/conversas";
-import { formatarData } from "../utils";
-import { Badge } from "./ui/badge";
+import { IConversaUsuario } from "../../types/conversas";
+import { formatarData } from "../../utils";
+import { Badge } from "../ui/badge";
 import Link from "next/link";
-import { IMensagem } from "../types/mensagens";
+import { IMensagem } from "../../types/mensagens";
 import { toast } from "sonner";
-import { visualizarMensagens } from "../_actions/conversas";
-import CAvatar from "./ui/c-avatar";
+import { visualizarMensagens } from "../../_actions/conversas";
+import CAvatar from "../ui/c-avatar";
 
 interface ConversaCardProps {
   conversa: IConversaUsuario;

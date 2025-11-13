@@ -1,4 +1,5 @@
 import { IMensagem } from "../mensagens";
+import { IUsuario } from "../usuarios";
 
 export interface IConversa {
   conversaId?: number;
@@ -16,6 +17,7 @@ export interface IConversaUsuario {
   conversaUsuarioId?: string;
   conversaNome?: string;
   usuarioId: number;
+  usuario?: IUsuario
   mensagens?: IMensagem[];
   conversaId?: number;
   usuarioEntrou?: Date;

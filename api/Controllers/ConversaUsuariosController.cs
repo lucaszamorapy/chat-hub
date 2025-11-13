@@ -1,6 +1,7 @@
 ﻿using api.DTO;
 using api.Models;
 using api.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
@@ -12,6 +13,7 @@ using System.Threading.Tasks;
 
 namespace api.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ConversaUsuariosController : ControllerBase
@@ -108,7 +110,7 @@ namespace api.Controllers
             }
 
             conversausuarioexiste.Cargo = conversausuario.Cargo;
-            _context.Entry(conversausuarioexiste).State = EntityState.Modified;
+            _context.Entry(conversausuarioexiste).State = EntityState.Modified; 
 
             try
             {
@@ -129,8 +131,11 @@ namespace api.Controllers
             return Ok(new Message<ConversaUsuario>("Conversa usuário atualizado com sucesso!.", conversausuarioexiste, true));
         }
 
-        // POST: api/ConversaUsuarios
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+
+       
+
+        //POST: api/ConversaUsuarios
+        //To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         //[HttpPost]
         //public async Task<ActionResult<ConversaUsuario>> PostConversaUsuario([FromBody] ConversaUsuarioDTO request)
         //{

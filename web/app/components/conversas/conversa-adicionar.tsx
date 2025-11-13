@@ -1,7 +1,7 @@
 "use client";
 
 import { UserRoundMinus, UserRoundPlus } from "lucide-react";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import {
   Dialog,
   DialogContent,
@@ -9,13 +9,13 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "./ui/dialog";
+} from "../ui/dialog";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { getUsuarios } from "../_actions/usuarios";
-import { Input } from "./ui/input";
-import { IAmigo } from "../types/amigos";
-import { Skeleton } from "./ui/skeleton";
+import { getUsuarios } from "../../_actions/usuarios";
+import { Input } from "../ui/input";
+import { IAmigo } from "../../types/amigos";
+import { Skeleton } from "../ui/skeleton";
 import z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -26,15 +26,15 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "./ui/form";
-import { InputFile } from "./ui/input-file";
+} from "../ui/form";
+import { InputFile } from "../ui/input-file";
 import { useRouter } from "next/navigation";
-import { criarConversa } from "../_actions/conversas";
-import { IConversaUsuario } from "../types/conversas";
-import { useAuth } from "../contexts/auth-provider";
-import CAvatar from "./ui/c-avatar";
+import { criarConversa } from "../../_actions/conversas";
+import { IConversaUsuario } from "../../types/conversas";
+import { useAuth } from "../../contexts/auth-provider";
+import CAvatar from "../ui/c-avatar";
 
-interface AdicionarAmigoProps {
+interface ConversaAdicionarProps {
   getAmigos: () => Promise<IAmigo[]>;
   getConversas: () => Promise<void>;
   usuarioId: number;
@@ -46,11 +46,11 @@ const formSchema = z.object({
     .min(1, { message: "Por favor, preencha o nome do grupo." }),
 });
 
-const AdicionarGrupo = ({
+const ConversaAdicionar = ({
   getAmigos,
   getConversas,
   usuarioId,
-}: AdicionarAmigoProps) => {
+}: ConversaAdicionarProps) => {
   const [amigos, setAmigos] = useState<IAmigo[]>([]);
   const [amigosClone, setAmigosClone] = useState<IAmigo[]>([]);
   const [amigosSelecionados, setAmigosSelecionados] = useState<number[]>([]);
@@ -331,4 +331,4 @@ const AdicionarGrupo = ({
   );
 };
 
-export default AdicionarGrupo;
+export default ConversaAdicionar;

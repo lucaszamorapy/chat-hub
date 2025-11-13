@@ -1,7 +1,7 @@
 "use client";
 
 import { MailPlus, UserRoundPlus } from "lucide-react";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import {
   Dialog,
   DialogContent,
@@ -9,23 +9,23 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "./ui/dialog";
-import { IUsuario } from "../types/usuarios";
+} from "../ui/dialog";
+import { IUsuario } from "../../types/usuarios";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { getUsuarios } from "../_actions/usuarios";
-import { Input } from "./ui/input";
-import { adicionarAmigo } from "../_actions/amigos";
-import { IAmigo } from "../types/amigos";
-import { Skeleton } from "./ui/skeleton";
-import CAvatar from "./ui/c-avatar";
+import { getUsuarios } from "../../_actions/usuarios";
+import { Input } from "../ui/input";
+import { adicionarAmigo } from "../../_actions/amigos";
+import { IAmigo } from "../../types/amigos";
+import { Skeleton } from "../ui/skeleton";
+import CAvatar from "../ui/c-avatar";
 
-interface AdicionarAmigoProps {
+interface AmigoAdicionarProps {
   getAmigos: () => Promise<IAmigo[]>;
   usuarioId: number;
 }
 
-const AdicionarAmigo = ({ getAmigos, usuarioId }: AdicionarAmigoProps) => {
+const AmigoAdicionar = ({ getAmigos, usuarioId }: AmigoAdicionarProps) => {
   const [usuarios, setUsuarios] = useState<IUsuario[]>([]);
   const [usuariosClone, setUsuariosClone] = useState<IUsuario[]>([]);
   const [carregando, setCarregando] = useState<boolean>(false);
@@ -180,4 +180,4 @@ const AdicionarAmigo = ({ getAmigos, usuarioId }: AdicionarAmigoProps) => {
   );
 };
 
-export default AdicionarAmigo;
+export default AmigoAdicionar;

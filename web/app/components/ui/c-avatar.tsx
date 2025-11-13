@@ -4,11 +4,17 @@ import { Avatar, AvatarFallback, AvatarImage } from "./avatar";
 interface CAvatarProps {
   src: string;
   alt: string;
+  width?: string;
+  height?: string;
 }
 
-const CAvatar = ({ src, alt }: CAvatarProps) => {
+const CAvatar = ({ src, alt, width, height }: CAvatarProps) => {
   return (
-    <Avatar className="h-8 w-8 rounded-4xl">
+    <Avatar
+      className={`${width ? width : "w-8"} ${
+        height ? height : "h-8"
+      }   rounded-full`}
+    >
       <AvatarImage src={src} alt={alt} />
       <AvatarFallback className="rounded-lg">CN</AvatarFallback>
     </Avatar>

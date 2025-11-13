@@ -2,6 +2,7 @@
 using api.Models;
 using api.Services;
 using Humanizer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
@@ -13,6 +14,7 @@ using System.Threading.Tasks;
 
 namespace api.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ConversasController : ControllerBase
@@ -55,6 +57,7 @@ namespace api.Controllers
                 .Select(c => new
                 {
                     c.ConversaId,
+                    c.Grupo,
                     ConversaUsuarios = c.Grupo == 0 ? c.ConversaUsuarios.Where(u => u.UsuarioId == usuarioId).Select(g => new
                     {
                         g.ConversaNome,
@@ -132,6 +135,37 @@ namespace api.Controllers
             }
 
             return Ok(new Message<Conversa>("Conversa alterada com sucesso!", conversa, false));
+        }
+
+
+        // PUT: api/Conversas/conversaGrupo/5
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPut("conversaGrupo/{id}")]
+        public async Task<IActionResult> PutConversaUsuario(int id, [FromForm] ConversaDTO conversausuario)
+        {
+            List<ConversaUsuario> coonversausuarios = new List<ConversaUsuario>();
+
+            var conversasusuarioexiste = await _context.ConversaUsuarios.Where(e => e.ConversaId == id).ToListAsync();
+
+            if (conversasusuarioexiste.Count == 0)
+            {
+                return BadRequest(new Message<ConversaUsuario>("Conversa não existe.", new ConversaUsuario { }, true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status400BadRequest)));
+            }
+
+            foreach (var c in conversasusuarioexiste)
+            {
+                c.ConversaNome = conversausuario.ConversaUsuarios[0].ConversaNome;
+                _context.Entry(c).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+                var geralService = new GeralService(_configuration);
+                var pastaConversa = Path.Combine("conversas", $"conversa_{c.ConversaId}", "perfil");
+
+                var arquivo = await geralService.AlterarArquivo(c.ConversaFoto, pastaConversa);
+                c.ConversaFoto = arquivo;
+                coonversausuarios.Add(c);
+            }
+
+            return Ok(new Message<List<ConversaUsuario>>("Conversa atualizada com sucesso!", coonversausuarios, false));
         }
 
         [HttpPost]

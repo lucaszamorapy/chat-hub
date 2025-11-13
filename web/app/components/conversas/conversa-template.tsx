@@ -1,21 +1,23 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { IConversa } from "../types/conversas";
-import CAvatar from "./ui/c-avatar";
-import { Input } from "./ui/input";
-import { Button } from "./ui/button";
+import { IConversa } from "../../types/conversas";
+import CAvatar from "../ui/c-avatar";
+import { Input } from "../ui/input";
+import { Button } from "../ui/button";
 import { SendHorizonalIcon } from "lucide-react";
-import { IMensagem } from "../types/mensagens";
-import { enviarMensagem } from "../_actions/mensagens";
+import { IMensagem } from "../../types/mensagens";
+import { enviarMensagem } from "../../_actions/mensagens";
 import { toast } from "sonner";
-import { useAuth } from "../contexts/auth-provider";
-import MensagemTemplate from "./mensagem-template";
-import { IUsuario } from "../types/usuarios";
-import { conexaoSignalR } from "../_actions/signalr";
+import { useAuth } from "../../contexts/auth-provider";
+import MensagemTemplate from "../mensagens/mensagem-template";
+import { IUsuario } from "../../types/usuarios";
+import { conexaoSignalR } from "../../_actions/signalr";
+import ConversaEditar from "./conversa-editar";
+import { getConversaById } from "../../_actions/conversas";
 
 interface ConversaTemplateProps {
-  conversa: IConversa;
+  conversaInicial: IConversa;
 }
 
 interface SignalRMensagem {
@@ -27,9 +29,11 @@ interface SignalRMensagem {
   nome: string;
 }
 
-const ConversaTemplate = ({ conversa }: ConversaTemplateProps) => {
+const ConversaTemplate = ({ conversaInicial }: ConversaTemplateProps) => {
   const [mensagem, setMensagem] = useState<string>("");
-  const [carregando, setCarregando] = useState<boolean>();
+  const [conversa, setConversa] = useState<IConversa>(conversaInicial);
+  const [openEditar, setOpenEditar] = useState<boolean>(false);
+  const [carregando, setCarregando] = useState<boolean>(false);
   const [mensagens, setMensagens] = useState<IMensagem[]>(
     conversa.mensagens ?? []
   );
@@ -62,6 +66,16 @@ const ConversaTemplate = ({ conversa }: ConversaTemplateProps) => {
     };
   }, [conversa.conversaId]);
 
+  const recarregarConversa = async () => {
+    setCarregando(true);
+    try {
+      const novaConversa = await getConversaById(conversa.conversaId!);
+      setConversa(novaConversa.resultado);
+    } finally {
+      setCarregando(false);
+    }
+  };
+
   const enviar = async () => {
     try {
       setCarregando(true);
@@ -93,7 +107,8 @@ const ConversaTemplate = ({ conversa }: ConversaTemplateProps) => {
   return (
     <div className="flex flex-col items-center">
       <div
-        className="flex items-center p-4 rounded-tl-lg rounded-tr-lg gap-2 bg-primary
+        onClick={() => setOpenEditar(!openEditar)}
+        className="cursor-pointer flex items-center p-4 rounded-tl-lg rounded-tr-lg gap-2 bg-primary
        w-full"
       >
         <CAvatar
@@ -145,6 +160,12 @@ const ConversaTemplate = ({ conversa }: ConversaTemplateProps) => {
           <SendHorizonalIcon />
         </Button>
       </div>
+      <ConversaEditar
+        open={openEditar}
+        conversa={conversa}
+        setOpen={() => setOpenEditar(!openEditar)}
+        load={async () => await recarregarConversa()}
+      />
     </div>
   );
 };

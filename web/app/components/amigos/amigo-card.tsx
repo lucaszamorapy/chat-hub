@@ -1,27 +1,27 @@
 "use client";
 
-import { IAmigo } from "../types/amigos";
+import { IAmigo } from "../../types/amigos";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
-import { Button } from "./ui/button";
+} from "../ui/dropdown-menu";
+import { Button } from "../ui/button";
 import {
   MoreHorizontalIcon,
   SendHorizonal,
   UserCheck,
   UserRoundX,
 } from "lucide-react";
-import { criarConversa } from "../_actions/conversas";
+import { criarConversa } from "../../_actions/conversas";
 import { toast } from "sonner";
-import { IConversa, IConversaUsuario } from "../types/conversas";
+import { IConversa, IConversaUsuario } from "../../types/conversas";
 import { useRouter } from "next/navigation";
-import { alterarAmigo, excluirAmigo } from "../_actions/amigos";
-import { useAuth } from "../contexts/auth-provider";
-import CAvatar from "./ui/c-avatar";
+import { alterarAmigo, excluirAmigo } from "../../_actions/amigos";
+import { useAuth } from "../../contexts/auth-provider";
+import CAvatar from "../ui/c-avatar";
 
 interface AmigoProps {
   amigo: IAmigo;

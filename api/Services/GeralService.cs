@@ -49,5 +49,24 @@
 
             return caminhoArquivo;
         }
+        public async Task<string> AlterarArquivo(string arquivo, string subpasta = "")
+        {
+            var pastaConversa = Path.Combine(_caminhoGeral, subpasta);
+
+            // Cria a pasta se não existir
+            if (!Directory.Exists(pastaConversa))
+            {
+                Directory.CreateDirectory(pastaConversa);
+            }
+
+            // Gera o caminho do arquivo (por exemplo, conversa.png)
+            var caminhoArquivo = Path.Combine(pastaConversa, arquivo);
+
+            // Escreve o conteúdo (precisa ser base64 ou texto)
+            System.IO.File.WriteAllText(caminhoArquivo, arquivo);
+            var nomeArquivo = Path.GetFileName(caminhoArquivo);
+
+            return nomeArquivo;
+        }
     }
 }

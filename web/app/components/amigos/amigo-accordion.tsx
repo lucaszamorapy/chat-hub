@@ -6,10 +6,10 @@ import {
   AccordionItem,
   AccordionTrigger,
   AccordionContent,
-} from "./ui/accordion";
-import { IAmigo } from "../types/amigos";
+} from "../ui/accordion";
+import { IAmigo } from "../../types/amigos";
 import AmigoCard from "./amigo-card";
-import { Badge } from "./ui/badge";
+import { Badge } from "../ui/badge";
 
 interface AmigosAccordionProps {
   amigos: IAmigo[];

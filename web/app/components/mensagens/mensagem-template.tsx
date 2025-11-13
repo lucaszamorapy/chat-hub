@@ -1,6 +1,6 @@
 import { CheckCheck } from "lucide-react";
-import { useAuth } from "../contexts/auth-provider";
-import { formatarData } from "../utils";
+import { useAuth } from "../../contexts/auth-provider";
+import { formatarData } from "../../utils";
 
 interface MensagemTemplateProps {
   mensagem: string;

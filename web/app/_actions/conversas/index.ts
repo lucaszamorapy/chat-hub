@@ -53,3 +53,14 @@ export const criarConversaUsuarios = async (conversaUsuarios: IConversaUsuario) 
     return formatarError(error.response?.data || error.response?.data.title);
   }
 }
+
+export const alterarConversa = async (conversaId: number, conversa: FormData) => {
+  try {
+    const { data } = await api.put(`/Conversas/conversaGrupo/${conversaId}`, conversa)
+    return data;
+  } catch (error: any) {
+    console.log('error', error.response.data)
+    console.error(error.response?.data.mensagemApi)
+    return formatarError(error.response?.data || error.response?.data.title);
+  }
+}

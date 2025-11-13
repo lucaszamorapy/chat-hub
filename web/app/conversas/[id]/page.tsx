@@ -1,5 +1,5 @@
 import { getConversaById } from "@/app/_actions/conversas";
-import ConversaTemplate from "@/app/components/conversa-template";
+import ConversaTemplate from "@/app/components/conversas/conversa-template";
 
 const ConversasPage = async ({
   params,
@@ -8,7 +8,7 @@ const ConversasPage = async ({
 }) => {
   const { id } = await params;
   const conversa = await getConversaById(Number(id));
-  return <ConversaTemplate conversa={conversa.resultado} />;
+  return <ConversaTemplate conversaInicial={conversa.resultado} />;
 };
 
 export default ConversasPage;

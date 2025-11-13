@@ -8,8 +8,8 @@ import { Input } from "@/app/components/ui/input";
 import z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { login } from "../_actions/usuarios";
-import { useAuth } from "../contexts/auth-provider";
+import { cadastro } from "../../_actions/usuarios";
+import { useAuth } from "../../contexts/auth-provider";
 import { useState } from "react";
 import {
   Form,
@@ -18,28 +18,37 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "./ui/form";
+} from "../ui/form";
 import { Eye, EyeOff } from "lucide-react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import Link from "next/link";
+import { InputFile } from "../ui/input-file";
 
 const formSchema = z.object({
+  email: z.string().email({
+    message: "Por favor, insira um e-mail válido.",
+  }),
+  nome: z.string().min(1, { message: "Por favor, preencha o seu nome." }),
   apelido: z.string().min(1, { message: "Por favor, preencha o seu apelido." }),
   senha: z.string().min(6, {
     message: "A senha deve conter no mínimo 6 dígitos.",
   }),
 });
 
-const LoginForm = ({ className, ...props }: React.ComponentProps<"div">) => {
+const CadastroForm = ({ className, ...props }: React.ComponentProps<"div">) => {
   const [visualizar, setVisualizar] = useState<boolean>(false);
   const [carregando, setCarregando] = useState<boolean>(false);
+  const [perfilFoto, setPerfilFoto] = useState<File | null>(null);
+
   const { setAuth } = useAuth();
   const rota = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      email: "",
+      nome: "",
       apelido: "",
       senha: "",
     },
@@ -48,7 +57,16 @@ const LoginForm = ({ className, ...props }: React.ComponentProps<"div">) => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setCarregando(true);
     try {
-      const data = await login(values);
+      const formData = new FormData();
+      formData.append("email", values.email);
+      formData.append("nome", values.nome);
+      formData.append("apelido", values.apelido);
+      formData.append("senha", values.senha);
+
+      if (perfilFoto) {
+        formData.append("perfilFoto", perfilFoto);
+      }
+      const data = await cadastro(formData);
       if (!data.erro) {
         setAuth({
           nome: data.resultado.usuario.nome,
@@ -82,13 +100,46 @@ const LoginForm = ({ className, ...props }: React.ComponentProps<"div">) => {
               <FieldGroup>
                 <div className="flex flex-col items-center gap-2 text-center">
                   <h1 className="text-2xl font-bold">
-                    Bem-vindo(a){" "}
-                    <span className="text-primary">novamente!</span>
+                    Crie sua conta <span className="text-primary">agora!</span>
                   </h1>
                   <p className="text-muted-foreground text-balance font-sx">
-                    Entre em sua conta do ChatHub
+                    Preencha os dados abaixo para começar fofocar no ChatHub :)
                   </p>
                 </div>
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>E-mail</FormLabel>
+                      <FormControl>
+                        <Input placeholder="chathub@exemplo.com" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="nome"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nome</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Digite seu nome" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <InputFile
+                  label="Foto de Perfil"
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    if (e.target.files && e.target.files.length > 0) {
+                      setPerfilFoto(e.target.files[0]);
+                    }
+                  }}
+                />
                 <FormField
                   control={form.control}
                   name="apelido"
@@ -106,9 +157,6 @@ const LoginForm = ({ className, ...props }: React.ComponentProps<"div">) => {
                   )}
                 />
                 <div className="flex flex-col gap-5">
-                  <FieldDescription className="flex justify-end items-end">
-                    <Link href={"#"}>Esqueceu sua senha?</Link>
-                  </FieldDescription>
                   <FormField
                     control={form.control}
                     name="senha"
@@ -146,17 +194,17 @@ const LoginForm = ({ className, ...props }: React.ComponentProps<"div">) => {
                 <div className="flex flex-col gap-2">
                   {carregando ? (
                     <Button loading={carregando} className="text-white">
-                      Entrando
+                      Cadastrando
                     </Button>
                   ) : (
                     <Button className="text-white" type="submit">
-                      Entrar
+                      Cadastrar
                     </Button>
                   )}
                 </div>
                 <FieldDescription className="text-center">
-                  Não tem uma conta no ChatHub?{" "}
-                  <Link href={"/cadastro"}>Cadastre-se</Link>
+                  Já tem uma conta no ChatHub?{" "}
+                  <Link href={"/login"}>Entre agora</Link>
                 </FieldDescription>
               </FieldGroup>
             </form>
@@ -180,4 +228,4 @@ const LoginForm = ({ className, ...props }: React.ComponentProps<"div">) => {
   );
 };
 
-export default LoginForm;
+export default CadastroForm;

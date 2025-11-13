@@ -25,11 +25,11 @@ import { IAmigo } from "../types/amigos";
 import { toast } from "sonner";
 import { IMensagem } from "../types/mensagens";
 import { useCallback, useEffect, useState } from "react";
-import ConversaCard from "./conversa-card";
+import ConversaCard from "./conversas/conversa-card";
 import { getAmigosByUsuario } from "../_actions/amigos";
-import AmigoAccordion from "./amigo-accordion";
-import AdicionarAmigo from "./adicionar-amigo";
-import AdicionarGrupo from "./adicionar-grupo";
+import AmigoAccordion from "./amigos/amigo-accordion";
+import AmigoAdicionar from "./amigos/amigo-adicionar";
+import ConversaAdicionar from "./conversas/conversa-adicionar";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [itemAtivo, setItemAtivo] = useState("Conversas");
@@ -216,13 +216,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 {itemAtivo}
               </span>
               {itemAtivo === "Amigos" && amigos && (
-                <AdicionarAmigo
+                <AmigoAdicionar
                   getAmigos={async () => await getAmigos()}
                   usuarioId={auth.usuarioId!}
                 />
               )}
               {itemAtivo === "Conversas" && (
-                <AdicionarGrupo
+                <ConversaAdicionar
                   getAmigos={async () => await getAmigos()}
                   getConversas={async () => await getConversas()}
                   usuarioId={auth.usuarioId!}
