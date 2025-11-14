@@ -11,7 +11,6 @@ import { enviarMensagem } from "../../_actions/mensagens";
 import { toast } from "sonner";
 import { useAuth } from "../../contexts/auth-provider";
 import MensagemTemplate from "../mensagens/mensagem-template";
-import { IUsuario } from "../../types/usuarios";
 import { conexaoSignalR } from "../../_actions/signalr";
 import ConversaEditar from "./conversa-editar";
 import { getConversaById } from "../../_actions/conversas";
@@ -53,10 +52,8 @@ const ConversaTemplate = ({ conversaInicial }: ConversaTemplateProps) => {
           mensagem: dados.mensagem,
           regidh: dados.regidh,
           visualizada: dados.visualizada,
-          usuario: {
-            usuarioId: dados.usuarioId,
-            nome: dados.nome,
-          } as IUsuario,
+          usuarioId: dados.usuarioId,
+          usuarioNome: dados.nome,
         },
       ]);
     });
@@ -124,17 +121,13 @@ const ConversaTemplate = ({ conversaInicial }: ConversaTemplateProps) => {
       <div className="flex h-[700px] p-4 w-full mt-5 flex-col gap-5 overflow-y-scroll">
         {mensagens && mensagens.length > 0 ? (
           mensagens.map((msg, index) => {
-            if (msg.usuario) {
-              return (
-                <MensagemTemplate
-                  key={index}
-                  mensagem={msg.mensagem}
-                  usuarioId={msg.usuario.usuarioId!}
-                  hora={msg.regidh!}
-                  visualizada={msg.visualizada}
-                />
-              );
-            }
+            return (
+              <MensagemTemplate
+                key={index}
+                mensagem={msg}
+                grupo={conversa.grupo}
+              />
+            );
           })
         ) : (
           <div className="p-2 flex justify-center items-center text-xs">

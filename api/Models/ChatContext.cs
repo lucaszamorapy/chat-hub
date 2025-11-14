@@ -11,7 +11,6 @@ public partial class ChatContext : DbContext
     {
     }
 
-
     public virtual DbSet<Amigo> Amigos { get; set; }
 
     public virtual DbSet<Conversa> Conversas { get; set; }
@@ -25,6 +24,8 @@ public partial class ChatContext : DbContext
     public virtual DbSet<Vwamigo> Vwamigos { get; set; }
 
     public virtual DbSet<Vwconversausuario> Vwconversausuarios { get; set; }
+
+    public virtual DbSet<Vwmensagen> Vwmensagens { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
@@ -303,6 +304,37 @@ public partial class ChatContext : DbContext
             entity.Property(e => e.UsuarioPerfilFoto)
                 .HasMaxLength(255)
                 .HasColumnName("usuario_perfil_foto");
+        });
+
+        modelBuilder.Entity<Vwmensagen>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("vwmensagens");
+
+            entity.Property(e => e.ConversaId).HasColumnName("conversa_id");
+            entity.Property(e => e.Mensagem)
+                .HasMaxLength(2000)
+                .HasColumnName("mensagem");
+            entity.Property(e => e.MensagemId).HasColumnName("mensagem_id");
+            entity.Property(e => e.Regadh)
+                .HasColumnType("datetime")
+                .HasColumnName("regadh");
+            entity.Property(e => e.Regausu).HasColumnName("regausu");
+            entity.Property(e => e.Regidh)
+                .HasColumnType("datetime")
+                .HasColumnName("regidh");
+            entity.Property(e => e.Regiusu).HasColumnName("regiusu");
+            entity.Property(e => e.UsuarioApelido)
+                .HasMaxLength(255)
+                .HasColumnName("usuario_apelido");
+            entity.Property(e => e.UsuarioId).HasColumnName("usuario_id");
+            entity.Property(e => e.UsuarioNome)
+                .HasMaxLength(255)
+                .HasColumnName("usuario_nome");
+            entity.Property(e => e.Visualizada)
+                .HasColumnType("datetime")
+                .HasColumnName("visualizada");
         });
 
         OnModelCreatingPartial(modelBuilder);

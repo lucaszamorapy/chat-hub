@@ -136,7 +136,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const conversasFiltradas = ativo
       ? conversasClone?.filter(
           (conversa: IConversaUsuario) =>
-            conversa.mensagens?.some((msg) => !msg.visualizada) ?? false
+            conversa.mensagens?.some(
+              (msg) => !msg.visualizada && msg.usuarioId !== auth.usuarioId
+            ) ?? false
         )
       : conversasClone;
 
@@ -260,6 +262,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         key={item.conversaId}
                         conversa={item}
                         mensagensVisualizadas={mensagensVisualizadas!}
+                        load={async () => await getConversas()}
                       />
                     );
                   })

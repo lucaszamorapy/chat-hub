@@ -35,7 +35,12 @@ const AmigoCard = ({ amigo, status, atualizar }: AmigoProps) => {
 
   const iniciarConversa = async () => {
     try {
-      const usuarios = [amigo.usuarioId, amigo.usuarioAmigoId!];
+      const usuarioIdDiff =
+        amigo.usuarioId !== auth.usuarioId
+          ? amigo.usuarioId
+          : amigo.usuarioAmigoId;
+
+      const usuarios = [usuarioIdDiff!, auth.usuarioId!];
       let novaConversa: IConversa = {
         grupo: 0,
       };
@@ -76,7 +81,7 @@ const AmigoCard = ({ amigo, status, atualizar }: AmigoProps) => {
   };
   const removerAmigo = async () => {
     try {
-      const data = await excluirAmigo(amigo.amigoId!);
+      const data = await excluirAmigo(amigo.amigoId!, amigo.usuarioAmigoId!);
       if (!data.erro) {
         if (atualizar) {
           atualizar();
@@ -129,7 +134,13 @@ const AmigoCard = ({ amigo, status, atualizar }: AmigoProps) => {
           <div className="flex w-full justify-between">
             <div className="flex items-center gap-2">
               <CAvatar
-                src={`${process.env.NEXT_PUBLIC_APP_URL}/uploads/usuarios/usuario_${amigo.usuarioAmigoId}/perfil/${amigo.perfilFotoAmigo}`}
+                src={`${
+                  process.env.NEXT_PUBLIC_APP_URL
+                }/uploads/usuarios/usuario_${
+                  amigo.usuarioAmigoId !== auth.usuarioId
+                    ? amigo.usuarioAmigoId
+                    : amigo.usuarioId
+                }/perfil/${amigo.perfilFotoAmigo}`}
                 alt={amigo.apelidoAmigo!}
               />
 
@@ -157,7 +168,7 @@ const AmigoCard = ({ amigo, status, atualizar }: AmigoProps) => {
                       </div>
                     </DropdownMenuItem>
                   )}
-                  {auth.usuarioId === amigo.usuarioAmigoId &&
+                  {auth.usuarioId !== amigo.usuarioId &&
                     status === "Pendente" && (
                       <DropdownMenuItem
                         className="text-xs cursor-pointer"

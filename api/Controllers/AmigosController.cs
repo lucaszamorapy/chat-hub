@@ -62,8 +62,8 @@ namespace api.Controllers
 
                 var amigoFiltrado = new Vwamigo
                 {
-                    UsuarioId = amigo.UsuarioId,
-                    UsuarioAmigoId = amigo.UsuarioAmigoId,
+                    UsuarioId = amigo.UsuarioId, //30
+                    UsuarioAmigoId = amigo.UsuarioAmigoId, //32
                     AmigoId = amigo.AmigoId,
                     NomeAmigo = usuarioEhUsuarioId ? amigo.NomeAmigo : amigo.Nome,
                     ApelidoAmigo = usuarioEhUsuarioId ? amigo.ApelidoAmigo : amigo.Apelido,
@@ -97,18 +97,20 @@ namespace api.Controllers
         public async Task<IActionResult> PutAmigo(int id, Amigo amigo)
         {
             Vwamigo amigoView = new Vwamigo();
+            var amigoBd = await _context.Amigos.Where(e => e.AmigoId == id).FirstOrDefaultAsync();
+            amigoBd.Status = amigo.Status;
 
             if (id != amigo.AmigoId)
             {
                 return BadRequest(new Message<List<Amigo>>("Ocorreu um erro ao alterar o seu amigo", new List<Amigo>(), true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status400BadRequest)));
             }
 
-            _context.Entry(amigo).State = EntityState.Modified;
+            _context.Entry(amigoBd).State = EntityState.Modified;
 
             try
             {
                 await _context.SaveChangesAsync();
-                amigoView = await _context.Vwamigos.Where(e => e.AmigoId == amigo.AmigoId).FirstOrDefaultAsync();
+                amigoView = await _context.Vwamigos.Where(e => e.AmigoId == id).FirstOrDefaultAsync();
 
             }
             catch (DbUpdateConcurrencyException)
@@ -145,17 +147,40 @@ namespace api.Controllers
             }
         }
 
-        // DELETE: api/Amigos/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAmigo(int id)
+        // DELETE: api/Amigos/5/4
+        [HttpDelete("{id}/{usuarioAmigoId}")]
+        public async Task<IActionResult> DeleteAmigo(int id, int usuarioAmigoId)
         {
             var amigo = await _context.Amigos.FindAsync(id);
+            var usuarioId = TokenService.GetTokenUserId(HttpContext);
             if (amigo == null)
             {
                 return NotFound(new Message<Amigo>("Ocorreu um erro ao excluir o seu amigo", new Amigo { }, true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status404NotFound)));
             }
 
             _context.Amigos.Remove(amigo);
+
+            var conversasDosDois = await _context.Vwconversausuarios
+                .Where(e => e.Grupo == 0 &&
+                       (e.UsuarioId == usuarioId || e.UsuarioId == usuarioAmigoId))
+                .GroupBy(e => e.ConversaId)
+                .Where(g =>
+                    g.Any(x => x.UsuarioId == usuarioId) &&
+                    g.Any(x => x.UsuarioId == usuarioAmigoId)
+                )
+                .Select(g => g.Key)
+                .ToListAsync();
+
+            if (conversasDosDois == null)
+            {
+                return NotFound(new Message<Conversa>("Ocorreu um erro ao excluir a conversa relacionada", new Conversa { }, true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status404NotFound)));
+            }
+
+            var conversas = await _context.Conversas
+                .Where(c => conversasDosDois.Contains(c.ConversaId))
+                .ToListAsync();
+
+            _context.Conversas.RemoveRange(conversas);
             await _context.SaveChangesAsync();
 
             return Ok(new Message<Amigo>("Amigo excluído com sucesso!", new Amigo { }, false));

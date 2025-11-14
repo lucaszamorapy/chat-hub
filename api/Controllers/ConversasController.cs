@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace api.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ConversasController : ControllerBase
@@ -47,55 +47,20 @@ namespace api.Controllers
             }
         }
 
-        // GET: api/Conversas/5
+        // GET: api/Conversa/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Vwconversausuario>> GetConversa(int id)
+        public async Task<ActionResult<Conversa>> GetConversa(int id)
         {
-            var usuarioId = TokenService.GetTokenUserId(HttpContext);
-            var conversa = await _context.Vwconversausuarios
-                .Where(v => v.ConversaId == id)
-                .ToListAsync();
-
-            var resultado = new
-            {
-                ConversaId = conversa.First().ConversaId,
-                Grupo = conversa.First().Grupo,
-                ConversaUsuarios = conversa.Select(v => new
-                {
-                    v.ConversaUsuariosId,
-                    v.Cargo,
-                    v.ConversaNome,
-                    v.ConversaFoto,
-                    v.UsuarioId,
-                    v.UsuarioNome,
-                    v.UsuarioApelido,
-                    v.UsuarioPerfilFoto,
-                }),
-                Mensagens = await _context.Mensagens
-                .Where(m => m.ConversaId == id)
-                .Select(m => new
-                {
-                    m.MensagemId,
-                    m.Mensagem,
-                    Usuario = new
-                    {
-                        m.Usuario.UsuarioId,
-                        m.Usuario.Nome,
-                    },
-                    m.Visualizada,
-                    m.Regidh
-                })
-                .ToListAsync()
-            };
-
+            var conversa = await _context.Conversas.FindAsync(id);
 
             if (conversa == null)
             {
-                return BadRequest(new Message<Conversa>("Conversa não encontrada.", new Conversa { }, true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status404NotFound)));
+                return BadRequest(new Message<Conversa>("Ocorreu um erro ao obter a conversa com usuário", new Conversa { }, true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status400BadRequest)));
             }
 
-            return Ok(new Message<object>("", resultado, false));
+            return Ok(new Message<Conversa>("", conversa, false));
         }
+
 
 
         // PUT: api/Conversas/5
@@ -238,6 +203,7 @@ namespace api.Controllers
                     //se for conversa privada, pegar a foto do outro usuário
                     if (grupo == 0)
                     {
+                        var usuarioId = TokenService.GetTokenUserId(HttpContext);
                         var parceiro = usuarios.FirstOrDefault(u => u.UsuarioId != usuario.UsuarioId);
 
                         if (parceiro != null)

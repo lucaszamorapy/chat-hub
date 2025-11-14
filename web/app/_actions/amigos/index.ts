@@ -12,9 +12,9 @@ export const getAmigosByUsuario = async (usuarioId: number) => {
   }
 }
 
-export const excluirAmigo = async (amigoId: number) => {
+export const excluirAmigo = async (amigoId: number, usuarioAmigoId: number) => {
   try {
-    const { data } = await api.delete(`/Amigos/${amigoId}`)
+    const { data } = await api.delete(`/Amigos/${amigoId}/${usuarioAmigoId}`)
     return data;
   } catch (error: any) {
     return formatarError(error.response?.data || error.response?.data.title);

@@ -1,10 +1,9 @@
-import { IUsuario } from "../usuarios";
-
 export interface IMensagem {
   mensagemId?: number;
   conversaId?: number;
   usuarioId?: number
-  usuario?: IUsuario
+  usuarioNome?: string;
+  usuarioApelido?: string;
   mensagem: string;
   visualizada?: Date;
   regidh?: Date;

@@ -11,11 +11,13 @@ import CAvatar from "../ui/c-avatar";
 interface ConversaCardProps {
   conversa: IConversaUsuario;
   mensagensVisualizadas: IMensagem[];
+  load: () => Promise<void>;
 }
 
 const ConversaCard = ({
   conversa,
   mensagensVisualizadas,
+  load,
 }: ConversaCardProps) => {
   const [msgVisualizasQtd, setMsgVisualizadasQtd] = useState<number>(
     mensagensVisualizadas.length
@@ -29,6 +31,7 @@ const ConversaCard = ({
         toast.error(data.mensagem);
       }
       setMsgVisualizadasQtd(0);
+      await load();
     } catch (error) {
       console.error(error);
     }

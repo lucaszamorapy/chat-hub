@@ -15,7 +15,7 @@ export const getConversasByUsuario = async (usuarioId: number) => {
 
 export const getConversaById = async (id: number) => {
   try {
-    const { data } = await api.get(`/Conversas/${id}`)
+    const { data } = await api.get(`/ConversaUsuarios/${id}`)
     return data;
   } catch (error: any) {
     console.log(error.response.data)

@@ -42,17 +42,52 @@ namespace api.Controllers
 
         // GET: api/ConversaUsuarios/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Vwconversausuario>> GetConversaUsuario(int id)
+        public async Task<ActionResult<Vwconversausuario>> GetConversa(int id)
         {
-            var conversausuario = await _context.Vwconversausuarios.FindAsync(id);
+            var usuarioId = TokenService.GetTokenUserId(HttpContext);
 
-            if (conversausuario == null)
+            var conversas = await _context.Vwconversausuarios
+                .Where(v => v.ConversaId == id && v.UsuarioId == usuarioId)
+                .ToListAsync();
+
+            var resultado = new
             {
-                return BadRequest(new Message<Vwconversausuario>("Ocorreu um erro ao obter a conversa com usuário", new Vwconversausuario { }, true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status400BadRequest)));
+                ConversaId = conversas.First().ConversaId,
+                Grupo = conversas.First().Grupo,
+                ConversaUsuarios = conversas.Select(v => new
+                {
+                    v.ConversaUsuariosId,
+                    v.Cargo,
+                    v.ConversaNome,
+                    v.ConversaFoto,
+                    v.UsuarioId,
+                    v.UsuarioNome,
+                    v.UsuarioApelido,
+                    v.UsuarioPerfilFoto,
+                }),
+                Mensagens = await _context.Vwmensagens
+                .Where(m => m.ConversaId == id)
+                .Select(m => new
+                {
+                    m.MensagemId,
+                    m.Mensagem,
+                    m.UsuarioId,
+                    m.UsuarioNome,
+                    m.Visualizada,
+                    m.Regidh
+                })
+                .ToListAsync()
+            };
+
+
+            if (conversas == null)
+            {
+                return BadRequest(new Message<Vwconversausuario>("Conversa não encontrada.", new Vwconversausuario { }, true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status404NotFound)));
             }
 
-            return Ok(new Message<Vwconversausuario>("", conversausuario, false));
+            return Ok(new Message<object>("", resultado, false));
         }
+
 
         // GET: api/ConversaUsuarios/usuario/5
         [HttpGet("usuario/{id}")]
@@ -110,7 +145,7 @@ namespace api.Controllers
             }
 
             conversausuarioexiste.Cargo = conversausuario.Cargo;
-            _context.Entry(conversausuarioexiste).State = EntityState.Modified; 
+            _context.Entry(conversausuarioexiste).State = EntityState.Modified;
 
             try
             {
@@ -132,7 +167,7 @@ namespace api.Controllers
         }
 
 
-       
+
 
         //POST: api/ConversaUsuarios
         //To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754

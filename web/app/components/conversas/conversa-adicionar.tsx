@@ -97,6 +97,9 @@ const ConversaAdicionar = ({
     setCarregando(true);
     try {
       const novosAmigos = [...amigosSelecionados, auth.usuarioId!];
+      console.log(amigosSelecionados);
+      console.log(novosAmigos);
+
       if (amigosSelecionados.length === 0) {
         setCarregando(false);
         return toast.error(
@@ -255,7 +258,13 @@ const ConversaAdicionar = ({
                         <div className="flex w-full justify-between">
                           <div className="flex gap-2">
                             <CAvatar
-                              src={`${process.env.NEXT_PUBLIC_APP_URL}/uploads/usuarios/usuario_${amigo.usuarioAmigoId}/perfil/${amigo.perfilFotoAmigo}`}
+                              src={`${
+                                process.env.NEXT_PUBLIC_APP_URL
+                              }/uploads/usuarios/usuario_${
+                                amigo.usuarioAmigoId !== auth.usuarioId
+                                  ? amigo.usuarioAmigoId
+                                  : amigo.usuarioId
+                              }/perfil/${amigo.perfilFotoAmigo}`}
                               alt={amigo.apelidoAmigo!}
                             />
                             <div className="flex flex-col w-full">
@@ -269,7 +278,9 @@ const ConversaAdicionar = ({
                           </div>
                           <div className="flex ">
                             {!amigosSelecionados.includes(
-                              amigo.usuarioAmigoId!
+                              amigo.usuarioAmigoId !== auth.usuarioId
+                                ? amigo.usuarioAmigoId!
+                                : amigo.usuarioId!
                             ) ? (
                               <Button
                                 type="button"
@@ -277,7 +288,9 @@ const ConversaAdicionar = ({
                                 variant={"ghost"}
                                 onClick={() =>
                                   amigosGrupo(
-                                    amigo.usuarioAmigoId!,
+                                    amigo.usuarioAmigoId !== auth.usuarioId
+                                      ? amigo.usuarioAmigoId!
+                                      : amigo.usuarioId!,
                                     "adicionar"
                                   )
                                 }
@@ -293,7 +306,12 @@ const ConversaAdicionar = ({
                                 loading={carregando}
                                 variant={"ghost"}
                                 onClick={() =>
-                                  amigosGrupo(amigo.usuarioAmigoId!, "remover")
+                                  amigosGrupo(
+                                    amigo.usuarioAmigoId !== auth.usuarioId
+                                      ? amigo.usuarioAmigoId!
+                                      : amigo.usuarioId!,
+                                    "remover"
+                                  )
                                 }
                               >
                                 <UserRoundMinus
