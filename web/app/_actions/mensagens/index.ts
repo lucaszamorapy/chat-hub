@@ -8,7 +8,6 @@ export const enviarMensagem = async (mensagem: IMensagem) => {
     const { data } = await api.post("/Mensagens", mensagem)
     return data;
   } catch (error: any) {
-    console.error(error.response?.data.mensagemApi)
     return formatarError(error.response?.data || error.response?.data.title);
   }
 }

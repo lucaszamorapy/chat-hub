@@ -5,9 +5,17 @@ namespace api.Models;
 
 public partial class Vwconversausuario
 {
+    public int ConversaUsuariosId { get; set; }
+
     public int ConversaId { get; set; }
 
-    public int UsuarioId { get; set; }
+    public int? UsuarioId { get; set; }
+
+    public string? UsuarioNome { get; set; }
+
+    public string? UsuarioApelido { get; set; }
+
+    public string? UsuarioPerfilFoto { get; set; }
 
     public DateTime UsuarioEntrou { get; set; }
 

@@ -16,7 +16,7 @@ const CAvatar = ({ src, alt, width, height }: CAvatarProps) => {
       }   rounded-full`}
     >
       <AvatarImage src={src} alt={alt} />
-      <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+      <AvatarFallback className="rounded-full">CN</AvatarFallback>
     </Avatar>
   );
 };

@@ -27,12 +27,12 @@ import {
   FormLabel,
   FormMessage,
 } from "../ui/form";
-import { InputFile } from "../ui/input-file";
 import { useRouter } from "next/navigation";
 import { criarConversa } from "../../_actions/conversas";
 import { IConversaUsuario } from "../../types/conversas";
 import { useAuth } from "../../contexts/auth-provider";
 import CAvatar from "../ui/c-avatar";
+import InputFile from "../ui/input-file";
 
 interface ConversaAdicionarProps {
   getAmigos: () => Promise<IAmigo[]>;
@@ -186,7 +186,7 @@ const ConversaAdicionar = ({
           <UserRoundPlus className="text-primary " />
         </Button>
       </DialogTrigger>
-      <DialogContent style={{ height: "70%" }} className="gap-5">
+      <DialogContent style={{ height: "77%" }} className="gap-5">
         <DialogHeader>
           <DialogTitle className="text-black">
             Adicionar <span className="text-primary">Grupo</span>
@@ -197,11 +197,22 @@ const ConversaAdicionar = ({
         </DialogHeader>
         <Form {...form}>
           <form className="gap-5" onSubmit={form.handleSubmit(onSubmit)}>
+            <InputFile
+              style="mt-5 mb-5"
+              label="Foto do Grupo"
+              width="w-30"
+              height="h-30"
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                if (e.target.files && e.target.files.length > 0) {
+                  setGrupoFoto(e.target.files[0]);
+                }
+              }}
+            />
             <FormField
               control={form.control}
               name="conversaNome"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="mb-5">
                   <FormLabel>Nome</FormLabel>
                   <FormControl>
                     <Input placeholder="Digite o nome do grupo" {...field} />
@@ -210,17 +221,7 @@ const ConversaAdicionar = ({
                 </FormItem>
               )}
             />
-            <div className="w-full">
-              <InputFile
-                style="mt-5 mb-5"
-                label="Foto do Grupo"
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                  if (e.target.files && e.target.files.length > 0) {
-                    setGrupoFoto(e.target.files[0]);
-                  }
-                }}
-              />
-            </div>
+
             <Input
               placeholder="Procure seu amigo aqui..."
               onChange={(e) => filtrar(e)}

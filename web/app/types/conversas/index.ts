@@ -14,11 +14,12 @@ export interface IConversa {
 }
 
 export interface IConversaUsuario {
-  conversaUsuarioId?: string;
+  conversaUsuariosId?: string;
   conversaNome?: string;
   usuarioId: number;
-  usuario?: IUsuario
-  mensagens?: IMensagem[];
+  usuarioNome?: string;
+  usuarioApelido?: string;
+  usuarioPerfilFoto?: string;
   conversaId?: number;
   usuarioEntrou?: Date;
   conversaFoto?: string | null;

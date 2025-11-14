@@ -1,6 +1,5 @@
 import z from "zod";
-import { IConversa } from "../../types/conversas";
-import CAvatar from "../ui/c-avatar";
+import { IConversa, IConversaUsuario } from "../../types/conversas";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,11 +12,14 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
-import { useState } from "react";
-import { PencilIcon } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
 import { alterarConversa } from "../../_actions/conversas";
+import InputFile from "../ui/input-file";
+import ConversaUsuarioCard from "./conversa-usuario-card";
+import { useAuth } from "@/app/contexts/auth-provider";
+import { Label } from "../ui/label";
 
 interface ConversaEditarProps {
   open: boolean;
@@ -38,9 +40,22 @@ const ConversaEditar = ({
   conversa,
   load,
 }: ConversaEditarProps) => {
-  const [editar, setEditar] = useState<boolean>(false);
   const [carregando, setCarregando] = useState<boolean>(false);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [conversaFoto, setConversaFoto] = useState<File | null>(null);
+  const { auth } = useAuth();
+
+  useEffect(() => {
+    const permissaoUsuario = () => {
+      if (!conversa.conversaUsuarios) return;
+      const usuario = conversa.conversaUsuarios.find(
+        (c: IConversaUsuario) => c.usuarioId === auth.usuarioId
+      );
+      setIsAdmin(usuario?.cargo === "Admin" ? true : false);
+    };
+    permissaoUsuario();
+  }, [auth.usuarioId, conversa.conversaUsuarios]);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: conversa.conversaUsuarios
@@ -64,7 +79,7 @@ const ConversaEditar = ({
           );
           formData.append(
             `conversaUsuarios[${index}].usuarioId`,
-            String(c.usuario?.usuarioId)
+            String(c.usuarioId)
           );
           formData.append(`conversaUsuarios[${index}].cargo`, c.cargo);
 
@@ -96,7 +111,6 @@ const ConversaEditar = ({
     setCarregando(false);
     form.reset();
     setOpen(false);
-    setEditar(false);
   };
 
   return (
@@ -109,74 +123,63 @@ const ConversaEditar = ({
 
           <div className="flex w-full flex-col items-center justify-center mt-5">
             <div className="flex w-full flex-col items-center justify-center gap-5">
-              <CAvatar
-                width="w-[150px]"
-                height="h-[150px]"
-                src={`${
+              <InputFile
+                url={`${
                   process.env.NEXT_PUBLIC_APP_URL
                 }/uploads/conversas/conversa_${
                   conversa.conversaId
                 }/perfil/${conversa.conversaUsuarios![0].conversaFoto!}`}
-                alt={conversa.conversaUsuarios![0].conversaNome!}
+                width="w-[150px]"
+                height="h-[150px]"
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  if (e.target.files && e.target.files.length > 0) {
+                    setConversaFoto(e.target.files[0]);
+                  }
+                }}
               />
-              {editar ? (
-                <Form {...form}>
-                  <form
-                    className="w-full"
-                    onSubmit={form.handleSubmit(onSubmit)}
-                  >
-                    <FormField
-                      control={form.control}
-                      name="conversaNome"
-                      render={({ field }) => (
-                        <FormItem className="w-full">
-                          <FormLabel>Apelido</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Digite o nome da sua conversa"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    {editar && (
-                      <div className="flex items-center mt-5 gap-2">
-                        <Button
-                          variant="secondary"
-                          onClick={() => setEditar(!editar)}
-                        >
-                          Cancelar
-                        </Button>
-                        <Button
-                          loading={carregando}
-                          className="text"
-                          type="submit"
-                        >
-                          Salvar
-                        </Button>
-                      </div>
+
+              <Form {...form}>
+                <form className="w-full" onSubmit={form.handleSubmit(onSubmit)}>
+                  <FormField
+                    control={form.control}
+                    name="conversaNome"
+                    render={({ field }) => (
+                      <FormItem className="w-full">
+                        <FormLabel>Apelido</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Digite o nome da sua conversa"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )}
-                  </form>
-                </Form>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <span className="text-xl text-primary font-medium">
-                    {conversa.conversaUsuarios![0].conversaNome!}
-                  </span>
-                  {conversa.grupo ? (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setEditar(!editar)}
-                    >
-                      <PencilIcon className="text-primary" />
+                  />
+                  <div className="flex items-center mt-5 gap-2">
+                    <Button loading={carregando} className="text" type="submit">
+                      Salvar
                     </Button>
-                  ) : null}
-                </div>
-              )}
+                  </div>
+                </form>
+              </Form>
             </div>
+            {conversa.grupo === 1 && (
+              <div className="w-full mt-5">
+                <Label>Integrantes</Label>
+                {conversa.conversaUsuarios &&
+                  conversa.conversaUsuarios.map((c: IConversaUsuario) => {
+                    return (
+                      <ConversaUsuarioCard
+                        key={c.conversaUsuariosId}
+                        conversaUsuario={c}
+                        atualizar={load}
+                        isAdmin={isAdmin}
+                      />
+                    );
+                  })}
+              </div>
+            )}
           </div>
         </SheetHeader>
       </SheetContent>

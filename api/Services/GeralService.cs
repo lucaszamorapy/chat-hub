@@ -49,7 +49,7 @@
 
             return caminhoArquivo;
         }
-        public async Task<string> AlterarArquivo(string arquivo, string subpasta = "")
+        public async Task<string> AlterarArquivo(IFormFile arquivo, string subpasta = "")
         {
             var pastaConversa = Path.Combine(_caminhoGeral, subpasta);
 
@@ -59,14 +59,19 @@
                 Directory.CreateDirectory(pastaConversa);
             }
 
-            // Gera o caminho do arquivo (por exemplo, conversa.png)
-            var caminhoArquivo = Path.Combine(pastaConversa, arquivo);
-
-            // Escreve o conteúdo (precisa ser base64 ou texto)
-            System.IO.File.WriteAllText(caminhoArquivo, arquivo);
+            // Gera nome único para o arquivo
+            var caminhoArquivo = Path.Combine(pastaConversa, arquivo.FileName);
             var nomeArquivo = Path.GetFileName(caminhoArquivo);
 
-            return nomeArquivo;
+
+            // Salva o arquivo físico
+            using (var stream = new FileStream(caminhoArquivo, FileMode.Create))
+            {
+                await arquivo.CopyToAsync(stream);
+            }
+
+            return nomeArquivo; // retorna apenas o nome salvo
+            
         }
     }
 }

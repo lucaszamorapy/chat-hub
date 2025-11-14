@@ -23,7 +23,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import Link from "next/link";
-import { InputFile } from "../ui/input-file";
+import InputFile from "../ui/input-file";
 
 const formSchema = z.object({
   email: z.string().email({
@@ -106,6 +106,14 @@ const CadastroForm = ({ className, ...props }: React.ComponentProps<"div">) => {
                     Preencha os dados abaixo para começar fofocar no ChatHub :)
                   </p>
                 </div>
+                <InputFile
+                  label="Foto de Perfil"
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    if (e.target.files && e.target.files.length > 0) {
+                      setPerfilFoto(e.target.files[0]);
+                    }
+                  }}
+                />
                 <FormField
                   control={form.control}
                   name="email"
@@ -131,14 +139,6 @@ const CadastroForm = ({ className, ...props }: React.ComponentProps<"div">) => {
                       <FormMessage />
                     </FormItem>
                   )}
-                />
-                <InputFile
-                  label="Foto de Perfil"
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    if (e.target.files && e.target.files.length > 0) {
-                      setPerfilFoto(e.target.files[0]);
-                    }
-                  }}
                 />
                 <FormField
                   control={form.control}

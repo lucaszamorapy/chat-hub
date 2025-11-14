@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace api.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ConversasController : ControllerBase
@@ -49,60 +49,52 @@ namespace api.Controllers
 
         // GET: api/Conversas/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Conversa>> GetConversa(int id)
+        public async Task<ActionResult<Vwconversausuario>> GetConversa(int id)
         {
             var usuarioId = TokenService.GetTokenUserId(HttpContext);
-            var conversa = await _context.Conversas
-                .Where(c => c.ConversaId == id)
-                .Select(c => new
+            var conversa = await _context.Vwconversausuarios
+                .Where(v => v.ConversaId == id)
+                .ToListAsync();
+
+            var resultado = new
+            {
+                ConversaId = conversa.First().ConversaId,
+                Grupo = conversa.First().Grupo,
+                ConversaUsuarios = conversa.Select(v => new
                 {
-                    c.ConversaId,
-                    c.Grupo,
-                    ConversaUsuarios = c.Grupo == 0 ? c.ConversaUsuarios.Where(u => u.UsuarioId == usuarioId).Select(g => new
+                    v.ConversaUsuariosId,
+                    v.Cargo,
+                    v.ConversaNome,
+                    v.ConversaFoto,
+                    v.UsuarioId,
+                    v.UsuarioNome,
+                    v.UsuarioApelido,
+                    v.UsuarioPerfilFoto,
+                }),
+                Mensagens = await _context.Mensagens
+                .Where(m => m.ConversaId == id)
+                .Select(m => new
+                {
+                    m.MensagemId,
+                    m.Mensagem,
+                    Usuario = new
                     {
-                        g.ConversaNome,
-                        g.ConversaFoto,
-                        g.ConversaUsuariosId,
-                        g.Cargo,
-                        Usuario = new
-                        {
-                            g.Usuario.UsuarioId,
-                            g.Usuario.Nome
-                        }
-                    }) :
-                    c.ConversaUsuarios.Select(g => new
-                    {
-                        g.ConversaNome,
-                        g.ConversaFoto,
-                        g.ConversaUsuariosId,
-                        g.Cargo,
-                        Usuario = new
-                        {
-                            g.Usuario.UsuarioId,
-                            g.Usuario.Nome
-                        }
-                    }).ToList(),
-                    Mensagens = c.Mensagens.Select(m => new
-                    {
-                        m.MensagemId,
-                        m.Mensagem,
-                        Usuario = new
-                        {
-                            m.Usuario.UsuarioId,
-                            m.Usuario.Nome,
-                        },
-                        m.Visualizada,
-                        m.Regidh
-                    }).ToList()
+                        m.Usuario.UsuarioId,
+                        m.Usuario.Nome,
+                    },
+                    m.Visualizada,
+                    m.Regidh
                 })
-                .FirstOrDefaultAsync();
+                .ToListAsync()
+            };
+
 
             if (conversa == null)
             {
                 return BadRequest(new Message<Conversa>("Conversa não encontrada.", new Conversa { }, true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status404NotFound)));
             }
 
-            return Ok(new Message<object>("", conversa, false));
+            return Ok(new Message<object>("", resultado, false));
         }
 
 
@@ -156,12 +148,16 @@ namespace api.Controllers
             {
                 c.ConversaNome = conversausuario.ConversaUsuarios[0].ConversaNome;
                 _context.Entry(c).State = EntityState.Modified;
-                await _context.SaveChangesAsync();
-                var geralService = new GeralService(_configuration);
-                var pastaConversa = Path.Combine("conversas", $"conversa_{c.ConversaId}", "perfil");
 
-                var arquivo = await geralService.AlterarArquivo(c.ConversaFoto, pastaConversa);
-                c.ConversaFoto = arquivo;
+                if (conversausuario.ConversaUsuarios[0].ConversaFoto != null)
+                {
+                    var geralService = new GeralService(_configuration);
+                    var pastaConversa = Path.Combine("conversas", $"conversa_{c.ConversaId}", "perfil");
+
+                    var arquivo = await geralService.AlterarArquivo(conversausuario.ConversaUsuarios[0].ConversaFoto, pastaConversa);
+                    c.ConversaFoto = arquivo;
+                }
+                await _context.SaveChangesAsync();
                 coonversausuarios.Add(c);
             }
 

@@ -43,5 +43,6 @@ export const formatarError = async (error: any): Promise<IError> => {
       error?.response?.data?.mensagemApi ||
       "Erro ao comunicar com a API."
   };
+  console.error(erroFormatado.mensagem || erroFormatado.mensagemApi)
   return erroFormatado;
 };

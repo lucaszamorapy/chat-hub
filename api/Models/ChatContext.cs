@@ -276,6 +276,7 @@ public partial class ChatContext : DbContext
             entity.Property(e => e.ConversaNome)
                 .HasMaxLength(255)
                 .HasColumnName("conversa_nome");
+            entity.Property(e => e.ConversaUsuariosId).HasColumnName("conversa_usuarios_id");
             entity.Property(e => e.Grupo)
                 .HasDefaultValueSql("'0'")
                 .HasColumnName("grupo");
@@ -287,10 +288,21 @@ public partial class ChatContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("regidh");
             entity.Property(e => e.Regiusu).HasColumnName("regiusu");
+            entity.Property(e => e.UsuarioApelido)
+                .HasMaxLength(255)
+                .HasColumnName("usuario_apelido");
             entity.Property(e => e.UsuarioEntrou)
                 .HasColumnType("datetime")
                 .HasColumnName("usuario_entrou");
-            entity.Property(e => e.UsuarioId).HasColumnName("usuario_id");
+            entity.Property(e => e.UsuarioId)
+                .HasDefaultValueSql("'0'")
+                .HasColumnName("usuario_id");
+            entity.Property(e => e.UsuarioNome)
+                .HasMaxLength(255)
+                .HasColumnName("usuario_nome");
+            entity.Property(e => e.UsuarioPerfilFoto)
+                .HasMaxLength(255)
+                .HasColumnName("usuario_perfil_foto");
         });
 
         OnModelCreatingPartial(modelBuilder);
