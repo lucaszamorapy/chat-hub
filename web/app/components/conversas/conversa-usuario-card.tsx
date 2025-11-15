@@ -12,6 +12,10 @@ import { toast } from "sonner";
 import { IConversaUsuario } from "../../types/conversas";
 import CAvatar from "../ui/c-avatar";
 import { useAuth } from "@/app/contexts/auth-provider";
+import {
+  alterarConversaUsuarios,
+  excluirConversaUsuarios,
+} from "@/app/_actions/conversas";
 
 interface ConversaUsuarioCardProps {
   conversaUsuario: IConversaUsuario;
@@ -25,8 +29,51 @@ const ConversaUsuarioCard = ({
   isAdmin,
 }: ConversaUsuarioCardProps) => {
   const { auth } = useAuth();
-  const removerConversaUsuario = async () => {};
-  const alterarConversaUsuario = async () => {};
+  const removerConversaUsuario = async () => {
+    try {
+      const data = await excluirConversaUsuarios(conversaUsuario);
+      if (!data.erro) {
+        if (atualizar) {
+          atualizar();
+        }
+        toast.success(data.mensagem);
+      } else {
+        console.error(data.mensagemApi);
+        toast.error(data.mensagem);
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error(error.message);
+        toast.error(error.message);
+      } else {
+        console.error("Ocorreu um erro:", error);
+      }
+    }
+  };
+  const alterarConversaUsuario = async () => {
+    try {
+      const data = await alterarConversaUsuarios({
+        ...conversaUsuario,
+        cargo: conversaUsuario.cargo === "Admin" ? "Membro" : "Admin",
+      });
+      if (!data.erro) {
+        if (atualizar) {
+          atualizar();
+          toast.success(data.mensagem);
+        }
+      } else {
+        console.error(data.mensagemApi);
+        toast.error(data.mensagem);
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error(error.message);
+        toast.error(error.message);
+      } else {
+        console.error("Ocorreu um erro:", error);
+      }
+    }
+  };
 
   return (
     <div className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground flex flex-col gap-2 border-b p-4 text-sm leading-tight last:border-b-0">

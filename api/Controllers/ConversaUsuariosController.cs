@@ -40,21 +40,31 @@ namespace api.Controllers
             }
         }
 
-        // GET: api/ConversaUsuarios/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Vwconversausuario>> GetConversa(int id)
         {
             var usuarioId = TokenService.GetTokenUserId(HttpContext);
+            List<Vwconversausuario> resultado = new List<Vwconversausuario>();
+            var conversa = await _context.Conversas.Where(e => e.ConversaId == id).FirstOrDefaultAsync();
 
-            var conversas = await _context.Vwconversausuarios
-                .Where(v => v.ConversaId == id && v.UsuarioId == usuarioId)
-                .ToListAsync();
-
-            var resultado = new
+            if (conversa.Grupo == 1)
             {
-                ConversaId = conversas.First().ConversaId,
-                Grupo = conversas.First().Grupo,
-                ConversaUsuarios = conversas.Select(v => new
+                resultado = await _context.Vwconversausuarios
+                    .Where(v => v.ConversaId == id)
+                    .ToListAsync();
+            }
+            else
+            {
+                resultado = await _context.Vwconversausuarios
+                    .Where(v => v.ConversaId == id && v.UsuarioId == usuarioId)
+                    .ToListAsync();
+            }
+
+            var retorno = new
+            {
+                ConversaId = resultado.First().ConversaId,
+                Grupo = resultado.First().Grupo,
+                ConversaUsuarios = resultado.Select(v => new
                 {
                     v.ConversaUsuariosId,
                     v.Cargo,
@@ -66,27 +76,22 @@ namespace api.Controllers
                     v.UsuarioPerfilFoto,
                 }),
                 Mensagens = await _context.Vwmensagens
-                .Where(m => m.ConversaId == id)
-                .Select(m => new
-                {
-                    m.MensagemId,
-                    m.Mensagem,
-                    m.UsuarioId,
-                    m.UsuarioNome,
-                    m.Visualizada,
-                    m.Regidh
-                })
-                .ToListAsync()
+                    .Where(m => m.ConversaId == id)
+                    .Select(m => new
+                    {
+                        m.MensagemId,
+                        m.Mensagem,
+                        m.UsuarioId,
+                        m.UsuarioNome,
+                        m.Visualizada,
+                        m.Regidh
+                    })
+                    .ToListAsync()
             };
 
-
-            if (conversas == null)
-            {
-                return BadRequest(new Message<Vwconversausuario>("Conversa não encontrada.", new Vwconversausuario { }, true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status404NotFound)));
-            }
-
-            return Ok(new Message<object>("", resultado, false));
+            return Ok(new Message<object>("", retorno, false));
         }
+
 
 
         // GET: api/ConversaUsuarios/usuario/5
@@ -163,7 +168,7 @@ namespace api.Controllers
                 }
             }
 
-            return Ok(new Message<ConversaUsuario>("Conversa usuário atualizado com sucesso!.", conversausuarioexiste, true));
+            return Ok(new Message<ConversaUsuario>("Conversa usuário atualizado com sucesso!.", conversausuarioexiste, false));
         }
 
 

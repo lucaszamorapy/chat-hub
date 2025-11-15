@@ -97,8 +97,6 @@ const ConversaAdicionar = ({
     setCarregando(true);
     try {
       const novosAmigos = [...amigosSelecionados, auth.usuarioId!];
-      console.log(amigosSelecionados);
-      console.log(novosAmigos);
 
       if (amigosSelecionados.length === 0) {
         setCarregando(false);

@@ -18,7 +18,6 @@ export const getConversaById = async (id: number) => {
     const { data } = await api.get(`/ConversaUsuarios/${id}`)
     return data;
   } catch (error: any) {
-    console.log(error.response.data)
     return formatarError(error.response?.data || error.response?.data.title);
   }
 }
@@ -56,6 +55,24 @@ export const alterarConversa = async (conversaId: number, conversa: FormData) =>
     return data;
   } catch (error: any) {
     console.log(error.response?.data)
+    return formatarError(error.response?.data || error.response?.data.title);
+  }
+}
+
+export const alterarConversaUsuarios = async (conversaUsuario: IConversaUsuario) => {
+  try {
+    const { data } = await api.put(`/ConversaUsuarios/${conversaUsuario.conversaUsuariosId}`, conversaUsuario)
+    return data;
+  } catch (error: any) {
+    return formatarError(error.response?.data || error.response?.data.title);
+  }
+}
+
+export const excluirConversaUsuarios = async (conversaUsuario: IConversaUsuario) => {
+  try {
+    const { data } = await api.delete(`/ConversaUsuarios/${conversaUsuario.conversaUsuariosId}`)
+    return data;
+  } catch (error: any) {
     return formatarError(error.response?.data || error.response?.data.title);
   }
 }

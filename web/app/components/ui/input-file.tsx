@@ -11,6 +11,7 @@ interface InputFileProps {
   url?: string;
   width?: string;
   height?: string;
+  disabled?: boolean;
 }
 
 export default function InputFile({
@@ -20,6 +21,7 @@ export default function InputFile({
   url,
   width,
   height,
+  disabled,
 }: InputFileProps) {
   const fileRef = useRef<HTMLInputElement | null>(null);
   const [preview, setPreview] = useState<string>(url || "");
@@ -39,7 +41,10 @@ export default function InputFile({
 
       <div
         className="relative group cursor-pointer w-fit"
-        onClick={() => fileRef.current?.click()}
+        onClick={() => {
+          if (disabled) return;
+          fileRef.current?.click();
+        }}
       >
         <CAvatar
           src={preview || ""}

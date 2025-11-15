@@ -62,8 +62,8 @@ namespace api.Controllers
 
                 var amigoFiltrado = new Vwamigo
                 {
-                    UsuarioId = amigo.UsuarioId, //30
-                    UsuarioAmigoId = amigo.UsuarioAmigoId, //32
+                    UsuarioId = amigo.UsuarioId, 
+                    UsuarioAmigoId = amigo.UsuarioAmigoId, 
                     AmigoId = amigo.AmigoId,
                     NomeAmigo = usuarioEhUsuarioId ? amigo.NomeAmigo : amigo.Nome,
                     ApelidoAmigo = usuarioEhUsuarioId ? amigo.ApelidoAmigo : amigo.Apelido,

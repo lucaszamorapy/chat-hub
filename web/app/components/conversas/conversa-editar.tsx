@@ -136,6 +136,7 @@ const ConversaEditar = ({
                     setConversaFoto(e.target.files[0]);
                   }
                 }}
+                disabled={!isAdmin}
               />
 
               <Form {...form}>
@@ -157,7 +158,12 @@ const ConversaEditar = ({
                     )}
                   />
                   <div className="flex items-center mt-5 gap-2">
-                    <Button loading={carregando} className="text" type="submit">
+                    <Button
+                      disabled={!isAdmin}
+                      loading={carregando}
+                      className="text"
+                      type="submit"
+                    >
                       Salvar
                     </Button>
                   </div>
