@@ -2,7 +2,7 @@
 
 import { IMensagem } from '@/app/types/mensagens';
 import { api, formatarError } from '..';
-import { IConversaUsuario } from '@/app/types/conversas';
+import { IConversa, IConversaUsuario } from '@/app/types/conversas';
 
 export const getConversasByUsuario = async (usuarioId: number) => {
   try {
@@ -76,3 +76,13 @@ export const excluirConversaUsuarios = async (conversaUsuario: IConversaUsuario)
     return formatarError(error.response?.data || error.response?.data.title);
   }
 }
+
+export const excluirConversa = async (conversa: IConversa) => {
+  try {
+    const { data } = await api.delete(`/Conversas/${conversa.conversaId}`)
+    return data;
+  } catch (error: any) {
+    return formatarError(error.response?.data || error.response?.data.title);
+  }
+}
+

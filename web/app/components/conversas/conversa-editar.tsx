@@ -15,11 +15,13 @@ import { Input } from "../ui/input";
 import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
-import { alterarConversa } from "../../_actions/conversas";
+import { alterarConversa, excluirConversa } from "../../_actions/conversas";
 import InputFile from "../ui/input-file";
 import ConversaUsuarioCard from "./conversa-usuario-card";
 import { useAuth } from "@/app/contexts/auth-provider";
 import { Label } from "../ui/label";
+import { useRouter } from "next/navigation";
+import { useConversa } from "@/app/contexts/conversas-provider";
 
 interface ConversaEditarProps {
   open: boolean;
@@ -44,6 +46,8 @@ const ConversaEditar = ({
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [conversaFoto, setConversaFoto] = useState<File | null>(null);
   const { auth } = useAuth();
+  const { removerConversa } = useConversa();
+  const rota = useRouter();
 
   useEffect(() => {
     const permissaoUsuario = () => {
@@ -113,6 +117,27 @@ const ConversaEditar = ({
     setOpen(false);
   };
 
+  const remover = async () => {
+    try {
+      const data = await excluirConversa(conversa);
+      if (!data.erro) {
+        toast.success(data.mensagem);
+        rota.push("/");
+        removerConversa(conversa.conversaId!);
+      } else {
+        console.error(data.mensagemApi);
+        toast.error(data.mensagem);
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error(error.message);
+        toast.error(error.message);
+      } else {
+        console.error("Ocorreu um erro:", error);
+      }
+    }
+  };
+
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetContent>
@@ -136,7 +161,7 @@ const ConversaEditar = ({
                     setConversaFoto(e.target.files[0]);
                   }
                 }}
-                disabled={!isAdmin}
+                disabled={!isAdmin || conversa.grupo !== 1}
               />
 
               <Form {...form}>
@@ -149,6 +174,7 @@ const ConversaEditar = ({
                         <FormLabel>Apelido</FormLabel>
                         <FormControl>
                           <Input
+                            disabled={conversa.grupo !== 1}
                             placeholder="Digite o nome da sua conversa"
                             {...field}
                           />
@@ -157,16 +183,18 @@ const ConversaEditar = ({
                       </FormItem>
                     )}
                   />
-                  <div className="flex items-center mt-5 gap-2">
-                    <Button
-                      disabled={!isAdmin}
-                      loading={carregando}
-                      className="text"
-                      type="submit"
-                    >
-                      Salvar
-                    </Button>
-                  </div>
+                  {conversa.grupo === 1 && (
+                    <div className="flex items-center mt-5 gap-2">
+                      <Button
+                        disabled={!isAdmin}
+                        loading={carregando}
+                        className="text"
+                        type="submit"
+                      >
+                        Salvar
+                      </Button>
+                    </div>
+                  )}
                 </form>
               </Form>
             </div>
@@ -178,6 +206,7 @@ const ConversaEditar = ({
                     return (
                       <ConversaUsuarioCard
                         key={c.conversaUsuariosId}
+                        conversaId={conversa.conversaId!}
                         conversaUsuario={c}
                         atualizar={load}
                         isAdmin={isAdmin}
@@ -187,6 +216,17 @@ const ConversaEditar = ({
               </div>
             )}
           </div>
+          {isAdmin === true && (
+            <Button
+              variant={"destructive"}
+              disabled={!isAdmin}
+              loading={carregando}
+              onClick={remover}
+              type="button"
+            >
+              Apagar conversa
+            </Button>
+          )}
         </SheetHeader>
       </SheetContent>
     </Sheet>

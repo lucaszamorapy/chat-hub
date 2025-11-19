@@ -10,10 +10,8 @@ import { Separator } from "@radix-ui/react-separator";
 import {
   Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
-  BreadcrumbSeparator,
 } from "./ui/breadcrumb";
 
 export default function ProtecaoRota({

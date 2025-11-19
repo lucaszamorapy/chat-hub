@@ -47,6 +47,11 @@ namespace api.Controllers
             List<Vwconversausuario> resultado = new List<Vwconversausuario>();
             var conversa = await _context.Conversas.Where(e => e.ConversaId == id).FirstOrDefaultAsync();
 
+            if(conversa == null)
+            {
+                return BadRequest(new Message<List<object>>("Nenhuma conversa encontrada", new List<object>(), false, ReasonPhrases.GetReasonPhrase(StatusCodes.Status400BadRequest)));
+            }
+
             if (conversa.Grupo == 1)
             {
                 resultado = await _context.Vwconversausuarios

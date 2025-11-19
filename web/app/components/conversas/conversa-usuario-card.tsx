@@ -16,25 +16,38 @@ import {
   alterarConversaUsuarios,
   excluirConversaUsuarios,
 } from "@/app/_actions/conversas";
+import { useRouter } from "next/navigation";
+import { useConversa } from "@/app/contexts/conversas-provider";
 
 interface ConversaUsuarioCardProps {
   conversaUsuario: IConversaUsuario;
-  atualizar?: () => Promise<void>;
+  conversaId: number;
   isAdmin: boolean;
+  atualizar?: () => Promise<void>;
 }
 
 const ConversaUsuarioCard = ({
   conversaUsuario,
-  atualizar,
+  conversaId,
   isAdmin,
+  atualizar,
 }: ConversaUsuarioCardProps) => {
   const { auth } = useAuth();
+  const { removerConversa } = useConversa();
+  const rota = useRouter();
+
+  console.log(conversaUsuario);
+
   const removerConversaUsuario = async () => {
     try {
       const data = await excluirConversaUsuarios(conversaUsuario);
       if (!data.erro) {
         if (atualizar) {
           atualizar();
+          if (auth.usuarioId === conversaUsuario.usuarioId) {
+            rota.push("/");
+            removerConversa(conversaId);
+          }
         }
         toast.success(data.mensagem);
       } else {
@@ -101,7 +114,7 @@ const ConversaUsuarioCard = ({
             </div>
           )}
         </div>
-        {isAdmin && auth.usuarioId !== conversaUsuario.usuarioId && (
+        {isAdmin && (
           <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" aria-label="Open menu" size="icon-sm">
@@ -109,28 +122,35 @@ const ConversaUsuarioCard = ({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-40" align="end">
-              <DropdownMenuItem
-                className="text-xs cursor-pointer"
-                onSelect={alterarConversaUsuario}
-              >
-                {conversaUsuario.cargo !== "Admin" ? (
-                  <div className="flex w-full justify-between">
-                    <span>Torná-lo Admin</span>
-                    <UserCheck className="text-primary" size={1} />
-                  </div>
-                ) : (
-                  <div className="flex w-full justify-between">
-                    <span>Torná-lo Membro</span>
-                    <UserStar className="text-primary" size={1} />
-                  </div>
-                )}
-              </DropdownMenuItem>
+              {auth.usuarioId !== conversaUsuario.usuarioId && (
+                <DropdownMenuItem
+                  className="text-xs cursor-pointer"
+                  onSelect={alterarConversaUsuario}
+                >
+                  {conversaUsuario.cargo !== "Admin" ? (
+                    <div className="flex w-full justify-between">
+                      <span>Torná-lo Admin</span>
+                      <UserCheck className="text-primary" size={1} />
+                    </div>
+                  ) : (
+                    <div className="flex w-full justify-between">
+                      <span>Torná-lo Membro</span>
+                      <UserStar className="text-primary" size={1} />
+                    </div>
+                  )}
+                </DropdownMenuItem>
+              )}
+
               <DropdownMenuItem
                 className="text-xs cursor-pointer"
                 onSelect={removerConversaUsuario}
               >
                 <div className="flex w-full justify-between">
-                  <span>Remover do grupo</span>
+                  <span>
+                    {auth.usuarioId === conversaUsuario.usuarioId
+                      ? "Sair do grupo"
+                      : "Remover do grupo"}
+                  </span>
                   <UserX className="text-destructive" size={1} />
                 </div>
               </DropdownMenuItem>

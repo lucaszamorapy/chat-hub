@@ -14,6 +14,7 @@ import MensagemTemplate from "../mensagens/mensagem-template";
 import { conexaoSignalR } from "../../_actions/signalr";
 import ConversaEditar from "./conversa-editar";
 import { getConversaById } from "../../_actions/conversas";
+import { useConversa } from "@/app/contexts/conversas-provider";
 
 interface ConversaTemplateProps {
   conversaInicial: IConversa;
@@ -37,6 +38,7 @@ const ConversaTemplate = ({ conversaInicial }: ConversaTemplateProps) => {
     conversa.mensagens ?? []
   );
   const { auth } = useAuth();
+  const { adicionarMensagem } = useConversa();
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -86,6 +88,8 @@ const ConversaTemplate = ({ conversaInicial }: ConversaTemplateProps) => {
         if (data.erro) {
           console.error(data.mensagemApi);
           toast.error(data.mensagem);
+        } else {
+          adicionarMensagem(data.resultado);
         }
       }
     } catch (error: unknown) {
