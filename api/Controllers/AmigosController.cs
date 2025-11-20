@@ -62,9 +62,9 @@ namespace api.Controllers
 
                 var amigoFiltrado = new Vwamigo
                 {
-                    UsuarioId = amigo.UsuarioId, 
-                    UsuarioAmigoId = amigo.UsuarioAmigoId, 
                     AmigoId = amigo.AmigoId,
+                    UsuarioId = amigo.UsuarioId,
+                    UsuarioAmigoId = amigo.UsuarioId == id ? amigo.UsuarioAmigoId  : amigo.UsuarioId, 
                     NomeAmigo = usuarioEhUsuarioId ? amigo.NomeAmigo : amigo.Nome,
                     ApelidoAmigo = usuarioEhUsuarioId ? amigo.ApelidoAmigo : amigo.Apelido,
                     EmailAmigo = usuarioEhUsuarioId ? amigo.EmailAmigo : amigo.Email,

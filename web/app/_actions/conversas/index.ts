@@ -40,9 +40,9 @@ export const criarConversa = async (conversa: FormData) => {
   }
 }
 
-export const criarConversaUsuarios = async (conversaUsuarios: IConversaUsuario) => {
+export const criarConversaUsuarios = async (conversasUsuarios: IConversaUsuario[]) => {
   try {
-    const { data } = await api.post("/ConversaUsuarios", conversaUsuarios)
+    const { data } = await api.post("/ConversaUsuarios", conversasUsuarios)
     return data;
   } catch (error: any) {
     return formatarError(error.response?.data || error.response?.data.title);

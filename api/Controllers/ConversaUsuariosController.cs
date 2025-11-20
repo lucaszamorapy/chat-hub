@@ -177,33 +177,19 @@ namespace api.Controllers
         }
 
 
-
-
         //POST: api/ConversaUsuarios
         //To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        //[HttpPost]
-        //public async Task<ActionResult<ConversaUsuario>> PostConversaUsuario([FromBody] ConversaUsuarioDTO request)
-        //{
-        //    foreach (var usuarioId in request.UsuariosIds)
-        //    {
-        //        var usuario = await _context.Usuarios.FindAsync(usuarioId);
-        //        if (usuario == null)
-        //        {
-        //            return BadRequest(new Message<ConversaUsuario>($"Usuário com ID {usuarioId} não encontrado.", new ConversaUsuario { }, true));
-        //        }
-        //        var novo = new ConversaUsuario
-        //        {
-        //            ConversaId = request.ConversaId,
-        //            UsuarioId = usuarioId,
-        //            UsuarioEntrou = request.UsuarioEntrou,
-        //            Cargo = request.Cargo
-        //        };
-
-        //        _context.ConversaUsuarios.Add(novo);
-        //        await _context.SaveChangesAsync();
-        //    }
-        //    return NoContent();
-        //}
+        [HttpPost]
+        public async Task<ActionResult<ConversaUsuario>> PostConversaUsuario(List<ConversaUsuario> usuarios)
+        {
+            foreach (var usuario in usuarios)
+            {
+                usuario.UsuarioEntrou = DateTime.Now;
+                _context.ConversaUsuarios.Add(usuario);
+                await _context.SaveChangesAsync();
+            }
+            return Ok(new Message<ConversaUsuario>("Usuário(s) adicionado com sucesso ao grupo!", new ConversaUsuario { }, false));
+        }
 
         // DELETE: api/ConversaUsuarios/5
         [HttpDelete("{id}")]

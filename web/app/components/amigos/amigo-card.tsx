@@ -134,13 +134,7 @@ const AmigoCard = ({ amigo, status, atualizar }: AmigoProps) => {
           <div className="flex w-full justify-between">
             <div className="flex items-center gap-2">
               <CAvatar
-                src={`${
-                  process.env.NEXT_PUBLIC_APP_URL
-                }/uploads/usuarios/usuario_${
-                  amigo.usuarioAmigoId !== auth.usuarioId
-                    ? amigo.usuarioAmigoId
-                    : amigo.usuarioId
-                }/perfil/${amigo.perfilFotoAmigo}`}
+                src={`${process.env.NEXT_PUBLIC_APP_URL}/uploads/usuarios/usuario_${amigo.usuarioAmigoId}/perfil/${amigo.perfilFotoAmigo}`}
                 alt={amigo.apelidoAmigo!}
               />
 

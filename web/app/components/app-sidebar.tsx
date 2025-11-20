@@ -29,12 +29,11 @@ import ConversaCard from "./conversas/conversa-card";
 import { getAmigosByUsuario } from "../_actions/amigos";
 import AmigoAccordion from "./amigos/amigo-accordion";
 import AmigoAdicionar from "./amigos/amigo-adicionar";
-import ConversaAdicionar from "./conversas/conversa-adicionar";
+import ConversaAdicionarGrupo from "./conversas/conversa-adicionar-grupo";
 import { useConversa } from "../contexts/conversas-provider";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [itemAtivo, setItemAtivo] = useState("Conversas");
-  //const [conversas, setConversas] = useState<IConversaUsuario[]>();
   const [conversasClone, setConversasClone] = useState<IConversaUsuario[]>();
   const [amigos, setAmigos] = useState<IAmigo[]>();
   const [amigosClone, setAmigosClone] = useState<IAmigo[]>();
@@ -226,10 +225,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 />
               )}
               {itemAtivo === "Conversas" && (
-                <ConversaAdicionar
-                  getAmigos={async () => await getAmigos()}
-                  getConversas={async () => await getConversas()}
-                  usuarioId={auth.usuarioId!}
+                <ConversaAdicionarGrupo
+                  atualizar={async () => await getConversas()}
                 />
               )}
             </div>

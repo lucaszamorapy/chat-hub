@@ -12,7 +12,6 @@ import {
 } from "../ui/dialog";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { getUsuarios } from "../../_actions/usuarios";
 import { Input } from "../ui/input";
 import { IAmigo } from "../../types/amigos";
 import { Skeleton } from "../ui/skeleton";
@@ -28,16 +27,17 @@ import {
   FormMessage,
 } from "../ui/form";
 import { useRouter } from "next/navigation";
-import { criarConversa } from "../../_actions/conversas";
+import { criarConversa, criarConversaUsuarios } from "../../_actions/conversas";
 import { IConversaUsuario } from "../../types/conversas";
 import { useAuth } from "../../contexts/auth-provider";
 import CAvatar from "../ui/c-avatar";
 import InputFile from "../ui/input-file";
+import { getAmigosByUsuario } from "@/app/_actions/amigos";
 
 interface ConversaAdicionarProps {
-  getAmigos: () => Promise<IAmigo[]>;
-  getConversas: () => Promise<void>;
-  usuarioId: number;
+  atualizar: () => Promise<void>;
+  usuariosId?: number[];
+  conversa?: IConversaUsuario;
 }
 
 const formSchema = z.object({
@@ -46,10 +46,10 @@ const formSchema = z.object({
     .min(1, { message: "Por favor, preencha o nome do grupo." }),
 });
 
-const ConversaAdicionar = ({
-  getAmigos,
-  getConversas,
-  usuarioId,
+const ConversaAdicionarGrupo = ({
+  atualizar,
+  usuariosId,
+  conversa,
 }: ConversaAdicionarProps) => {
   const [amigos, setAmigos] = useState<IAmigo[]>([]);
   const [amigosClone, setAmigosClone] = useState<IAmigo[]>([]);
@@ -61,7 +61,7 @@ const ConversaAdicionar = ({
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
+    defaultValues: conversa ?? {
       conversaNome: "",
     },
   });
@@ -96,42 +96,61 @@ const ConversaAdicionar = ({
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setCarregando(true);
     try {
-      const novosAmigos = [...amigosSelecionados, auth.usuarioId!];
-
       if (amigosSelecionados.length === 0) {
         setCarregando(false);
         return toast.error(
           "Por favor, selecione pelo menos um amigo para o seu grupo."
         );
       }
-      const novaConversaUsuario: IConversaUsuario[] = novosAmigos.map(
-        (amigo: number) => {
+      let data: any;
+      if (!conversa) {
+        const novosUsuarios = [...amigosSelecionados, auth.usuarioId!];
+        const novaConversaUsuario: IConversaUsuario[] = novosUsuarios.map(
+          (u: number) => {
+            return {
+              usuarioId: u,
+              cargo: "Membro",
+            };
+          }
+        );
+        const formData = new FormData();
+        formData.append("grupo", String(1));
+        novaConversaUsuario.forEach((amigo, index) => {
+          formData.append(
+            `conversaUsuarios[${index}].conversaNome`,
+            values.conversaNome
+          );
+          formData.append(
+            `conversaUsuarios[${index}].usuarioId`,
+            amigo.usuarioId.toString()
+          );
+          formData.append(`conversaUsuarios[${index}].cargo`, amigo.cargo);
+          if (grupoFoto) {
+            formData.append(
+              `conversaUsuarios[${index}].conversaFoto`,
+              grupoFoto
+            );
+          }
+        });
+        data = await criarConversa(formData);
+      } else {
+        const usuarios: IConversaUsuario[] = amigosSelecionados.map((u) => {
           return {
-            usuarioId: amigo,
-            cargo: "Admin",
+            conversaId: conversa.conversaId,
+            conversaNome: conversa.conversaNome,
+            conversaFoto: conversa.conversaFoto,
+            usuarioId: u,
+            cargo: "Membro",
           };
-        }
-      );
-      const formData = new FormData();
-      formData.append("grupo", String(1));
-      novaConversaUsuario.forEach((amigo, index) => {
-        formData.append(
-          `conversaUsuarios[${index}].conversaNome`,
-          values.conversaNome
-        );
-        formData.append(
-          `conversaUsuarios[${index}].usuarioId`,
-          amigo.usuarioId.toString()
-        );
-        formData.append(`conversaUsuarios[${index}].cargo`, amigo.cargo);
-        if (grupoFoto) {
-          formData.append(`conversaUsuarios[${index}].conversaFoto`, grupoFoto);
-        }
-      });
-      const data = await criarConversa(formData);
+        });
+        console.log(usuarios);
+        data = await criarConversaUsuarios(usuarios);
+      }
       if (!data.erro) {
-        await getConversas();
-        rota.push(`/conversas/${data.resultado.conversaId}`);
+        await atualizar();
+        if (!conversa) {
+          rota.push(`/conversas/${data.resultado.conversaId}`);
+        }
         toast.success(data.mensagem);
       } else {
         console.error(data.mensagemApi);
@@ -159,56 +178,73 @@ const ConversaAdicionar = ({
 
   useEffect(() => {
     if (open) {
-      const fetchUsuarios = async () => {
+      const fetchAmigos = async () => {
         setCarregando(true);
-        const data = await getUsuarios();
-        const amigos = await getAmigos();
 
-        if (!data.erro) {
-          setAmigos(
-            amigos.filter((amigo: IAmigo) => amigo.status === "Aceito")
-          );
-          setAmigosClone(amigos);
-        } else {
-          toast.error(data.mensagem);
+        if (auth.usuarioId) {
+          const data = await getAmigosByUsuario(auth.usuarioId);
+
+          if (!data.erro) {
+            const filtrados = data.resultado.filter((amigo: IAmigo) => {
+              if (usuariosId) {
+                return (
+                  amigo.status === "Aceito" &&
+                  !usuariosId.includes(amigo.usuarioAmigoId!)
+                );
+              }
+              return amigo.status === "Aceito";
+            });
+
+            setAmigos(filtrados);
+            setAmigosClone(filtrados); // << agora certo
+          } else {
+            toast.error(data.mensagem);
+          }
         }
 
         setCarregando(false);
       };
 
-      fetchUsuarios();
+      fetchAmigos();
     }
-  }, [open, usuarioId]);
+  }, [open, auth.usuarioId]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="ghost" size="icon">
-          <UserRoundPlus className="text-primary " />
+          <UserRoundPlus className="text-primary" />
         </Button>
       </DialogTrigger>
-      <DialogContent style={{ height: "77%" }} className="gap-5">
+      <DialogContent
+        style={{ height: conversa ? "" : "77%" }}
+        className="gap-5"
+      >
         <DialogHeader>
           <DialogTitle className="text-black">
             Adicionar <span className="text-primary">Grupo</span>
           </DialogTitle>
           <DialogDescription>
-            Crie um grupo com os seus amigos favoritos.
+            {conversa
+              ? "Adicione seus amigos em seu grupo."
+              : "Crie um grupo com os seus amigos favoritos."}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form className="gap-5" onSubmit={form.handleSubmit(onSubmit)}>
-            <InputFile
-              style="mt-5 mb-5"
-              label="Foto do Grupo"
-              width="w-30"
-              height="h-30"
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                if (e.target.files && e.target.files.length > 0) {
-                  setGrupoFoto(e.target.files[0]);
-                }
-              }}
-            />
+            {!conversa && (
+              <InputFile
+                style="mt-5 mb-5"
+                label="Foto do Grupo"
+                width="w-30"
+                height="h-30"
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  if (e.target.files && e.target.files.length > 0) {
+                    setGrupoFoto(e.target.files[0]);
+                  }
+                }}
+              />
+            )}
             <FormField
               control={form.control}
               name="conversaNome"
@@ -216,7 +252,11 @@ const ConversaAdicionar = ({
                 <FormItem className="mb-5">
                   <FormLabel>Nome</FormLabel>
                   <FormControl>
-                    <Input placeholder="Digite o nome do grupo" {...field} />
+                    <Input
+                      disabled={conversa ? true : false}
+                      placeholder="Digite o nome do grupo"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -276,9 +316,7 @@ const ConversaAdicionar = ({
                           </div>
                           <div className="flex ">
                             {!amigosSelecionados.includes(
-                              amigo.usuarioAmigoId !== auth.usuarioId
-                                ? amigo.usuarioAmigoId!
-                                : amigo.usuarioId!
+                              amigo.usuarioAmigoId!
                             ) ? (
                               <Button
                                 type="button"
@@ -286,9 +324,7 @@ const ConversaAdicionar = ({
                                 variant={"ghost"}
                                 onClick={() =>
                                   amigosGrupo(
-                                    amigo.usuarioAmigoId !== auth.usuarioId
-                                      ? amigo.usuarioAmigoId!
-                                      : amigo.usuarioId!,
+                                    amigo.usuarioAmigoId!,
                                     "adicionar"
                                   )
                                 }
@@ -304,12 +340,7 @@ const ConversaAdicionar = ({
                                 loading={carregando}
                                 variant={"ghost"}
                                 onClick={() =>
-                                  amigosGrupo(
-                                    amigo.usuarioAmigoId !== auth.usuarioId
-                                      ? amigo.usuarioAmigoId!
-                                      : amigo.usuarioId!,
-                                    "remover"
-                                  )
+                                  amigosGrupo(amigo.usuarioAmigoId!, "remover")
                                 }
                               >
                                 <UserRoundMinus
@@ -348,4 +379,4 @@ const ConversaAdicionar = ({
   );
 };
 
-export default ConversaAdicionar;
+export default ConversaAdicionarGrupo;

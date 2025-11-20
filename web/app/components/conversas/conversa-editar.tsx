@@ -22,6 +22,7 @@ import { useAuth } from "@/app/contexts/auth-provider";
 import { Label } from "../ui/label";
 import { useRouter } from "next/navigation";
 import { useConversa } from "@/app/contexts/conversas-provider";
+import ConversaAdicionarGrupo from "./conversa-adicionar-grupo";
 
 interface ConversaEditarProps {
   open: boolean;
@@ -200,7 +201,19 @@ const ConversaEditar = ({
             </div>
             {conversa.grupo === 1 && (
               <div className="w-full mt-5">
-                <Label>Integrantes</Label>
+                <div className="flex items-center justify-between">
+                  <Label>Integrantes</Label>
+                  <ConversaAdicionarGrupo
+                    atualizar={load}
+                    conversa={{
+                      ...conversa.conversaUsuarios![0],
+                      conversaId: conversa.conversaId!,
+                    }}
+                    usuariosId={conversa.conversaUsuarios!.map(
+                      (usuario: IConversaUsuario) => usuario.usuarioId
+                    )}
+                  />
+                </div>
                 {conversa.conversaUsuarios &&
                   conversa.conversaUsuarios.map((c: IConversaUsuario) => {
                     return (
