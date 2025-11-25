@@ -1,27 +1,29 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { IConversaUsuario } from "../../types/conversas";
-import { formatarData } from "../../utils";
+import { formatarData, formatarUrlAnexo } from "../../utils";
 import { Badge } from "../ui/badge";
 import Link from "next/link";
 import { IMensagem } from "../../types/mensagens";
 import { toast } from "sonner";
 import { visualizarMensagens } from "../../_actions/conversas";
 import CAvatar from "../ui/c-avatar";
+import { useConversa } from "@/app/contexts/conversas-provider";
+import { useAuth } from "@/app/contexts/auth-provider";
 
 interface ConversaCardProps {
-  conversa: IConversaUsuario;
-  mensagensVisualizadas: IMensagem[];
+  conversaUsuario: IConversaUsuario;
   load: () => Promise<void>;
 }
 
-const ConversaCard = ({
-  conversa,
-  mensagensVisualizadas,
-  load,
-}: ConversaCardProps) => {
-  const [msgVisualizasQtd, setMsgVisualizadasQtd] = useState<number>(
-    mensagensVisualizadas.length
+const ConversaCard = ({ conversaUsuario, load }: ConversaCardProps) => {
+  const [mensagens, setMensagens] = useState<IMensagem[]>(
+    conversaUsuario.mensagens ?? []
   );
+  const [mensagensVisualizadas, setMensagensVisualizadas] = useState<
+    IMensagem[]
+  >(conversaUsuario.mensagens ?? []);
+  const { conversasContext } = useConversa();
+  const { auth } = useAuth();
 
   const visualizarTodasMensagens = async () => {
     try {
@@ -30,53 +32,84 @@ const ConversaCard = ({
         console.error(data.mensagemApi);
         toast.error(data.mensagem);
       }
-      setMsgVisualizadasQtd(0);
+      setMensagensVisualizadas([]);
       await load();
     } catch (error) {
       console.error(error);
     }
   };
 
+  useEffect(() => {
+    const recarregarMensagens = () => {
+      const conversaAtual = conversasContext.find(
+        (c: IConversaUsuario) => c.conversaId === conversaUsuario.conversaId
+      );
+      setMensagens(conversaAtual?.mensagens ?? []);
+    };
+    recarregarMensagens();
+  }, [conversasContext, conversaUsuario.conversaId]);
+
+  useEffect(() => {
+    const mensagensVisualizadas = () => {
+      const mensagens = conversaUsuario.mensagens?.filter(
+        (mensagem) =>
+          !mensagem.visualizada && mensagem.usuarioId !== auth.usuarioId
+      );
+      if (mensagens) {
+        setMensagensVisualizadas(mensagens);
+      }
+    };
+    mensagensVisualizadas();
+  }, [conversaUsuario.mensagens, auth.usuarioId]);
+
   return (
     <>
-      <div key={conversa.conversaId} onClick={() => visualizarTodasMensagens()}>
+      <div
+        key={conversaUsuario.conversaId}
+        onClick={() => visualizarTodasMensagens()}
+      >
         <Link
-          href={`/conversas/${conversa.conversaId}`}
+          href={`/conversas/${conversaUsuario.conversaId}`}
           className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground flex flex-col gap-2  border-b p-4 text-sm leading-tight"
         >
           <div className="flex items-center w-full">
             <CAvatar
-              src={`${process.env.NEXT_PUBLIC_APP_URL}/uploads/conversas/conversa_${conversa.conversaId}/perfil/${conversa.conversaFoto}`}
-              alt={conversa.conversaNome!}
+              src={formatarUrlAnexo(
+                "conversa",
+                "perfil",
+                conversaUsuario.conversaId!,
+                conversaUsuario.conversaFoto ?? null
+              )}
+              alt={conversaUsuario.conversaNome!}
             />
             <div className="flex items-center ml-2 justify-between w-full">
               <span className="font-medium truncate">
-                {conversa.conversaNome}
+                {conversaUsuario.conversaNome}
               </span>
-              {msgVisualizasQtd > 0 && (
+              {mensagensVisualizadas.length > 0 && (
                 <Badge
                   variant="default"
                   className="h-5 min-w-5 rounded-full px-1 text-xs shrink-0 whitespace-nowrap"
                 >
-                  {msgVisualizasQtd}
+                  {mensagensVisualizadas.length}
                 </Badge>
               )}
             </div>
           </div>
 
           <div className="flex items-center justify-between w-full">
-            {conversa.mensagens && conversa.mensagens.length > 0 && (
+            {mensagens && mensagens.length > 0 && (
               <span className="w-45 text-xs mr-2 truncate">
-                {conversa.mensagens[0].mensagem}
+                {mensagens[0].mensagem}
               </span>
             )}
 
-            {conversa.mensagens && conversa.mensagens.length > 0 && (
+            {mensagens && mensagens.length > 0 && (
               <span
                 style={{ fontSize: "10px" }}
                 className="shrink-0 whitespace-nowrap"
               >
-                {formatarData(conversa.mensagens[0].regidh!, "dataehoratexto")}
+                {formatarData(mensagens[0].regidh!, "dataehoratexto")}
               </span>
             )}
           </div>

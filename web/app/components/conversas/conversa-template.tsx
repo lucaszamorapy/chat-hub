@@ -15,18 +15,11 @@ import { conexaoSignalR } from "../../_actions/signalr";
 import ConversaEditar from "./conversa-editar";
 import { getConversaById } from "../../_actions/conversas";
 import { useConversa } from "@/app/contexts/conversas-provider";
+import { SignalRMensagem } from "@/app/types/signalR";
+import { formatarUrlAnexo } from "@/app/utils";
 
 interface ConversaTemplateProps {
   conversaInicial: IConversa;
-}
-
-interface SignalRMensagem {
-  mensagemId: number;
-  mensagem: string;
-  visualizada: Date;
-  regidh: Date;
-  usuarioId: number;
-  nome: string;
 }
 
 const ConversaTemplate = ({ conversaInicial }: ConversaTemplateProps) => {
@@ -113,9 +106,12 @@ const ConversaTemplate = ({ conversaInicial }: ConversaTemplateProps) => {
        w-full"
       >
         <CAvatar
-          src={`${process.env.NEXT_PUBLIC_APP_URL}/uploads/conversas/conversa_${
-            conversa.conversaId
-          }/perfil/${conversa.conversaUsuarios![0].conversaFoto!}`}
+          src={formatarUrlAnexo(
+            "conversa",
+            "perfil",
+            conversa.conversaId!,
+            conversa.conversaUsuarios![0].conversaFoto ?? null
+          )}
           alt={conversa.conversaUsuarios![0].conversaNome!}
         />
         <span className="text-base text-white font-medium">

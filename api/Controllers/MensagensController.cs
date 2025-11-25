@@ -91,7 +91,7 @@ namespace api.Controllers
         // POST: api/Mensagens
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost("visualizar")]
-        public async Task<ActionResult<Mensagen>> PostVisualizarMensagem(List<MensagenDTO> mensagens)
+        public async Task<ActionResult<Mensagen>> PostVisualizarMensagem(List<Mensagen> mensagens)
         {
 
             foreach (var msg in mensagens)

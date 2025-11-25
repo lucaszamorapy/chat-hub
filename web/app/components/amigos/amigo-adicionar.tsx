@@ -19,6 +19,7 @@ import { adicionarAmigo } from "../../_actions/amigos";
 import { IAmigo } from "../../types/amigos";
 import { Skeleton } from "../ui/skeleton";
 import CAvatar from "../ui/c-avatar";
+import { formatarUrlAnexo } from "@/app/utils";
 
 interface AmigoAdicionarProps {
   getAmigos: () => Promise<IAmigo[]>;
@@ -143,7 +144,12 @@ const AmigoAdicionar = ({ getAmigos, usuarioId }: AmigoAdicionarProps) => {
                     <div className="flex w-full justify-between">
                       <div className="flex gap-2">
                         <CAvatar
-                          src={`${process.env.NEXT_PUBLIC_APP_URL}/uploads/usuarios/usuario_${usuario.usuarioId}/perfil/${usuario.perfilFoto}`}
+                          src={formatarUrlAnexo(
+                            "usuario",
+                            "perfil",
+                            usuario.usuarioId!,
+                            usuario.perfilFoto ?? null
+                          )}
                           alt={usuario.apelido}
                         />
                         <div className="flex flex-col w-full">

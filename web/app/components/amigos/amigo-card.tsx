@@ -22,6 +22,7 @@ import { useRouter } from "next/navigation";
 import { alterarAmigo, excluirAmigo } from "../../_actions/amigos";
 import { useAuth } from "../../contexts/auth-provider";
 import CAvatar from "../ui/c-avatar";
+import { formatarUrlAnexo } from "@/app/utils";
 
 interface AmigoProps {
   amigo: IAmigo;
@@ -134,10 +135,14 @@ const AmigoCard = ({ amigo, status, atualizar }: AmigoProps) => {
           <div className="flex w-full justify-between">
             <div className="flex items-center gap-2">
               <CAvatar
-                src={`${process.env.NEXT_PUBLIC_APP_URL}/uploads/usuarios/usuario_${amigo.usuarioAmigoId}/perfil/${amigo.perfilFotoAmigo}`}
+                src={formatarUrlAnexo(
+                  "usuario",
+                  "perfil",
+                  amigo.usuarioAmigoId!,
+                  amigo.perfilFotoAmigo ?? null
+                )}
                 alt={amigo.apelidoAmigo!}
               />
-
               <div className="flex flex-col w-full">
                 <span className="font-medium truncate">{amigo.nomeAmigo}</span>
                 <span className="text-xs truncate">{amigo.apelidoAmigo}</span>

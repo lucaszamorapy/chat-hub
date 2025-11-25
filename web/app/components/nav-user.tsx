@@ -18,6 +18,7 @@ import { IAuth } from "../contexts/auth-provider";
 import { logout } from "../_actions/usuarios";
 import CAvatar from "./ui/c-avatar";
 import { useRouter } from "next/navigation";
+import { formatarUrlAnexo } from "../utils";
 
 interface UsuariosProps {
   usuario: IAuth;
@@ -25,7 +26,6 @@ interface UsuariosProps {
 
 export function NavUser({ usuario }: UsuariosProps) {
   const { isMobile } = useSidebar();
-  const imageUrl = `${process.env.NEXT_PUBLIC_APP_URL}/uploads/usuarios/usuario_${usuario.usuarioId}/perfil/${usuario.perfilFoto}`;
   const rota = useRouter();
 
   return (
@@ -37,7 +37,15 @@ export function NavUser({ usuario }: UsuariosProps) {
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground md:h-8 md:p-0"
             >
-              <CAvatar src={imageUrl} alt={usuario.apelido!} />
+              <CAvatar
+                src={formatarUrlAnexo(
+                  "usuario",
+                  "perfil",
+                  usuario.usuarioId!,
+                  usuario.perfilFoto ?? null
+                )}
+                alt={usuario.apelido!}
+              />
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{usuario.nome}</span>
                 <span className="truncate text-xs">{usuario.apelido}</span>
@@ -53,7 +61,15 @@ export function NavUser({ usuario }: UsuariosProps) {
           >
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                <CAvatar src={imageUrl} alt={usuario.apelido!} />
+                <CAvatar
+                  src={formatarUrlAnexo(
+                    "usuario",
+                    "perfil",
+                    usuario.usuarioId!,
+                    usuario.perfilFoto ?? null
+                  )}
+                  alt={usuario.apelido!}
+                />
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">{usuario.nome}</span>
                   <span className="truncate text-xs">{usuario.apelido}</span>

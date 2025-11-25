@@ -44,6 +44,14 @@ export const formatarData = (data: string | number | Date, formato: string = "pa
   return retorno;
 }
 
+export const formatarUrlAnexo = (tipo: "conversa" | "usuario", tipoAnexo: "perfil", id: number, anexo: string | null) => {
+  const urlBase: string = process.env.NEXT_PUBLIC_APP_URL!;
+  let url: string = "";
+  if (tipoAnexo === "perfil") {
+    url = `${urlBase}/uploads/${tipo + "s"}/${tipo}_${id}/${tipoAnexo}/${anexo}`
+  }
+  return url
+}
 
 
 

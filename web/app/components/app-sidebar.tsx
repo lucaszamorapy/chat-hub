@@ -251,16 +251,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               {filtro === "conversas" ? (
                 conversasContext && conversasContext.length > 0 ? (
                   conversasContext.map((item: IConversaUsuario) => {
-                    const mensagensVisualizadas = item.mensagens?.filter(
-                      (mensagem) =>
-                        !mensagem.visualizada &&
-                        mensagem.usuarioId !== auth.usuarioId
-                    );
                     return (
                       <ConversaCard
                         key={item.conversaId}
-                        conversa={item}
-                        mensagensVisualizadas={mensagensVisualizadas!}
+                        conversaUsuario={item}
                         load={async () => await getConversas()}
                       />
                     );

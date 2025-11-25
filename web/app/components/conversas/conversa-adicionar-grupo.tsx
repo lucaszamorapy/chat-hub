@@ -33,6 +33,7 @@ import { useAuth } from "../../contexts/auth-provider";
 import CAvatar from "../ui/c-avatar";
 import InputFile from "../ui/input-file";
 import { getAmigosByUsuario } from "@/app/_actions/amigos";
+import { formatarUrlAnexo } from "@/app/utils";
 
 interface ConversaAdicionarProps {
   atualizar: () => Promise<void>;
@@ -109,7 +110,7 @@ const ConversaAdicionarGrupo = ({
           (u: number) => {
             return {
               usuarioId: u,
-              cargo: "Membro",
+              cargo: u === auth.usuarioId! ? "Admin" : "Membro",
             };
           }
         );
@@ -296,13 +297,12 @@ const ConversaAdicionarGrupo = ({
                         <div className="flex w-full justify-between">
                           <div className="flex gap-2">
                             <CAvatar
-                              src={`${
-                                process.env.NEXT_PUBLIC_APP_URL
-                              }/uploads/usuarios/usuario_${
-                                amigo.usuarioAmigoId !== auth.usuarioId
-                                  ? amigo.usuarioAmigoId
-                                  : amigo.usuarioId
-                              }/perfil/${amigo.perfilFotoAmigo}`}
+                              src={formatarUrlAnexo(
+                                "usuario",
+                                "perfil",
+                                amigo.usuarioAmigoId!,
+                                amigo.perfilFotoAmigo ?? null
+                              )}
                               alt={amigo.apelidoAmigo!}
                             />
                             <div className="flex flex-col w-full">

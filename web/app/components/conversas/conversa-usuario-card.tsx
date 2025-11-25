@@ -18,6 +18,7 @@ import {
 } from "@/app/_actions/conversas";
 import { useRouter } from "next/navigation";
 import { useConversa } from "@/app/contexts/conversas-provider";
+import { formatarUrlAnexo } from "@/app/utils";
 
 interface ConversaUsuarioCardProps {
   conversaUsuario: IConversaUsuario;
@@ -93,7 +94,12 @@ const ConversaUsuarioCard = ({
       <div className="flex w-full justify-between">
         <div className="flex items-center gap-2">
           <CAvatar
-            src={`${process.env.NEXT_PUBLIC_APP_URL}/uploads/usuarios/usuario_${conversaUsuario.usuarioId}/perfil/${conversaUsuario.usuarioPerfilFoto}`}
+            src={formatarUrlAnexo(
+              "usuario",
+              "perfil",
+              conversaUsuario.usuarioId!,
+              conversaUsuario.usuarioPerfilFoto ?? null
+            )}
             alt={conversaUsuario.conversaUsuariosId!}
           />
           {auth.usuarioId === conversaUsuario.usuarioId ? (
