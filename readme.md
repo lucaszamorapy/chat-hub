@@ -46,7 +46,3 @@ ChatHub é um **aplicativo web de chat** que permite conversas online individuai
 4. **Tempo real**
    - Notificações de novas mensagens instantâneas
    - Atualização automática de conversas
-
----
-
-## 🖥 Estrutura do Projeto
