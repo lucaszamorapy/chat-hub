@@ -8,8 +8,8 @@ import { Input } from "@/app/components/ui/input";
 import z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { cadastro } from "../../_actions/usuarios";
-import { useAuth } from "../../contexts/auth-provider";
+import { cadastro } from "../../../_actions/usuarios";
+import { useAuth } from "../../../contexts/auth-provider";
 import { useState } from "react";
 import {
   Form,
@@ -18,12 +18,12 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "../ui/form";
+} from "../../ui/form";
 import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import Link from "next/link";
-import InputFile from "../ui/input-file";
+import InputFile from "../../ui/input-file";
 
 const formSchema = z.object({
   email: z.string().email({
