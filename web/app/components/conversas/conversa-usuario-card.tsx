@@ -37,8 +37,6 @@ const ConversaUsuarioCard = ({
   const { removerConversa } = useConversa();
   const rota = useRouter();
 
-  console.log(conversaUsuario);
-
   const removerConversaUsuario = async () => {
     try {
       const data = await excluirConversaUsuarios(conversaUsuario);

@@ -1,4 +1,4 @@
-import CadastroForm from "../components/cadastro/cadastro-form";
+import CadastroForm from "../components/usuario/cadastro/cadastro-form";
 
 const CadastroPage = () => {
   return (

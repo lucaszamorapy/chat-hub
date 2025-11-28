@@ -58,23 +58,34 @@ namespace api.Controllers
         // PUT: api/Usuarios/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutUsuario(int id, Usuario usuario)
+        public async Task<IActionResult> PutUsuario(int id, UsuarioDTO usuario)
         {
-            if (id != usuario.UsuarioId)
-            {
-                return BadRequest(new Message<Usuario>("ID do usuário não foi encontrado.", new Usuario { }, true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status400BadRequest)));
-            }
 
-            _context.Entry(usuario).State = EntityState.Modified;
-
-            var existeapelido = _context.Usuarios.Any(u => u.Apelido == usuario.Apelido && u.UsuarioId != usuario.UsuarioId);
+            var existeapelido = _context.Usuarios.Any(u => u.Apelido == usuario.Apelido && u.UsuarioId != id);
 
             if (existeapelido)
             {
                 return BadRequest(new Message<Usuario>("Apelido já cadastrado no sistema.", new Usuario { }, true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status400BadRequest)));
             }
-
             usuario.Senha = BCrypt.Net.BCrypt.HashPassword(usuario.Senha);
+
+            var usuarioAlterar = new Usuario
+            {
+                UsuarioId = id,
+                Nome = usuario.Nome,
+                Email = usuario.Email,
+                Apelido = usuario.Apelido,
+                Senha = usuario.Senha,
+            };
+
+            var geralService = new GeralService(_configuration);
+            var pastaConversa = Path.Combine("usuarios", $"usuario_{usuarioAlterar.UsuarioId}", "perfil");
+
+            var arquivo = await geralService.AlterarArquivo(usuario.PerfilFoto, pastaConversa);
+            usuarioAlterar.PerfilFoto = arquivo;
+
+            _context.Entry(usuarioAlterar).State = EntityState.Modified;
+
 
             try
             {
@@ -91,7 +102,7 @@ namespace api.Controllers
                     throw;
                 }
             }
-            return Ok(new Message<Usuario>("Usuário alterado com sucesso.", usuario, false));
+            return Ok(new Message<Usuario>("Usuário alterado com sucesso!", usuarioAlterar, false));
         }
 
         // POST: api/Usuarios/filtro
@@ -206,7 +217,7 @@ namespace api.Controllers
             _context.Usuarios.Remove(usuario);
             await _context.SaveChangesAsync();
 
-            return Ok(new Message<Usuario>("Usuário excluído com sucesso!", new Usuario{ }, false));
+            return Ok(new Message<Usuario>("Usuário excluído com sucesso!", new Usuario { }, false));
         }
 
         private bool UsuarioExists(int id)

@@ -19,6 +19,7 @@ import { logout } from "../_actions/usuarios";
 import CAvatar from "./ui/c-avatar";
 import { useRouter } from "next/navigation";
 import { formatarUrlAnexo } from "../utils";
+import UsuarioEditar from "./usuario/usuario-editar";
 
 interface UsuariosProps {
   usuario: IAuth;
@@ -74,6 +75,7 @@ export function NavUser({ usuario }: UsuariosProps) {
                   <span className="truncate font-medium">{usuario.nome}</span>
                   <span className="truncate text-xs">{usuario.apelido}</span>
                 </div>
+                <UsuarioEditar />
               </div>
             </DropdownMenuLabel>
             <DropdownMenuItem
@@ -83,7 +85,7 @@ export function NavUser({ usuario }: UsuariosProps) {
                 rota.push("/login");
               }}
             >
-              <LogOut />
+              <LogOut className="text-primary" />
               Sair
             </DropdownMenuItem>
           </DropdownMenuContent>

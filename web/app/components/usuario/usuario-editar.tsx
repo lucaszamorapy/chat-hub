@@ -1,16 +1,14 @@
-"use client";
-
-import { cn } from "@/app/lib/utils";
-import { Button } from "@/app/components/ui/button";
-import { Card, CardContent } from "@/app/components/ui/card";
-import { FieldDescription, FieldGroup } from "@/app/components/ui/field";
-import { Input } from "@/app/components/ui/input";
-import z from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { cadastro } from "../../_actions/usuarios";
-import { useAuth } from "../../contexts/auth-provider";
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
+import { Button } from "../ui/button";
+import { Eye, EyeOff, Settings } from "lucide-react";
 import {
   Form,
   FormControl,
@@ -19,11 +17,17 @@ import {
   FormLabel,
   FormMessage,
 } from "../ui/form";
-import { Eye, EyeOff } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
-import Link from "next/link";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useAuth } from "@/app/contexts/auth-provider";
+import z from "zod";
+import { IUsuario } from "@/app/types/usuarios";
+import { FieldGroup } from "../ui/field";
 import InputFile from "../ui/input-file";
+import { Input } from "../ui/input";
+import { formatarUrlAnexo } from "@/app/utils";
+import { alterar, getUsuario } from "@/app/_actions/usuarios";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   email: z.string().email({
@@ -32,27 +36,57 @@ const formSchema = z.object({
   nome: z.string().min(1, { message: "Por favor, preencha o seu nome." }),
   apelido: z.string().min(1, { message: "Por favor, preencha o seu apelido." }),
   senha: z.string().min(6, {
-    message: "A senha deve conter no mínimo 6 dígitos.",
+    message:
+      "Confirme sua senha ou altere, a senha deve conter no mínimo 6 dígitos.",
   }),
 });
-
-const CadastroForm = ({ className, ...props }: React.ComponentProps<"div">) => {
-  const [visualizar, setVisualizar] = useState<boolean>(false);
+const UsuarioEditar = () => {
   const [carregando, setCarregando] = useState<boolean>(false);
   const [perfilFoto, setPerfilFoto] = useState<File | null>(null);
+  const [usuario, setUsuario] = useState<IUsuario | null>(null);
+  const [visualizar, setVisualizar] = useState<boolean>(false);
+  const [open, setOpen] = useState(false);
 
-  const { setAuth } = useAuth();
-  const rota = useRouter();
+  const { auth, setAuth } = useAuth();
+
+  useEffect(() => {
+    const fetchUsuario = async () => {
+      setCarregando(true);
+      if (auth.usuarioId) {
+        try {
+          const data = await getUsuario(auth.usuarioId);
+          if (!data.erro) {
+            setUsuario(data.resultado);
+          } else {
+            console.error(data.mensagemApi);
+            toast.error(data.mensagem);
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      }
+      setCarregando(false);
+    };
+    fetchUsuario();
+  }, [auth.usuarioId]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      email: "",
-      nome: "",
-      apelido: "",
-      senha: "",
-    },
   });
+
+  useEffect(() => {
+    const valoresUsuario = () => {
+      if (usuario) {
+        form.reset({
+          email: usuario.email,
+          nome: usuario.nome,
+          apelido: usuario.apelido,
+          senha: "",
+        });
+      }
+    };
+    valoresUsuario();
+  }, [usuario, form]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setCarregando(true);
@@ -66,16 +100,23 @@ const CadastroForm = ({ className, ...props }: React.ComponentProps<"div">) => {
       if (perfilFoto) {
         formData.append("perfilFoto", perfilFoto);
       }
-      const data = await cadastro(formData);
+      const data = await alterar(auth.usuarioId!, formData);
       if (!data.erro) {
         setAuth({
-          nome: data.resultado.usuario.nome,
-          usuarioId: data.resultado.usuario.usuarioId,
-          apelido: data.resultado.usuario.apelido,
-          perfilFoto: data.resultado.usuario.perfilFoto,
+          nome: data.resultado.nome,
+          usuarioId: data.resultado.usuarioId,
+          apelido: data.resultado.apelido,
+          perfilFoto: data.resultado.perfilFoto,
         });
-        localStorage.setItem("usuario", JSON.stringify(data.resultado.usuario));
-        rota.push("/");
+        localStorage.setItem(
+          "usuario",
+          JSON.stringify({
+            nome: data.resultado.nome,
+            usuarioId: data.resultado.usuarioId,
+            apelido: data.resultado.apelido,
+            perfilFoto: data.resultado.perfilFoto,
+          })
+        );
         toast.success(data.mensagem);
       } else {
         console.error(data.mensagemApi);
@@ -90,30 +131,48 @@ const CadastroForm = ({ className, ...props }: React.ComponentProps<"div">) => {
       }
     }
     setCarregando(false);
+    setOpen(false);
+    form.reset();
   };
+
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card className="overflow-hidden p-0">
-        <CardContent className="grid p-0 md:grid-cols-2">
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="ghost" size="icon">
+          <Settings className="text-primary " />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="gap-5">
+        <DialogHeader>
+          <DialogTitle>
+            Configurações <span className="text-primary">Usuário</span>
+          </DialogTitle>
+          <DialogDescription>
+            Altere suas configurações abaixo
+          </DialogDescription>
+        </DialogHeader>
+        {usuario && (
           <Form {...form}>
             <form className="p-6 md:p-8" onSubmit={form.handleSubmit(onSubmit)}>
               <FieldGroup>
-                <div className="flex flex-col items-center gap-2 text-center">
-                  <h1 className="text-2xl font-bold">
-                    Crie sua conta <span className="text-primary">agora!</span>
-                  </h1>
-                  <p className="text-muted-foreground text-balance font-sx">
-                    Preencha os dados abaixo para começar fofocar no ChatHub :)
-                  </p>
+                <div className="flex w-full flex-col items-center justify-center gap-5">
+                  <InputFile
+                    label="Foto de Perfil"
+                    width="w-[150px]"
+                    height="h-[150px]"
+                    url={formatarUrlAnexo(
+                      "usuario",
+                      "perfil",
+                      usuario.usuarioId!,
+                      usuario.perfilFoto! ?? null
+                    )}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      if (e.target.files && e.target.files.length > 0) {
+                        setPerfilFoto(e.target.files[0]);
+                      }
+                    }}
+                  />
                 </div>
-                <InputFile
-                  label="Foto de Perfil"
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    if (e.target.files && e.target.files.length > 0) {
-                      setPerfilFoto(e.target.files[0]);
-                    }
-                  }}
-                />
                 <FormField
                   control={form.control}
                   name="email"
@@ -194,38 +253,21 @@ const CadastroForm = ({ className, ...props }: React.ComponentProps<"div">) => {
                 <div className="flex flex-col gap-2">
                   {carregando ? (
                     <Button loading={carregando} className="text-white">
-                      Cadastrando
+                      Salvando
                     </Button>
                   ) : (
                     <Button className="text-white" type="submit">
-                      Cadastrar
+                      Salvar
                     </Button>
                   )}
                 </div>
-                <FieldDescription className="text-center">
-                  Já tem uma conta no ChatHub?{" "}
-                  <Link href={"/login"}>Entre agora</Link>
-                </FieldDescription>
               </FieldGroup>
             </form>
           </Form>
-          <div className="bg-muted relative hidden md:block">
-            <img
-              src="/placeholder.svg"
-              alt="Image"
-              className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
-            />
-          </div>
-        </CardContent>
-      </Card>
-      <FieldDescription className="px-6 text-center">
-        Desenvolvido por{" "}
-        <Link target="_blank" href="https://github.com/lucaszamorapy">
-          Lucas Zamora
-        </Link>
-      </FieldDescription>
-    </div>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 };
 
-export default CadastroForm;
+export default UsuarioEditar;

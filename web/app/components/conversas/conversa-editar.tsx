@@ -23,6 +23,7 @@ import { Label } from "../ui/label";
 import { useRouter } from "next/navigation";
 import { useConversa } from "@/app/contexts/conversas-provider";
 import ConversaAdicionarGrupo from "./conversa-adicionar-grupo";
+import { formatarUrlAnexo } from "@/app/utils";
 
 interface ConversaEditarProps {
   open: boolean;
@@ -150,11 +151,12 @@ const ConversaEditar = ({
           <div className="flex w-full flex-col items-center justify-center mt-5">
             <div className="flex w-full flex-col items-center justify-center gap-5">
               <InputFile
-                url={`${
-                  process.env.NEXT_PUBLIC_APP_URL
-                }/uploads/conversas/conversa_${
-                  conversa.conversaId
-                }/perfil/${conversa.conversaUsuarios![0].conversaFoto!}`}
+                url={formatarUrlAnexo(
+                  "conversa",
+                  "perfil",
+                  conversa.conversaId!,
+                  conversa.conversaUsuarios![0].conversaFoto! ?? null
+                )}
                 width="w-[150px]"
                 height="h-[150px]"
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {

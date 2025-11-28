@@ -37,9 +37,9 @@ export const cadastro = async (credenciais: FormData) => {
   }
 };
 
-export const alterar = async (usuario: IUsuario) => {
+export const alterar = async (usuarioId: number, usuario: FormData) => {
   try {
-    const { data } = await api.put(`/Usuarios/${usuario.usuarioId}`, usuario);
+    const { data } = await api.put(`/Usuarios/${usuarioId}`, usuario);
     return data
   } catch (error: any) {
     return formatarError(error.response?.data || error.response?.data.title);
