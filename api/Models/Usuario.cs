@@ -15,9 +15,9 @@ public partial class Usuario
 
     public string Senha { get; set; } = null!;
 
-    public string? PerfilFoto { get; set; }
+    public int? CodigoSenha { get; set; }
 
-    public string? Status { get; set; }
+    public string? PerfilFoto { get; set; }
 
     public DateTime Regidh { get; set; }
 

@@ -27,12 +27,12 @@ import {
   FormMessage,
 } from "../ui/form";
 import { useRouter } from "next/navigation";
-import { criarConversa, criarConversaUsuarios } from "../../_actions/conversas";
+import { criarConversa, criarConversaUsuarios } from "../../actions/conversas";
 import { IConversaUsuario } from "../../types/conversas";
 import { useAuth } from "../../contexts/auth-provider";
 import CAvatar from "../ui/c-avatar";
 import InputFile from "../ui/input-file";
-import { getAmigosByUsuario } from "@/app/_actions/amigos";
+import { getAmigosByUsuario } from "@/app/actions/amigos";
 import { formatarUrlAnexo } from "@/app/utils";
 
 interface ConversaAdicionarProps {
@@ -197,7 +197,7 @@ const ConversaAdicionarGrupo = ({
             });
 
             setAmigos(filtrados);
-            setAmigosClone(filtrados); // << agora certo
+            setAmigosClone(filtrados);
           } else {
             toast.error(data.mensagem);
           }

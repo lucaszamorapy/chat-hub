@@ -15,7 +15,7 @@ import { Input } from "../ui/input";
 import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
-import { alterarConversa, excluirConversa } from "../../_actions/conversas";
+import { alterarConversa, excluirConversa } from "../../actions/conversas";
 import InputFile from "../ui/input-file";
 import ConversaUsuarioCard from "./conversa-usuario-card";
 import { useAuth } from "@/app/contexts/auth-provider";
@@ -166,7 +166,6 @@ const ConversaEditar = ({
                 }}
                 disabled={!isAdmin || conversa.grupo !== 1}
               />
-
               <Form {...form}>
                 <form className="w-full" onSubmit={form.handleSubmit(onSubmit)}>
                   <FormField

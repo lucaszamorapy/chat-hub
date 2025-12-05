@@ -19,14 +19,14 @@ import {
 import { Switch } from "@/app/components/ui/switch";
 import Link from "next/link";
 import { IConversaUsuario } from "../types/conversas";
-import { getConversasByUsuario } from "../_actions/conversas";
+import { getConversasByUsuario } from "../actions/conversas";
 import { useAuth } from "../contexts/auth-provider";
 import { IAmigo } from "../types/amigos";
 import { toast } from "sonner";
 import { IMensagem } from "../types/mensagens";
 import { useCallback, useEffect, useState } from "react";
 import ConversaCard from "./conversas/conversa-card";
-import { getAmigosByUsuario } from "../_actions/amigos";
+import { getAmigosByUsuario } from "../actions/amigos";
 import AmigoAccordion from "./amigos/amigo-accordion";
 import AmigoAdicionar from "./amigos/amigo-adicionar";
 import ConversaAdicionarGrupo from "./conversas/conversa-adicionar-grupo";

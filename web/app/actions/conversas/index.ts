@@ -62,6 +62,7 @@ export const alterarConversa = async (conversaId: number, conversa: FormData) =>
 export const alterarConversaUsuarios = async (conversaUsuario: IConversaUsuario) => {
   try {
     const { data } = await api.put(`/ConversaUsuarios/${conversaUsuario.conversaUsuariosId}`, conversaUsuario)
+
     return data;
   } catch (error: any) {
     return formatarError(error.response?.data || error.response?.data.title);

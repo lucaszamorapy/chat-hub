@@ -1,6 +1,6 @@
 "use server";
 
-import { ILogin, IUsuario } from '@/app/types/usuarios';
+import { ILogin } from '@/app/types/usuarios';
 import { api, formatarError } from '..';
 import { cookies } from 'next/headers';
 

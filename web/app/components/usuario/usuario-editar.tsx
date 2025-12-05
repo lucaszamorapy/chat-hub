@@ -26,7 +26,7 @@ import { FieldGroup } from "../ui/field";
 import InputFile from "../ui/input-file";
 import { Input } from "../ui/input";
 import { formatarUrlAnexo } from "@/app/utils";
-import { alterar, getUsuario } from "@/app/_actions/usuarios";
+import { alterar, getUsuario } from "@/app/actions/usuarios";
 import { toast } from "sonner";
 
 const formSchema = z.object({

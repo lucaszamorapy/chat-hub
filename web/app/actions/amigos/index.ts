@@ -2,6 +2,7 @@
 
 import { IAmigo } from "@/app/types/amigos";
 import { api, formatarError } from "..";
+import { revalidatePath } from "next/cache";
 
 export const getAmigosByUsuario = async (usuarioId: number) => {
   try {
@@ -24,6 +25,7 @@ export const excluirAmigo = async (amigoId: number, usuarioAmigoId: number) => {
 export const adicionarAmigo = async (amigo: IAmigo) => {
   try {
     const { data } = await api.post(`/Amigos`, amigo)
+    revalidatePath("/")
     return data;
   } catch (error: any) {
     return formatarError(error.response?.data || error.response?.data.title);

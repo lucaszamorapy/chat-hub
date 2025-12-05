@@ -1,4 +1,4 @@
-import { getConversaById } from "@/app/_actions/conversas";
+import { getConversaById } from "@/app/actions/conversas";
 import ConversaTemplate from "@/app/components/conversas/conversa-template";
 import { cookies } from "next/headers";
 
@@ -11,8 +11,8 @@ const ConversasPage = async ({
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
   if (token) {
-    const conversa = await getConversaById(Number(id));
-    return <ConversaTemplate conversaInicial={conversa.resultado} />;
+    const { resultado } = await getConversaById(Number(id));
+    return <ConversaTemplate conversaInicial={resultado} />;
   }
 };
 

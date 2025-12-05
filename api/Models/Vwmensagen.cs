@@ -9,11 +9,11 @@ public partial class Vwmensagen
 
     public int ConversaId { get; set; }
 
+    public int UsuarioId { get; set; }
+
     public string Mensagem { get; set; } = null!;
 
     public DateTime? Visualizada { get; set; }
-
-    public int UsuarioId { get; set; }
 
     public string UsuarioNome { get; set; } = null!;
 

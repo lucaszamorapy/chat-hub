@@ -15,11 +15,11 @@ import {
   UserCheck,
   UserRoundX,
 } from "lucide-react";
-import { criarConversa } from "../../_actions/conversas";
+import { criarConversa } from "../../actions/conversas";
 import { toast } from "sonner";
 import { IConversa, IConversaUsuario } from "../../types/conversas";
 import { useRouter } from "next/navigation";
-import { alterarAmigo, excluirAmigo } from "../../_actions/amigos";
+import { alterarAmigo, excluirAmigo } from "../../actions/amigos";
 import { useAuth } from "../../contexts/auth-provider";
 import CAvatar from "../ui/c-avatar";
 import { formatarUrlAnexo } from "@/app/utils";

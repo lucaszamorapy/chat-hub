@@ -17,8 +17,6 @@ public partial class Vwamigo
 
     public string? PerfilFoto { get; set; }
 
-    public string? StatusUsuario { get; set; }
-
     public string NomeAmigo { get; set; } = null!;
 
     public int UsuarioAmigoId { get; set; }
@@ -28,10 +26,6 @@ public partial class Vwamigo
     public string EmailAmigo { get; set; } = null!;
 
     public string? PerfilFotoAmigo { get; set; }
-
-    public string? StatusAmigo { get; set; }
-
-    public string Status { get; set; } = null!;
 
     public DateTime Regidh { get; set; }
 

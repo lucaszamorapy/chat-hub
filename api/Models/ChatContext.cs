@@ -11,6 +11,7 @@ public partial class ChatContext : DbContext
     {
     }
 
+
     public virtual DbSet<Amigo> Amigos { get; set; }
 
     public virtual DbSet<Conversa> Conversas { get; set; }
@@ -65,7 +66,6 @@ public partial class ChatContext : DbContext
 
             entity.HasOne(d => d.UsuarioAmigo).WithMany(p => p.AmigoUsuarioAmigos)
                 .HasForeignKey(d => d.UsuarioAmigoId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_usuario_amigo_id");
 
             entity.HasOne(d => d.Usuario).WithMany(p => p.AmigoUsuarios)
@@ -182,6 +182,7 @@ public partial class ChatContext : DbContext
             entity.Property(e => e.Apelido)
                 .HasMaxLength(255)
                 .HasColumnName("apelido");
+            entity.Property(e => e.CodigoSenha).HasColumnName("codigo_senha");
             entity.Property(e => e.Email)
                 .HasMaxLength(255)
                 .HasColumnName("email");
@@ -202,9 +203,6 @@ public partial class ChatContext : DbContext
             entity.Property(e => e.Senha)
                 .HasMaxLength(255)
                 .HasColumnName("senha");
-            entity.Property(e => e.Status)
-                .HasMaxLength(255)
-                .HasColumnName("status");
         });
 
         modelBuilder.Entity<Vwamigo>(entity =>
@@ -246,16 +244,6 @@ public partial class ChatContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("regidh");
             entity.Property(e => e.Regiusu).HasColumnName("regiusu");
-            entity.Property(e => e.Status)
-                .HasDefaultValueSql("'Pendente'")
-                .HasColumnType("enum('Pendente','Recusado','Aceito')")
-                .HasColumnName("status");
-            entity.Property(e => e.StatusAmigo)
-                .HasMaxLength(255)
-                .HasColumnName("status_amigo");
-            entity.Property(e => e.StatusUsuario)
-                .HasMaxLength(255)
-                .HasColumnName("status_usuario");
             entity.Property(e => e.UsuarioAmigoId).HasColumnName("usuario_amigo_id");
             entity.Property(e => e.UsuarioId).HasColumnName("usuario_id");
         });

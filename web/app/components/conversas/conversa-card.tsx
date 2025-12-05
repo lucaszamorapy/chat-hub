@@ -5,7 +5,7 @@ import { Badge } from "../ui/badge";
 import Link from "next/link";
 import { IMensagem } from "../../types/mensagens";
 import { toast } from "sonner";
-import { visualizarMensagens } from "../../_actions/conversas";
+import { visualizarMensagens } from "../../actions/conversas";
 import CAvatar from "../ui/c-avatar";
 import { useConversa } from "@/app/contexts/conversas-provider";
 import { useAuth } from "@/app/contexts/auth-provider";

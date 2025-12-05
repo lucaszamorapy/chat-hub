@@ -15,7 +15,7 @@ import { useAuth } from "@/app/contexts/auth-provider";
 import {
   alterarConversaUsuarios,
   excluirConversaUsuarios,
-} from "@/app/_actions/conversas";
+} from "@/app/actions/conversas";
 import { useRouter } from "next/navigation";
 import { useConversa } from "@/app/contexts/conversas-provider";
 import { formatarUrlAnexo } from "@/app/utils";
@@ -71,8 +71,8 @@ const ConversaUsuarioCard = ({
       if (!data.erro) {
         if (atualizar) {
           atualizar();
-          toast.success(data.mensagem);
         }
+        toast.success(data.mensagem);
       } else {
         console.error(data.mensagemApi);
         toast.error(data.mensagem);
@@ -118,7 +118,7 @@ const ConversaUsuarioCard = ({
             </div>
           )}
         </div>
-        {isAdmin && (
+        {(auth.usuarioId === conversaUsuario.usuarioId || isAdmin) && (
           <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" aria-label="Open menu" size="icon-sm">
@@ -126,7 +126,7 @@ const ConversaUsuarioCard = ({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-40" align="end">
-              {auth.usuarioId !== conversaUsuario.usuarioId && (
+              {auth.usuarioId !== conversaUsuario.usuarioId && isAdmin && (
                 <DropdownMenuItem
                   className="text-xs cursor-pointer"
                   onSelect={alterarConversaUsuario}
@@ -153,7 +153,9 @@ const ConversaUsuarioCard = ({
                   <span>
                     {auth.usuarioId === conversaUsuario.usuarioId
                       ? "Sair do grupo"
-                      : "Remover do grupo"}
+                      : auth.usuarioId !== conversaUsuario.usuarioId && isAdmin
+                      ? "Remover do grupo"
+                      : null}
                   </span>
                   <UserX className="text-destructive" size={1} />
                 </div>

@@ -13,9 +13,9 @@ import {
 import { IUsuario } from "../../types/usuarios";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { getUsuarios } from "../../_actions/usuarios";
+import { getUsuarios } from "../../actions/usuarios";
 import { Input } from "../ui/input";
-import { adicionarAmigo } from "../../_actions/amigos";
+import { adicionarAmigo } from "../../actions/amigos";
 import { IAmigo } from "../../types/amigos";
 import { Skeleton } from "../ui/skeleton";
 import CAvatar from "../ui/c-avatar";

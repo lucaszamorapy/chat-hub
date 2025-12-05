@@ -8,7 +8,7 @@ import { Input } from "@/app/components/ui/input";
 import z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { cadastro } from "../../../_actions/usuarios";
+import { cadastro } from "../../../actions/usuarios";
 import { useAuth } from "../../../contexts/auth-provider";
 import { useState } from "react";
 import {

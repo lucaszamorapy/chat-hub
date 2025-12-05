@@ -15,7 +15,7 @@ import {
   useSidebar,
 } from "@/app/components/ui/sidebar";
 import { IAuth } from "../contexts/auth-provider";
-import { logout } from "../_actions/usuarios";
+import { logout } from "../actions/usuarios";
 import CAvatar from "./ui/c-avatar";
 import { useRouter } from "next/navigation";
 import { formatarUrlAnexo } from "../utils";

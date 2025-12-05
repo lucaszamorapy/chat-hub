@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using NuGet.Configuration;
 using System;
+using System.Collections.Generic;
 using System.Configuration;
 
 
@@ -55,6 +56,38 @@ namespace api.Controllers
             return Ok(new Message<Usuario>("", usuario, false));
         }
 
+
+        // PUT: api/Usuarios/alterarsenha/5
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPut("alterarsenha/{usuarioId}")]
+        public async Task<IActionResult> PutUsuarioSenha(int usuarioId, JObject dados)
+        {
+            int codigo = Convert.ToInt32(dados["codigo"]?.ToString());
+            string novasenha = dados["senha"]?.ToString();
+            var usuarioexiste = _context.Usuarios.Where(u => u.UsuarioId == usuarioId && u.CodigoSenha == codigo).FirstOrDefault();
+
+            if (usuarioexiste == null)
+            {
+                return BadRequest(new Message<Usuario>("Código de senha ou Usuário não encontrados.", new Usuario { }, true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status400BadRequest)));
+            }
+
+            usuarioexiste.Senha = BCrypt.Net.BCrypt.HashPassword(novasenha);
+            await _context.SaveChangesAsync();
+
+
+            _context.Entry(usuarioexiste).State = EntityState.Modified;
+            var usuarioretorno = new Usuario
+            {
+                UsuarioId = usuarioexiste.UsuarioId,
+                Nome = usuarioexiste.Nome,
+                Apelido = usuarioexiste.Apelido,
+                Email = usuarioexiste.Email,
+            };
+
+            return Ok(new Message<Usuario>("Usuário alterado com sucesso!", usuarioretorno, false));
+        }
+
+
         // PUT: api/Usuarios/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
@@ -78,11 +111,14 @@ namespace api.Controllers
                 Senha = usuario.Senha,
             };
 
-            var geralService = new GeralService(_configuration);
-            var pastaConversa = Path.Combine("usuarios", $"usuario_{usuarioAlterar.UsuarioId}", "perfil");
+            if (usuario.PerfilFoto != null)
+            {
+                var geralService = new GeralService(_configuration);
+                var pastaConversa = Path.Combine("usuarios", $"usuario_{usuarioAlterar.UsuarioId}", "perfil");
 
-            var arquivo = await geralService.AlterarArquivo(usuario.PerfilFoto, pastaConversa);
-            usuarioAlterar.PerfilFoto = arquivo;
+                var arquivo = await geralService.AlterarArquivo(usuario.PerfilFoto, pastaConversa);
+                usuarioAlterar.PerfilFoto = arquivo;
+            }
 
             _context.Entry(usuarioAlterar).State = EntityState.Modified;
 
@@ -123,6 +159,40 @@ namespace api.Controllers
                         .Take(2000)
                         .ToListAsync();
             return Ok(usuarios);
+        }
+
+        // POST: api/Usuarios/esqueciminhasenha
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPost("esqueciminhasenha")]
+        public async Task<ActionResult<IEnumerable<Usuario>>> PostEsqueciMinhaSenha(JObject body)
+        {
+            var email = body["email"]?.ToString();
+            var usuario = _context.Usuarios.Where(e => e.Email == email).FirstOrDefault();
+
+            if (usuario == null)
+            {
+                return NotFound(new Message<Usuario>("Usuário não encontrado.", new Usuario { }, true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status404NotFound)));
+            }
+
+            var geralService = new GeralService(_configuration, _context);
+            var codigoSenha = geralService.GerarNumero(6);
+            usuario.CodigoSenha = codigoSenha;
+            _context.Entry(usuario).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            string html = geralService.CarregarTemplate("RecuperacaoSenha.html");
+
+            html = geralService.PreencherVariaveis(html, new Dictionary<string, string>
+            {
+                { "NOME", usuario.Nome },
+                { "CODIGO", codigoSenha.ToString() }
+            });
+
+            List<KeyValuePair<string, string>> list = new List<KeyValuePair<string, string>>();
+
+            var resultado = geralService.EnviarEmail(email, "", "", "", "Esqueceu sua senha?", html, list);
+
+            return Ok(resultado);
         }
 
         // POST: api/Usuarios

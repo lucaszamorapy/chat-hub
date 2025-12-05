@@ -69,8 +69,6 @@ namespace api.Controllers
                     ApelidoAmigo = usuarioEhUsuarioId ? amigo.ApelidoAmigo : amigo.Apelido,
                     EmailAmigo = usuarioEhUsuarioId ? amigo.EmailAmigo : amigo.Email,
                     PerfilFotoAmigo = usuarioEhUsuarioId ? amigo.PerfilFotoAmigo : amigo.PerfilFoto,
-                    Status = amigo.Status,
-                    StatusAmigo = usuarioEhUsuarioId ? amigo.StatusAmigo : amigo.StatusUsuario,
                     Regidh = amigo.Regidh,
                     Regiusu = amigo.Regiusu,
                     Regadh = amigo.Regadh,
