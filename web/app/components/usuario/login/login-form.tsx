@@ -1,8 +1,6 @@
 "use client";
 
-import { cn } from "@/app/lib/utils";
 import { Button } from "@/app/components/ui/button";
-import { Card, CardContent } from "@/app/components/ui/card";
 import { FieldDescription, FieldGroup } from "@/app/components/ui/field";
 import { Input } from "@/app/components/ui/input";
 import z from "zod";
@@ -31,7 +29,7 @@ const formSchema = z.object({
   }),
 });
 
-const LoginForm = ({ className, ...props }: React.ComponentProps<"div">) => {
+const LoginForm = () => {
   const [visualizar, setVisualizar] = useState<boolean>(false);
   const [carregando, setCarregando] = useState<boolean>(false);
   const { setAuth } = useAuth();
@@ -74,109 +72,89 @@ const LoginForm = ({ className, ...props }: React.ComponentProps<"div">) => {
     setCarregando(false);
   };
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card className="overflow-hidden p-0">
-        <CardContent className="grid p-0 md:grid-cols-2">
-          <Form {...form}>
-            <form className="p-6 md:p-8" onSubmit={form.handleSubmit(onSubmit)}>
-              <FieldGroup>
-                <div className="flex flex-col items-center gap-2 text-center">
-                  <h1 className="text-2xl font-bold">
-                    Bem-vindo(a){" "}
-                    <span className="text-primary">novamente!</span>
-                  </h1>
-                  <p className="text-muted-foreground text-balance font-sx">
-                    Entre em sua conta do ChatHub
-                  </p>
-                </div>
-                <FormField
-                  control={form.control}
-                  name="apelido"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Apelido</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Digite seu apelido de usuário"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <div className="flex flex-col gap-5">
-                  <FieldDescription className="flex justify-end items-end">
-                    <Link href={"#"}>Esqueceu sua senha?</Link>
-                  </FieldDescription>
-                  <FormField
-                    control={form.control}
-                    name="senha"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Senha</FormLabel>
-                        <FormControl>
-                          <div className="w-full relative">
-                            <Input
-                              type={visualizar ? "text" : "password"}
-                              className="w-full relative"
-                              placeholder="Digite sua senha"
-                              {...field}
-                            />
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              className="absolute right-2 top-0"
-                              onClick={() => setVisualizar(!visualizar)}
-                            >
-                              {visualizar ? (
-                                <EyeOff className="w-4 h-4" />
-                              ) : (
-                                <Eye className="w-4 h-4" />
-                              )}
-                            </Button>
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)}>
+        <FieldGroup>
+          <div className="flex flex-col items-center gap-2 text-center">
+            <h1 className="text-2xl font-bold">
+              Bem-vindo(a) <span className="text-primary">novamente!</span>
+            </h1>
+            <p className="text-muted-foreground text-balance font-sx">
+              Entre em sua conta do ChatHub
+            </p>
+          </div>
+          <FormField
+            control={form.control}
+            name="apelido"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Apelido</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Digite seu apelido de usuário"
+                    {...field}
                   />
-                </div>
-                <div className="flex flex-col gap-2">
-                  {carregando ? (
-                    <Button loading={carregando} className="text-white">
-                      Entrando
-                    </Button>
-                  ) : (
-                    <Button className="text-white" type="submit">
-                      Entrar
-                    </Button>
-                  )}
-                </div>
-                <FieldDescription className="text-center">
-                  Não tem uma conta no ChatHub?{" "}
-                  <Link href={"/cadastro"}>Cadastre-se</Link>
-                </FieldDescription>
-              </FieldGroup>
-            </form>
-          </Form>
-          <div className="bg-muted relative hidden md:block">
-            <img
-              src="/placeholder.svg"
-              alt="Image"
-              className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <div className="flex flex-col">
+            <FieldDescription className="flex justify-end items-end">
+              <Link href={"/esqueci-minha-senha"}>Esqueceu sua senha?</Link>
+            </FieldDescription>
+            <FormField
+              control={form.control}
+              name="senha"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Senha</FormLabel>
+                  <FormControl>
+                    <div className="w-full relative">
+                      <Input
+                        type={visualizar ? "text" : "password"}
+                        className="w-full relative"
+                        placeholder="Digite sua senha"
+                        {...field}
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-2 top-0"
+                        onClick={() => setVisualizar(!visualizar)}
+                      >
+                        {visualizar ? (
+                          <EyeOff className="w-4 h-4" />
+                        ) : (
+                          <Eye className="w-4 h-4" />
+                        )}
+                      </Button>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
           </div>
-        </CardContent>
-      </Card>
-      <FieldDescription className="px-6 text-center">
-        Desenvolvido por{" "}
-        <Link target="_blank" href="https://github.com/lucaszamorapy">
-          Lucas Zamora
-        </Link>
-      </FieldDescription>
-    </div>
+          <div className="flex flex-col gap-2">
+            {carregando ? (
+              <Button loading={carregando} className="text-white">
+                Entrando
+              </Button>
+            ) : (
+              <Button className="text-white" type="submit">
+                Entrar
+              </Button>
+            )}
+          </div>
+          <FieldDescription className="text-center">
+            Não tem uma conta no ChatHub?{" "}
+            <Link href={"/cadastro"}>Cadastre-se</Link>
+          </FieldDescription>
+        </FieldGroup>
+      </form>
+    </Form>
   );
 };
 

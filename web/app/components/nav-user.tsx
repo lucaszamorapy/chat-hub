@@ -20,6 +20,7 @@ import CAvatar from "./ui/c-avatar";
 import { useRouter } from "next/navigation";
 import { formatarUrlAnexo } from "../utils";
 import UsuarioEditar from "./usuario/usuario-editar";
+import { useConversa } from "../contexts/conversas-provider";
 
 interface UsuariosProps {
   usuario: IAuth;
@@ -27,6 +28,7 @@ interface UsuariosProps {
 
 export function NavUser({ usuario }: UsuariosProps) {
   const { isMobile } = useSidebar();
+  const { setConversasContext } = useConversa();
   const rota = useRouter();
 
   return (
@@ -83,6 +85,7 @@ export function NavUser({ usuario }: UsuariosProps) {
               onClick={async () => {
                 await logout();
                 rota.push("/login");
+                setConversasContext([]);
               }}
             >
               <LogOut className="text-primary" />

@@ -1,6 +1,6 @@
 "use server";
 
-import { ILogin } from '@/app/types/usuarios';
+import { IAlterarSenha, ILogin } from '@/app/types/usuarios';
 import { api, formatarError } from '..';
 import { cookies } from 'next/headers';
 
@@ -63,6 +63,24 @@ export const getUsuarios = async () => {
 export const getUsuario = async (usuarioId: number) => {
   try {
     const { data } = await api.get(`/Usuarios/${usuarioId}`);
+    return data
+  } catch (error: any) {
+    return formatarError(error.response?.data || error.response?.data.title);
+  }
+}
+
+export const esqueciMinhaSenha = async (email: string) => {
+  try {
+    const { data } = await api.post("/Usuarios/esqueciminhasenha", { email });
+    return data
+  } catch (error: any) {
+    return formatarError(error.response?.data || error.response?.data.title);
+  }
+}
+
+export const alterarSenha = async (usuario: IAlterarSenha) => {
+  try {
+    const { data } = await api.put(`/Usuarios/alterarsenha/${usuario.usuarioId}`, usuario);
     return data
   } catch (error: any) {
     return formatarError(error.response?.data || error.response?.data.title);

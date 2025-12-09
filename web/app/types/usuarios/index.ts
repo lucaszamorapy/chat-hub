@@ -12,3 +12,15 @@ export interface IUsuario {
   perfilFoto?: any;
   status?: string;
 }
+
+export interface IAlterarSenha {
+  usuarioId?: number;
+  senha?: string;
+  codigoSenha?: number
+}
+
+export interface IStepProps {
+  avancarStep?: (fase: number, dadosSenha?: IAlterarSenha) => void;
+  dadosSenha?: IAlterarSenha;
+}
+

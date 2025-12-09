@@ -62,7 +62,7 @@ namespace api.Controllers
         [HttpPut("alterarsenha/{usuarioId}")]
         public async Task<IActionResult> PutUsuarioSenha(int usuarioId, JObject dados)
         {
-            int codigo = Convert.ToInt32(dados["codigo"]?.ToString());
+            int codigo = Convert.ToInt32(dados["codigoSenha"]?.ToString());
             string novasenha = dados["senha"]?.ToString();
             var usuarioexiste = _context.Usuarios.Where(u => u.UsuarioId == usuarioId && u.CodigoSenha == codigo).FirstOrDefault();
 
@@ -94,11 +94,11 @@ namespace api.Controllers
         public async Task<IActionResult> PutUsuario(int id, UsuarioDTO usuario)
         {
 
-            var existeapelido = _context.Usuarios.Any(u => u.Apelido == usuario.Apelido && u.UsuarioId != id);
+            var existeapelido = _context.Usuarios.Any(u => u.Apelido == usuario.Apelido && u.UsuarioId != id && u.Email == usuario.Email);
 
             if (existeapelido)
             {
-                return BadRequest(new Message<Usuario>("Apelido já cadastrado no sistema.", new Usuario { }, true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status400BadRequest)));
+                return BadRequest(new Message<Usuario>("Apelido ou E-mail já cadastrado no sistema.", new Usuario { }, true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status400BadRequest)));
             }
             usuario.Senha = BCrypt.Net.BCrypt.HashPassword(usuario.Senha);
 
@@ -164,7 +164,7 @@ namespace api.Controllers
         // POST: api/Usuarios/esqueciminhasenha
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost("esqueciminhasenha")]
-        public async Task<ActionResult<IEnumerable<Usuario>>> PostEsqueciMinhaSenha(JObject body)
+        public async Task<ActionResult<Usuario>> PostEsqueciMinhaSenha(JObject body)
         {
             var email = body["email"]?.ToString();
             var usuario = _context.Usuarios.Where(e => e.Email == email).FirstOrDefault();
@@ -192,7 +192,17 @@ namespace api.Controllers
 
             var resultado = geralService.EnviarEmail(email, "", "", "", "Esqueceu sua senha?", html, list);
 
-            return Ok(resultado);
+            var retorno = new
+            {
+                CodigoSenha = codigoSenha,
+                UsuarioId = usuario.UsuarioId
+            };
+
+            if (resultado.Erro)
+            {
+                return BadRequest(new Message<object>(resultado.Mensagem, retorno, resultado.Erro, resultado.MensagemApi));
+            }
+            return Ok(new Message<object>(resultado.Mensagem, retorno, resultado.Erro));
         }
 
         // POST: api/Usuarios
@@ -200,10 +210,10 @@ namespace api.Controllers
         [HttpPost]
         public async Task<ActionResult<Usuario>> PostUsuario([FromForm] UsuarioDTO usuarioDto)
         {
-            var existeNome = _context.Usuarios.Any(u => u.Apelido == usuarioDto.Apelido);
+            var existeNome = _context.Usuarios.Any(u => u.Apelido == usuarioDto.Apelido || u.Email == usuarioDto.Email);
             if (existeNome)
             {
-                return BadRequest(new Message<object>("Apelido já cadastrado no sistema.", new { }, true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status400BadRequest)));
+                return BadRequest(new Message<object>("Apelido ou E-mail já cadastrado no sistema.", new { }, true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status400BadRequest)));
             }
 
             var senhaCriptografada = BCrypt.Net.BCrypt.HashPassword(usuarioDto.Senha);

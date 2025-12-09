@@ -1,8 +1,6 @@
 "use client";
 
-import { cn } from "@/app/lib/utils";
 import { Button } from "@/app/components/ui/button";
-import { Card, CardContent } from "@/app/components/ui/card";
 import { FieldDescription, FieldGroup } from "@/app/components/ui/field";
 import { Input } from "@/app/components/ui/input";
 import z from "zod";
@@ -36,7 +34,7 @@ const formSchema = z.object({
   }),
 });
 
-const CadastroForm = ({ className, ...props }: React.ComponentProps<"div">) => {
+const CadastroForm = () => {
   const [visualizar, setVisualizar] = useState<boolean>(false);
   const [carregando, setCarregando] = useState<boolean>(false);
   const [perfilFoto, setPerfilFoto] = useState<File | null>(null);
@@ -91,143 +89,124 @@ const CadastroForm = ({ className, ...props }: React.ComponentProps<"div">) => {
     setCarregando(false);
   };
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card className="overflow-hidden p-0">
-        <CardContent className="grid p-0 md:grid-cols-2">
-          <Form {...form}>
-            <form className="p-6 md:p-8" onSubmit={form.handleSubmit(onSubmit)}>
-              <FieldGroup>
-                <div className="flex flex-col items-center gap-2 text-center">
-                  <h1 className="text-2xl font-bold">
-                    Crie sua conta <span className="text-primary">agora!</span>
-                  </h1>
-                  <p className="text-muted-foreground text-balance font-sx">
-                    Preencha os dados abaixo para começar fofocar no ChatHub :)
-                  </p>
-                </div>
-                <div className="flex w-full flex-col items-center justify-center gap-5">
-                  <InputFile
-                    width="w-[150px]"
-                    height="h-[150px]"
-                    label="Foto de Perfil"
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                      if (e.target.files && e.target.files.length > 0) {
-                        setPerfilFoto(e.target.files[0]);
-                      }
-                    }}
-                  />
-                </div>
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>E-mail</FormLabel>
-                      <FormControl>
-                        <Input placeholder="chathub@exemplo.com" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="nome"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nome</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Digite seu nome" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="apelido"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Apelido</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Digite seu apelido de usuário"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <div className="flex flex-col gap-5">
-                  <FormField
-                    control={form.control}
-                    name="senha"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Senha</FormLabel>
-                        <FormControl>
-                          <div className="w-full relative">
-                            <Input
-                              type={visualizar ? "text" : "password"}
-                              className="w-full relative"
-                              placeholder="Digite sua senha"
-                              {...field}
-                            />
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              className="absolute right-2 top-0"
-                              onClick={() => setVisualizar(!visualizar)}
-                            >
-                              {visualizar ? (
-                                <EyeOff className="w-4 h-4" />
-                              ) : (
-                                <Eye className="w-4 h-4" />
-                              )}
-                            </Button>
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="flex flex-col gap-2">
-                  {carregando ? (
-                    <Button loading={carregando} className="text-white">
-                      Cadastrando
-                    </Button>
-                  ) : (
-                    <Button className="text-white" type="submit">
-                      Cadastrar
-                    </Button>
-                  )}
-                </div>
-                <FieldDescription className="text-center">
-                  Já tem uma conta no ChatHub?{" "}
-                  <Link href={"/login"}>Entre agora</Link>
-                </FieldDescription>
-              </FieldGroup>
-            </form>
-          </Form>
-          <div className="bg-muted relative hidden md:block">
-            <img
-              src="/placeholder.svg"
-              alt="Image"
-              className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)}>
+        <FieldGroup>
+          <div className="flex flex-col items-center gap-2 text-center">
+            <h1 className="text-2xl font-bold">
+              Crie sua conta <span className="text-primary">agora!</span>
+            </h1>
+            <p className="text-muted-foreground text-balance font-sx">
+              Preencha os dados abaixo para começar fofocar no ChatHub :)
+            </p>
+          </div>
+          <div className="flex w-full flex-col items-center justify-center gap-5">
+            <InputFile
+              width="w-[150px]"
+              height="h-[150px]"
+              label="Foto de Perfil"
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                if (e.target.files && e.target.files.length > 0) {
+                  setPerfilFoto(e.target.files[0]);
+                }
+              }}
             />
           </div>
-        </CardContent>
-      </Card>
-      <FieldDescription className="px-6 text-center">
-        Desenvolvido por{" "}
-        <Link target="_blank" href="https://github.com/lucaszamorapy">
-          Lucas Zamora
-        </Link>
-      </FieldDescription>
-    </div>
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>E-mail</FormLabel>
+                <FormControl>
+                  <Input placeholder="chathub@exemplo.com" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="nome"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nome</FormLabel>
+                <FormControl>
+                  <Input placeholder="Digite seu nome" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="apelido"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Apelido</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Digite seu apelido de usuário"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <div className="flex flex-col gap-5">
+            <FormField
+              control={form.control}
+              name="senha"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Senha</FormLabel>
+                  <FormControl>
+                    <div className="w-full relative">
+                      <Input
+                        type={visualizar ? "text" : "password"}
+                        className="w-full relative"
+                        placeholder="Digite sua senha"
+                        {...field}
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-2 top-0"
+                        onClick={() => setVisualizar(!visualizar)}
+                      >
+                        {visualizar ? (
+                          <EyeOff className="w-4 h-4" />
+                        ) : (
+                          <Eye className="w-4 h-4" />
+                        )}
+                      </Button>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            {carregando ? (
+              <Button loading={carregando} className="text-white">
+                Cadastrando
+              </Button>
+            ) : (
+              <Button className="text-white" type="submit">
+                Cadastrar
+              </Button>
+            )}
+          </div>
+          <FieldDescription className="text-center">
+            Já tem uma conta no ChatHub?{" "}
+            <Link href={"/login"}>Entre agora</Link>
+          </FieldDescription>
+        </FieldGroup>
+      </form>
+    </Form>
   );
 };
 
