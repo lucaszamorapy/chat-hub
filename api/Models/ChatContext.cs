@@ -10,8 +10,6 @@ public partial class ChatContext : DbContext
     public ChatContext()
     {
     }
-
-
     public virtual DbSet<Amigo> Amigos { get; set; }
 
     public virtual DbSet<Conversa> Conversas { get; set; }
@@ -244,6 +242,10 @@ public partial class ChatContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("regidh");
             entity.Property(e => e.Regiusu).HasColumnName("regiusu");
+            entity.Property(e => e.Status)
+                .HasDefaultValueSql("'Pendente'")
+                .HasColumnType("enum('Pendente','Recusado','Aceito')")
+                .HasColumnName("status");
             entity.Property(e => e.UsuarioAmigoId).HasColumnName("usuario_amigo_id");
             entity.Property(e => e.UsuarioId).HasColumnName("usuario_id");
         });

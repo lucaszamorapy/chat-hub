@@ -24,7 +24,7 @@ import { useAuth } from "../contexts/auth-provider";
 import { IAmigo } from "../types/amigos";
 import { toast } from "sonner";
 import { IMensagem } from "../types/mensagens";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import ConversaCard from "./conversas/conversa-card";
 import { getAmigosByUsuario } from "../actions/amigos";
 import AmigoAccordion from "./amigos/amigo-accordion";
@@ -64,7 +64,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     }
   }, [auth.usuarioId, setConversasContext]);
 
-  const getAmigos = async () => {
+  const getAmigos = useCallback(async () => {
     let resultado;
     try {
       if (auth.usuarioId) {
@@ -88,24 +88,27 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       resultado = [];
     }
     return resultado;
-  };
+  }, [auth.usuarioId]);
 
-  const items = [
-    {
-      titulo: "Conversas",
-      icone: MessageCircle,
-      isActive: true,
-      filtro: "conversas",
-      onClick: getConversas,
-    },
-    {
-      titulo: "Amigos",
-      icone: Users2,
-      isActive: true,
-      filtro: "amigos",
-      onClick: getAmigos,
-    },
-  ];
+  const items = useMemo(
+    () => [
+      {
+        titulo: "Conversas",
+        icone: MessageCircle,
+        isActive: true,
+        filtro: "conversas",
+        onClick: getConversas,
+      },
+      {
+        titulo: "Amigos",
+        icone: Users2,
+        isActive: true,
+        filtro: "amigos",
+        onClick: getAmigos,
+      },
+    ],
+    [getAmigos, getConversas]
+  );
 
   const filtrar = (e: React.ChangeEvent<HTMLInputElement>) => {
     const valor = e.target.value.toLowerCase();
@@ -147,12 +150,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   };
 
   useEffect(() => {
-    const fetchConversas = async () => {
-      await getConversas();
-    };
-
-    fetchConversas();
-  }, [getConversas]);
+    const loadItem = items.find((_, index) => index === 0);
+    if (loadItem) {
+      loadItem.onClick();
+    }
+  }, [items]);
 
   return (
     <Sidebar

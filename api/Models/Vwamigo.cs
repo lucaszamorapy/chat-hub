@@ -9,6 +9,8 @@ public partial class Vwamigo
 
     public int UsuarioId { get; set; }
 
+    public string Status { get; set; } = null!;
+
     public string Nome { get; set; } = null!;
 
     public string Apelido { get; set; } = null!;

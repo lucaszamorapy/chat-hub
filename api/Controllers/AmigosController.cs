@@ -54,6 +54,11 @@ namespace api.Controllers
             var amigos = await _context.Vwamigos.Where(e => e.UsuarioId == id || e.UsuarioAmigoId == id).ToListAsync();
             var usuario = await _context.Usuarios.FindAsync(id);
 
+            if (amigos == null)
+            {
+                return NotFound(new Message<List<Vwamigo>>("Nenhum amigo encontrado", new List<Vwamigo>(), true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status404NotFound)));
+            }
+
             List<Vwamigo> amigosFiltrados = new List<Vwamigo>();
 
             foreach (var amigo in amigos)
@@ -69,6 +74,7 @@ namespace api.Controllers
                     ApelidoAmigo = usuarioEhUsuarioId ? amigo.ApelidoAmigo : amigo.Apelido,
                     EmailAmigo = usuarioEhUsuarioId ? amigo.EmailAmigo : amigo.Email,
                     PerfilFotoAmigo = usuarioEhUsuarioId ? amigo.PerfilFotoAmigo : amigo.PerfilFoto,
+                    Status = amigo.Status,
                     Regidh = amigo.Regidh,
                     Regiusu = amigo.Regiusu,
                     Regadh = amigo.Regadh,
@@ -80,10 +86,7 @@ namespace api.Controllers
             }
 
 
-            if (amigos == null)
-            {
-                return NotFound(new Message<List<Vwamigo>>("Ocorreu um erro ao obter o seu amigo", new List<Vwamigo>(), true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status404NotFound)));
-            }
+            
 
             return Ok(new Message<List<Vwamigo>>("", amigosFiltrados, false));
         }
