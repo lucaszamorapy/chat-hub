@@ -94,33 +94,33 @@ namespace api.Controllers
         public async Task<IActionResult> PutUsuario(int id, UsuarioDTO usuario)
         {
 
-            var existeapelido = _context.Usuarios.Any(u => u.Apelido == usuario.Apelido && u.UsuarioId != id && u.Email == usuario.Email);
+            var usuarioExiste = _context.Usuarios.Where(e => e.UsuarioId == id).FirstOrDefault();
+            var apelidoExiste = _context.Usuarios.Any(u => u.Apelido == usuario.Apelido && u.UsuarioId != id && u.Email == usuario.Email);
 
-            if (existeapelido)
+            if (usuarioExiste == null)
+            {
+                return NotFound(new Message<Usuario>("Usuário não encontrado.", new Usuario { }, true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status404NotFound)));
+            }
+            if (apelidoExiste)
             {
                 return BadRequest(new Message<Usuario>("Apelido ou E-mail já cadastrado no sistema.", new Usuario { }, true, ReasonPhrases.GetReasonPhrase(StatusCodes.Status400BadRequest)));
             }
-            usuario.Senha = BCrypt.Net.BCrypt.HashPassword(usuario.Senha);
 
-            var usuarioAlterar = new Usuario
-            {
-                UsuarioId = id,
-                Nome = usuario.Nome,
-                Email = usuario.Email,
-                Apelido = usuario.Apelido,
-                Senha = usuario.Senha,
-            };
+            usuarioExiste.Senha = BCrypt.Net.BCrypt.HashPassword(usuario.Senha);
+            usuarioExiste.Nome = usuario.Nome;
+            usuarioExiste.Apelido = usuario.Apelido;
+            usuarioExiste.Email = usuario.Email;
 
             if (usuario.PerfilFoto != null)
             {
                 var geralService = new GeralService(_configuration);
-                var pastaConversa = Path.Combine("usuarios", $"usuario_{usuarioAlterar.UsuarioId}", "perfil");
+                var pastaConversa = Path.Combine("usuarios", $"usuario_{usuarioExiste.UsuarioId}", "perfil");
 
                 var arquivo = await geralService.AlterarArquivo(usuario.PerfilFoto, pastaConversa);
-                usuarioAlterar.PerfilFoto = arquivo;
+                usuarioExiste.PerfilFoto = arquivo;
             }
 
-            _context.Entry(usuarioAlterar).State = EntityState.Modified;
+            _context.Entry(usuarioExiste).State = EntityState.Modified;
 
 
             try
@@ -138,7 +138,7 @@ namespace api.Controllers
                     throw;
                 }
             }
-            return Ok(new Message<Usuario>("Usuário alterado com sucesso!", usuarioAlterar, false));
+            return Ok(new Message<Usuario>("Usuário alterado com sucesso!", usuarioExiste, false));
         }
 
         // POST: api/Usuarios/filtro

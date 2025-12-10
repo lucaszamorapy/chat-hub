@@ -49,6 +49,10 @@ const UsuarioEditar = () => {
 
   const { auth, setAuth } = useAuth();
 
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+  });
+
   useEffect(() => {
     const fetchUsuario = async () => {
       setCarregando(true);
@@ -57,6 +61,12 @@ const UsuarioEditar = () => {
           const data = await getUsuario(auth.usuarioId);
           if (!data.erro) {
             setUsuario(data.resultado);
+            form.reset({
+              email: data.resultado.email,
+              nome: data.resultado.nome,
+              apelido: data.resultado.apelido,
+              senha: "",
+            });
           } else {
             console.error(data.mensagemApi);
             toast.error(data.mensagem);
@@ -68,25 +78,7 @@ const UsuarioEditar = () => {
       setCarregando(false);
     };
     fetchUsuario();
-  }, [auth.usuarioId]);
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-  });
-
-  useEffect(() => {
-    const valoresUsuario = () => {
-      if (usuario) {
-        form.reset({
-          email: usuario.email,
-          nome: usuario.nome,
-          apelido: usuario.apelido,
-          senha: "",
-        });
-      }
-    };
-    valoresUsuario();
-  }, [usuario, form]);
+  }, [auth.usuarioId, form]);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setCarregando(true);
@@ -118,6 +110,7 @@ const UsuarioEditar = () => {
           })
         );
         toast.success(data.mensagem);
+        setUsuario({ ...data.resultado });
       } else {
         console.error(data.mensagemApi);
         toast.error(data.mensagem);

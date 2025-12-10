@@ -3,6 +3,7 @@
 import axios, { AxiosHeaders } from "axios";
 import https from "https";
 import { cookies } from "next/headers";
+import { IData } from "../types";
 
 export const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_APP_URL,
@@ -21,18 +22,15 @@ api.interceptors.request.use(async (config) => {
       config.headers = headers;
     }
   }
-
   return config;
 });
 
-interface IError {
-  erro: boolean;
-  mensagem: string;
-  mensagemApi: string;
-}
 
-export const formatarError = async (error: any): Promise<IError> => {
+
+export const formatarError = async (error: any): Promise<IData> => {
+  console.log(error)
   const erroFormatado = {
+    resultado: error.resultado,
     erro: true,
     mensagem:
       error?.mensagem ||

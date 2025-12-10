@@ -3,10 +3,11 @@
 import { IAlterarSenha, ILogin } from '@/app/types/usuarios';
 import { api, formatarError } from '..';
 import { cookies } from 'next/headers';
+import { IData } from '@/app/types/index';
 
-export const login = async (credenciais: ILogin) => {
+export const login = async (credenciais: ILogin): Promise<IData> => {
   try {
-    const { data } = await api.post("/Usuarios/Login", credenciais);
+    const { data } = await api.post<IData>("/Usuarios/Login", credenciais);
     const cookieStore = await cookies();
 
     cookieStore.set("token", data.resultado.token, {
@@ -21,9 +22,9 @@ export const login = async (credenciais: ILogin) => {
   }
 };
 
-export const cadastro = async (credenciais: FormData) => {
+export const cadastro = async (credenciais: FormData): Promise<IData> => {
   try {
-    const { data } = await api.post("/Usuarios", credenciais);
+    const { data } = await api.post<IData>("/Usuarios", credenciais);
     const cookieStore = await cookies();
 
     cookieStore.set("token", data.resultado.token, {
@@ -37,50 +38,50 @@ export const cadastro = async (credenciais: FormData) => {
   }
 };
 
-export const alterar = async (usuarioId: number, usuario: FormData) => {
+export const alterar = async (usuarioId: number, usuario: FormData): Promise<IData> => {
   try {
-    const { data } = await api.put(`/Usuarios/${usuarioId}`, usuario);
+    const { data } = await api.put<IData>(`/Usuarios/${usuarioId}`, usuario);
     return data
   } catch (error: any) {
     return formatarError(error.response?.data || error.response?.data.title);
   }
 }
 
-export const logout = async () => {
+export const logout = async (): Promise<void> => {
   const cookieStore = await cookies();
   cookieStore.delete("token");
 }
 
-export const getUsuarios = async () => {
+export const getUsuarios = async (): Promise<IData> => {
   try {
-    const { data } = await api.get("/Usuarios");
+    const { data } = await api.get<IData>("/Usuarios");
     return data
   } catch (error: any) {
     return formatarError(error.response?.data || error.response?.data.title);
   }
 }
 
-export const getUsuario = async (usuarioId: number) => {
+export const getUsuario = async (usuarioId: number): Promise<IData> => {
   try {
-    const { data } = await api.get(`/Usuarios/${usuarioId}`);
+    const { data } = await api.get<IData>(`/Usuarios/${usuarioId}`);
     return data
   } catch (error: any) {
     return formatarError(error.response?.data || error.response?.data.title);
   }
 }
 
-export const esqueciMinhaSenha = async (email: string) => {
+export const esqueciMinhaSenha = async (email: string): Promise<IData> => {
   try {
-    const { data } = await api.post("/Usuarios/esqueciminhasenha", { email });
+    const { data } = await api.post<IData>("/Usuarios/esqueciminhasenha", { email });
     return data
   } catch (error: any) {
     return formatarError(error.response?.data || error.response?.data.title);
   }
 }
 
-export const alterarSenha = async (usuario: IAlterarSenha) => {
+export const alterarSenha = async (usuario: IAlterarSenha): Promise<IData> => {
   try {
-    const { data } = await api.put(`/Usuarios/alterarsenha/${usuario.usuarioId}`, usuario);
+    const { data } = await api.put<IData>(`/Usuarios/alterarsenha/${usuario.usuarioId}`, usuario);
     return data
   } catch (error: any) {
     return formatarError(error.response?.data || error.response?.data.title);
