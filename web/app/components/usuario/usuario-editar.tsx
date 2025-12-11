@@ -137,7 +137,7 @@ const UsuarioEditar = () => {
       </DialogTrigger>
       <DialogContent className="gap-5">
         <DialogHeader>
-          <DialogTitle>
+          <DialogTitle className="title">
             Configurações <span className="text-primary">Usuário</span>
           </DialogTitle>
           <DialogDescription>

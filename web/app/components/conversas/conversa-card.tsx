@@ -83,7 +83,7 @@ const ConversaCard = ({ conversaUsuario, load }: ConversaCardProps) => {
               alt={conversaUsuario.conversaNome!}
             />
             <div className="flex items-center ml-2 justify-between w-full">
-              <span className="font-medium truncate">
+              <span className="label-medium">
                 {conversaUsuario.conversaNome}
               </span>
               {mensagensVisualizadas.length > 0 && (
@@ -99,7 +99,7 @@ const ConversaCard = ({ conversaUsuario, load }: ConversaCardProps) => {
 
           <div className="flex items-center justify-between w-full">
             {mensagens && mensagens.length > 0 && (
-              <span className="w-45 text-xs mr-2 truncate">
+              <span className="w-45 label-small mr-2">
                 {mensagens[0].mensagem}
               </span>
             )}

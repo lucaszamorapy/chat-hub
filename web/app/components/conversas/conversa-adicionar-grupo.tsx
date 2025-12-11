@@ -222,7 +222,7 @@ const ConversaAdicionarGrupo = ({
         className="gap-5"
       >
         <DialogHeader>
-          <DialogTitle className="text-black">
+          <DialogTitle className="title">
             Adicionar <span className="text-primary">Grupo</span>
           </DialogTitle>
           <DialogDescription>
@@ -306,10 +306,10 @@ const ConversaAdicionarGrupo = ({
                               alt={amigo.apelidoAmigo!}
                             />
                             <div className="flex flex-col w-full">
-                              <span className="font-medium truncate">
+                              <span className="label-medium">
                                 {amigo.nomeAmigo}
                               </span>
-                              <span className="text-xs truncate">
+                              <span className="label-small">
                                 {amigo.apelidoAmigo}
                               </span>
                             </div>

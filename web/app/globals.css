@@ -112,6 +112,28 @@
   --sidebar-ring: oklch(0.439 0 0);
 }
 
+.title {
+  color: var(--color-foreground);
+  font-size: var(--text-xl);
+  line-height: var(--tw-leading, var(--text-base--line-height));
+  font-weight: var(--font-weight-medium);
+}
+
+.label-medium {
+  font-weight: var(--font-weight-medium);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.label-small {
+  font-size: var(--text-xs); /* 0.75rem = 12px */
+  line-height: var(--tw-leading, var(--text-xs--line-height));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

@@ -21,8 +21,7 @@ import { IConversa, IConversaUsuario } from "../../types/conversas";
 import { useRouter } from "next/navigation";
 import { alterarAmigo, excluirAmigo } from "../../actions/amigos";
 import { useAuth } from "../../contexts/auth-provider";
-import CAvatar from "../ui/c-avatar";
-import { formatarUrlAnexo } from "@/app/utils";
+import UsuarioCard from "../usuario/usuario-card";
 
 interface AmigoProps {
   amigo: IAmigo;
@@ -133,21 +132,14 @@ const AmigoCard = ({ amigo, status, atualizar }: AmigoProps) => {
       <div key={amigo.amigoId}>
         <div className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground flex flex-col gap-2 border-b p-4 text-sm leading-tight last:border-b-0">
           <div className="flex w-full justify-between">
-            <div className="flex items-center gap-2">
-              <CAvatar
-                src={formatarUrlAnexo(
-                  "usuario",
-                  "perfil",
-                  amigo.usuarioAmigoId!,
-                  amigo.perfilFotoAmigo ?? null
-                )}
-                alt={amigo.apelidoAmigo!}
-              />
-              <div className="flex flex-col w-full">
-                <span className="font-medium truncate">{amigo.nomeAmigo}</span>
-                <span className="text-xs truncate">{amigo.apelidoAmigo}</span>
-              </div>
-            </div>
+            <UsuarioCard
+              usuario={{
+                usuarioId: amigo.usuarioAmigoId!,
+                nome: amigo.nomeAmigo!,
+                apelido: amigo.apelidoAmigo!,
+                foto: amigo.perfilFotoAmigo,
+              }}
+            />
             <DropdownMenu modal={false}>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" aria-label="Open menu" size="icon-sm">

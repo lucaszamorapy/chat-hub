@@ -10,7 +10,6 @@ import { Button } from "../ui/button";
 import { MoreHorizontalIcon, UserCheck, UserStar, UserX } from "lucide-react";
 import { toast } from "sonner";
 import { IConversaUsuario } from "../../types/conversas";
-import CAvatar from "../ui/c-avatar";
 import { useAuth } from "@/app/contexts/auth-provider";
 import {
   alterarConversaUsuarios,
@@ -18,7 +17,7 @@ import {
 } from "@/app/actions/conversas";
 import { useRouter } from "next/navigation";
 import { useConversa } from "@/app/contexts/conversas-provider";
-import { formatarUrlAnexo } from "@/app/utils";
+import UsuarioCard from "../usuario/usuario-card";
 
 interface ConversaUsuarioCardProps {
   conversaUsuario: IConversaUsuario;
@@ -90,34 +89,14 @@ const ConversaUsuarioCard = ({
   return (
     <div className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground flex flex-col gap-2 border-b p-4 text-sm leading-tight last:border-b-0">
       <div className="flex w-full justify-between">
-        <div className="flex items-center gap-2">
-          <CAvatar
-            src={formatarUrlAnexo(
-              "usuario",
-              "perfil",
-              conversaUsuario.usuarioId!,
-              conversaUsuario.usuarioPerfilFoto ?? null
-            )}
-            alt={conversaUsuario.conversaUsuariosId!}
-          />
-          {auth.usuarioId === conversaUsuario.usuarioId ? (
-            <div className="flex flex-col w-full">
-              <span className="font-medium truncate">Você</span>
-              <span className="text-xs truncate">
-                {conversaUsuario.usuarioApelido}
-              </span>
-            </div>
-          ) : (
-            <div className="flex flex-col w-full">
-              <span className="font-medium truncate">
-                {conversaUsuario.usuarioNome}
-              </span>
-              <span className="text-xs truncate">
-                {conversaUsuario.usuarioApelido}
-              </span>
-            </div>
-          )}
-        </div>
+        <UsuarioCard
+          usuario={{
+            usuarioId: conversaUsuario.usuarioId,
+            nome: conversaUsuario.usuarioNome!,
+            apelido: conversaUsuario.usuarioApelido!,
+            foto: conversaUsuario.usuarioPerfilFoto,
+          }}
+        />
         {(auth.usuarioId === conversaUsuario.usuarioId || isAdmin) && (
           <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>

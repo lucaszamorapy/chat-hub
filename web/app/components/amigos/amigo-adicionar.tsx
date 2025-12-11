@@ -106,7 +106,7 @@ const AmigoAdicionar = ({ getAmigos, usuarioId }: AmigoAdicionarProps) => {
       </DialogTrigger>
       <DialogContent className="gap-5 h-100">
         <DialogHeader>
-          <DialogTitle>
+          <DialogTitle className="title">
             Adicionar <span className="text-primary">Amigo</span>
           </DialogTitle>
           <DialogDescription>
@@ -153,12 +153,8 @@ const AmigoAdicionar = ({ getAmigos, usuarioId }: AmigoAdicionarProps) => {
                           alt={usuario.apelido}
                         />
                         <div className="flex flex-col w-full">
-                          <span className="font-medium truncate">
-                            {usuario.nome}
-                          </span>
-                          <span className="text-xs truncate">
-                            {usuario.apelido}
-                          </span>
+                          <span className="label-medium">{usuario.nome}</span>
+                          <span className="label-small">{usuario.apelido}</span>
                         </div>
                       </div>
                       <div className="flex ">

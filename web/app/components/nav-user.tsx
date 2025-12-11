@@ -21,6 +21,7 @@ import { useRouter } from "next/navigation";
 import { formatarUrlAnexo } from "../utils";
 import UsuarioEditar from "./usuario/usuario-editar";
 import { useConversa } from "../contexts/conversas-provider";
+import UsuarioCard from "./usuario/usuario-card";
 
 interface UsuariosProps {
   usuario: IAuth;
@@ -63,20 +64,15 @@ export function NavUser({ usuario }: UsuariosProps) {
             sideOffset={4}
           >
             <DropdownMenuLabel className="p-0 font-normal">
-              <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                <CAvatar
-                  src={formatarUrlAnexo(
-                    "usuario",
-                    "perfil",
-                    usuario.usuarioId!,
-                    usuario.perfilFoto ?? null
-                  )}
-                  alt={usuario.apelido!}
+              <div className="flex items-center justify-between gap-2 px-1 py-1.5 text-left text-sm">
+                <UsuarioCard
+                  usuario={{
+                    usuarioId: usuario.usuarioId!,
+                    nome: usuario.nome!,
+                    apelido: usuario.apelido!,
+                    foto: usuario.perfilFoto!,
+                  }}
                 />
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{usuario.nome}</span>
-                  <span className="truncate text-xs">{usuario.apelido}</span>
-                </div>
                 <UsuarioEditar />
               </div>
             </DropdownMenuLabel>

@@ -47,8 +47,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       if (auth.usuarioId) {
         const conversasData = await getConversasByUsuario(auth.usuarioId);
         if (!conversasData.erro) {
-          setConversasContext(conversasData.resultado);
-          setConversasClone(conversasData.resultado);
+          setConversasContext(conversasData.resultado ?? []);
+          setConversasClone(conversasData.resultado ?? []);
         } else {
           console.error(conversasData.mensagemApi);
           toast.error(conversasData.mensagem);
@@ -70,8 +70,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       if (auth.usuarioId) {
         const amigosData = await getAmigosByUsuario(auth.usuarioId);
         if (!amigosData.erro) {
-          setAmigos(amigosData.resultado);
-          setAmigosClone(amigosData.resultado);
+          setAmigos(amigosData.resultado ?? []);
+          setAmigosClone(amigosData.resultado ?? []);
         } else {
           console.error(amigosData.mensagemApi);
           toast.error(amigosData.mensagem);
@@ -217,9 +217,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarHeader className="gap-3.5 border-b p-4">
           <div className="flex w-full items-center justify-between">
             <div className="flex items-center gap-1">
-              <span className="text-foreground text-base font-medium">
-                {itemAtivo}
-              </span>
+              <span className="title">{itemAtivo}</span>
               {itemAtivo === "Amigos" && amigos && (
                 <AmigoAdicionar
                   getAmigos={async () => await getAmigos()}

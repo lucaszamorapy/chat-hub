@@ -28,9 +28,8 @@ api.interceptors.request.use(async (config) => {
 
 
 export const formatarError = async (error: any): Promise<IData> => {
-  console.log(error)
   const erroFormatado = {
-    resultado: error.resultado,
+    resultado: error && error.resultado ? error.resultado : null,
     erro: true,
     mensagem:
       error?.mensagem ||
