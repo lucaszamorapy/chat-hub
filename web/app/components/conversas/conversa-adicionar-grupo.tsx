@@ -30,10 +30,9 @@ import { useRouter } from "next/navigation";
 import { criarConversa, criarConversaUsuarios } from "../../actions/conversas";
 import { IConversaUsuario } from "../../types/conversas";
 import { useAuth } from "../../contexts/auth-provider";
-import CAvatar from "../ui/c-avatar";
 import InputFile from "../ui/input-file";
 import { getAmigosByUsuario } from "@/app/actions/amigos";
-import { formatarUrlAnexo } from "@/app/utils";
+import UsuarioCard from "../usuario/usuario-card";
 
 interface ConversaAdicionarProps {
   atualizar: () => Promise<void>;
@@ -295,25 +294,14 @@ const ConversaAdicionarGrupo = ({
                         className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground flex flex-col gap-2 border-b p-4 text-sm leading-tight last:border-b-0"
                       >
                         <div className="flex w-full justify-between">
-                          <div className="flex gap-2">
-                            <CAvatar
-                              src={formatarUrlAnexo(
-                                "usuario",
-                                "perfil",
-                                amigo.usuarioAmigoId!,
-                                amigo.perfilFotoAmigo ?? null
-                              )}
-                              alt={amigo.apelidoAmigo!}
-                            />
-                            <div className="flex flex-col w-full">
-                              <span className="label-medium">
-                                {amigo.nomeAmigo}
-                              </span>
-                              <span className="label-small">
-                                {amigo.apelidoAmigo}
-                              </span>
-                            </div>
-                          </div>
+                          <UsuarioCard
+                            usuario={{
+                              usuarioId: amigo.usuarioAmigoId!,
+                              nome: amigo.nomeAmigo!,
+                              apelido: amigo.apelidoAmigo!,
+                              foto: amigo.perfilFotoAmigo!,
+                            }}
+                          />
                           <div className="flex ">
                             {!amigosSelecionados.includes(
                               amigo.usuarioAmigoId!

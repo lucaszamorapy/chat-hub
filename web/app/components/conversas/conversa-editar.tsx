@@ -59,19 +59,22 @@ const ConversaEditar = ({
       );
       setIsAdmin(usuario?.cargo === "Admin" ? true : false);
     };
+    console.log(conversa);
     permissaoUsuario();
-  }, [auth.usuarioId, conversa.conversaUsuarios]);
+  }, [auth.usuarioId, conversa.conversaUsuarios, conversa]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: conversa.conversaUsuarios
-      ? {
-          conversaNome: conversa.conversaUsuarios[0].conversaNome,
-        }
-      : {
-          conversaNome: "",
-        },
   });
+
+  useEffect(() => {
+    if (open) {
+      form.reset({
+        conversaNome: conversa.conversaUsuarios?.[0]?.conversaNome || "",
+      });
+    }
+  }, [open, conversa, form]);
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setCarregando(true);
     try {
