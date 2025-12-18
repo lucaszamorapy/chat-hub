@@ -31,6 +31,7 @@ import AmigoAccordion from "./amigos/amigo-accordion";
 import AmigoAdicionar from "./amigos/amigo-adicionar";
 import ConversaAdicionarGrupo from "./conversas/conversa-adicionar-grupo";
 import { useConversa } from "../contexts/conversas-provider";
+import { ApiError } from "@/app/class/index";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [itemAtivo, setItemAtivo] = useState("Conversas");
@@ -49,18 +50,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         if (!conversasData.erro) {
           setConversasContext(conversasData.resultado ?? []);
           setConversasClone(conversasData.resultado ?? []);
-        } else {
-          console.error(conversasData.mensagemApi);
-          toast.error(conversasData.mensagem);
         }
       }
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error(error.message);
-        toast.error(error.message);
-      } else {
-        console.error("Ocorreu um erro:", error);
-      }
+    } catch (e) {
+      const apiError = e as ApiError;
+      toast.error(apiError.message);
+      console.error(apiError.message);
     }
   }, [auth.usuarioId, setConversasContext]);
 

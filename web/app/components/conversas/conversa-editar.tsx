@@ -24,6 +24,7 @@ import { useRouter } from "next/navigation";
 import { useConversa } from "@/app/contexts/conversas-provider";
 import ConversaAdicionarGrupo from "./conversa-adicionar-grupo";
 import { formatarUrlAnexo } from "@/app/utils";
+import { ApiError } from "@/app/class/index";
 
 interface ConversaEditarProps {
   open: boolean;
@@ -105,17 +106,11 @@ const ConversaEditar = ({
       if (!data.erro) {
         toast.success(data.mensagem);
         await load();
-      } else {
-        console.error(data.mensagemApi);
-        toast.error(data.mensagem);
       }
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error(error.message);
-        toast.error(error.message);
-      } else {
-        console.error("Ocorreu um erro:", error);
-      }
+    } catch (e) {
+      const apiError = e as ApiError;
+      toast.error(apiError.message);
+      console.error(apiError.message);
     }
     setCarregando(false);
     form.reset();
@@ -129,17 +124,11 @@ const ConversaEditar = ({
         toast.success(data.mensagem);
         rota.push("/");
         removerConversa(conversa.conversaId!);
-      } else {
-        console.error(data.mensagemApi);
-        toast.error(data.mensagem);
       }
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error(error.message);
-        toast.error(error.message);
-      } else {
-        console.error("Ocorreu um erro:", error);
-      }
+    } catch (e) {
+      const apiError = e as ApiError;
+      toast.error(apiError.message);
+      console.error(apiError.message);
     }
   };
 

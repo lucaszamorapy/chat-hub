@@ -42,12 +42,16 @@ export function NavUser({ usuario }: UsuariosProps) {
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground md:h-8 md:p-0"
             >
               <CAvatar
-                src={formatarUrlAnexo(
-                  "usuario",
-                  "perfil",
-                  usuario.usuarioId!,
-                  usuario.perfilFoto ?? null
-                )}
+                src={
+                  usuario.perfilFoto
+                    ? formatarUrlAnexo(
+                        "usuario",
+                        "perfil",
+                        usuario.usuarioId!,
+                        usuario.perfilFoto
+                      )
+                    : undefined
+                }
                 alt={usuario.apelido!}
               />
               <div className="grid flex-1 text-left text-sm leading-tight">

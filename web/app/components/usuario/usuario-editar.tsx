@@ -28,6 +28,7 @@ import { Input } from "../ui/input";
 import { formatarUrlAnexo } from "@/app/utils";
 import { alterar, getUsuario } from "@/app/actions/usuarios";
 import { toast } from "sonner";
+import { ApiError } from "@/app/class/index";
 
 const formSchema = z.object({
   email: z.string().email({
@@ -67,12 +68,11 @@ const UsuarioEditar = () => {
               apelido: data.resultado.apelido,
               senha: "",
             });
-          } else {
-            console.error(data.mensagemApi);
-            toast.error(data.mensagem);
           }
-        } catch (error) {
-          console.error(error);
+        } catch (e) {
+          const apiError = e as ApiError;
+          toast.error(apiError.message);
+          console.error(apiError.message);
         }
       }
       setCarregando(false);
@@ -111,17 +111,11 @@ const UsuarioEditar = () => {
         );
         toast.success(data.mensagem);
         setUsuario({ ...data.resultado });
-      } else {
-        console.error(data.mensagemApi);
-        toast.error(data.mensagem);
       }
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error(error.message);
-        toast.error(error.message);
-      } else {
-        console.error("Ocorreu um erro:", error);
-      }
+    } catch (e) {
+      const apiError = e as ApiError;
+      toast.error(apiError.message);
+      console.error(apiError.message);
     }
     setCarregando(false);
     setOpen(false);

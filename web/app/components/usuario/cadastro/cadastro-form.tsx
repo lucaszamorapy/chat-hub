@@ -22,6 +22,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import Link from "next/link";
 import InputFile from "../../ui/input-file";
+import { ApiError } from "@/app/class/index";
 
 const formSchema = z.object({
   email: z.string().email({
@@ -75,16 +76,11 @@ const CadastroForm = () => {
         localStorage.setItem("usuario", JSON.stringify(data.resultado.usuario));
         rota.push("/");
         toast.success(data.mensagem);
-      } else {
-        toast.error(data.mensagem);
       }
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error(error.message);
-        toast.error(error.message);
-      } else {
-        console.error("Ocorreu um erro:", error);
-      }
+    } catch (e) {
+      const apiError = e as ApiError;
+      toast.error(apiError.message);
+      console.error(apiError.message);
     }
     setCarregando(false);
   };

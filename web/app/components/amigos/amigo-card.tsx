@@ -22,6 +22,7 @@ import { useRouter } from "next/navigation";
 import { alterarAmigo, excluirAmigo } from "../../actions/amigos";
 import { useAuth } from "../../contexts/auth-provider";
 import UsuarioCard from "../usuario/usuario-card";
+import { ApiError } from "@/app/class/index";
 
 interface AmigoProps {
   amigo: IAmigo;
@@ -66,17 +67,11 @@ const AmigoCard = ({ amigo, status, atualizar }: AmigoProps) => {
       const conversa = await criarConversa(formData);
       if (!conversa.erro) {
         rota.push(`/conversas/${conversa.resultado.conversaId}`);
-      } else {
-        console.error(conversa.mensagemApi);
-        toast.error(conversa.mensagem);
       }
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error(error.message);
-        toast.error(error.message);
-      } else {
-        console.error("Ocorreu um erro:", error);
-      }
+    } catch (e) {
+      const apiError = e as ApiError;
+      toast.error(apiError.message);
+      console.error(apiError.message);
     }
   };
   const removerAmigo = async () => {
@@ -87,17 +82,11 @@ const AmigoCard = ({ amigo, status, atualizar }: AmigoProps) => {
           atualizar();
         }
         toast.success(data.mensagem);
-      } else {
-        console.error(data.mensagemApi);
-        toast.error(data.mensagem);
       }
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error(error.message);
-        toast.error(error.message);
-      } else {
-        console.error("Ocorreu um erro:", error);
-      }
+    } catch (e) {
+      const apiError = e as ApiError;
+      toast.error(apiError.message);
+      console.error(apiError.message);
     }
   };
 
@@ -113,17 +102,11 @@ const AmigoCard = ({ amigo, status, atualizar }: AmigoProps) => {
           atualizar();
           toast.success(data.mensagem);
         }
-      } else {
-        console.error(data.mensagemApi);
-        toast.error(data.mensagem);
       }
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error(error.message);
-        toast.error(error.message);
-      } else {
-        console.error("Ocorreu um erro:", error);
-      }
+    } catch (e: any) {
+      const apiError = e as ApiError;
+      toast.error(apiError.message);
+      console.error(apiError.message);
     }
   };
 

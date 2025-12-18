@@ -18,8 +18,8 @@ import { Input } from "../ui/input";
 import { adicionarAmigo } from "../../actions/amigos";
 import { IAmigo } from "../../types/amigos";
 import { Skeleton } from "../ui/skeleton";
-import CAvatar from "../ui/c-avatar";
-import { formatarUrlAnexo } from "@/app/utils";
+import { ApiError } from "@/app/class/index";
+import UsuarioCard from "../usuario/usuario-card";
 
 interface AmigoAdicionarProps {
   getAmigos: () => Promise<IAmigo[]>;
@@ -58,17 +58,11 @@ const AmigoAdicionar = ({ getAmigos, usuarioId }: AmigoAdicionarProps) => {
         );
         setUsuarios(usuariosFiltrados);
         await getAmigos();
-      } else {
-        console.error(data.mensagemApi);
-        toast.error(data.mensagem);
       }
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error(error.message);
-        toast.error(error.message);
-      } else {
-        console.error("Ocorreu um erro:", error);
-      }
+    } catch (e) {
+      const apiError = e as ApiError;
+      toast.error(apiError.message);
+      console.error(apiError.message);
     }
     setCarregando(false);
   };
@@ -142,21 +136,14 @@ const AmigoAdicionar = ({ getAmigos, usuarioId }: AmigoAdicionarProps) => {
                     className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground flex flex-col gap-2 border-b p-4 text-sm leading-tight last:border-b-0"
                   >
                     <div className="flex w-full justify-between">
-                      <div className="flex gap-2">
-                        <CAvatar
-                          src={formatarUrlAnexo(
-                            "usuario",
-                            "perfil",
-                            usuario.usuarioId!,
-                            usuario.perfilFoto ?? null
-                          )}
-                          alt={usuario.apelido}
-                        />
-                        <div className="flex flex-col w-full">
-                          <span className="label-medium">{usuario.nome}</span>
-                          <span className="label-small">{usuario.apelido}</span>
-                        </div>
-                      </div>
+                      <UsuarioCard
+                        usuario={{
+                          usuarioId: usuario.usuarioId!,
+                          nome: usuario.nome!,
+                          apelido: usuario.apelido!,
+                          foto: usuario.perfilFoto!,
+                        }}
+                      />
                       <div className="flex ">
                         <Button
                           loading={carregando}

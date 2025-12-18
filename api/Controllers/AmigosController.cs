@@ -136,7 +136,6 @@ namespace api.Controllers
         {
             try
             {
-
                 _context.Amigos.Add(amigo);
                 await _context.SaveChangesAsync();
                 CreatedAtAction("GetAmigo", new { id = amigo.AmigoId }, amigo);

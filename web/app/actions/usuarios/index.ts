@@ -4,6 +4,7 @@ import { IAlterarSenha, ILogin } from '@/app/types/usuarios';
 import { api, formatarError } from '..';
 import { cookies } from 'next/headers';
 import { IData } from '@/app/types/index';
+import { ApiError } from "@/app/class/index";
 
 export const login = async (credenciais: ILogin): Promise<IData> => {
   try {
@@ -18,7 +19,10 @@ export const login = async (credenciais: ILogin): Promise<IData> => {
 
     return data;
   } catch (error: any) {
-    return formatarError(error.response?.data || error.response?.data.title);
+    const formatado = await formatarError(error.response?.data);
+    throw new ApiError(
+      formatado.mensagem
+    );
   }
 };
 
@@ -34,7 +38,10 @@ export const cadastro = async (credenciais: FormData): Promise<IData> => {
     });
     return data;
   } catch (error: any) {
-    return formatarError(error.response?.data || error.response?.data.title);
+    const formatado = await formatarError(error.response?.data);
+    throw new ApiError(
+      formatado.mensagem
+    );
   }
 };
 
@@ -43,7 +50,10 @@ export const alterar = async (usuarioId: number, usuario: FormData): Promise<IDa
     const { data } = await api.put<IData>(`/Usuarios/${usuarioId}`, usuario);
     return data
   } catch (error: any) {
-    return formatarError(error.response?.data || error.response?.data.title);
+    const formatado = await formatarError(error.response?.data);
+    throw new ApiError(
+      formatado.mensagem
+    );
   }
 }
 
@@ -57,7 +67,10 @@ export const getUsuarios = async (): Promise<IData> => {
     const { data } = await api.get<IData>("/Usuarios");
     return data
   } catch (error: any) {
-    return formatarError(error.response?.data || error.response?.data.title);
+    const formatado = await formatarError(error.response?.data);
+    throw new ApiError(
+      formatado.mensagem
+    );
   }
 }
 
@@ -66,7 +79,10 @@ export const getUsuario = async (usuarioId: number): Promise<IData> => {
     const { data } = await api.get<IData>(`/Usuarios/${usuarioId}`);
     return data
   } catch (error: any) {
-    return formatarError(error.response?.data || error.response?.data.title);
+    const formatado = await formatarError(error.response?.data);
+    throw new ApiError(
+      formatado.mensagem
+    );
   }
 }
 
@@ -75,7 +91,10 @@ export const esqueciMinhaSenha = async (email: string): Promise<IData> => {
     const { data } = await api.post<IData>("/Usuarios/esqueciminhasenha", { email });
     return data
   } catch (error: any) {
-    return formatarError(error.response?.data || error.response?.data.title);
+    const formatado = await formatarError(error.response?.data);
+    throw new ApiError(
+      formatado.mensagem
+    );
   }
 }
 
@@ -84,6 +103,9 @@ export const alterarSenha = async (usuario: IAlterarSenha): Promise<IData> => {
     const { data } = await api.put<IData>(`/Usuarios/alterarsenha/${usuario.usuarioId}`, usuario);
     return data
   } catch (error: any) {
-    return formatarError(error.response?.data || error.response?.data.title);
+    const formatado = await formatarError(error.response?.data);
+    throw new ApiError(
+      formatado.mensagem
+    );
   }
 }

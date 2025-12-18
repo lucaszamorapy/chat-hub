@@ -11,12 +11,13 @@ import { enviarMensagem } from "../../actions/mensagens";
 import { toast } from "sonner";
 import { useAuth } from "../../contexts/auth-provider";
 import MensagemTemplate from "../mensagens/mensagem-template";
-import { conexaoSignalR } from "../../actions/signalr";
 import ConversaEditar from "./conversa-editar";
 import { getConversaById } from "../../actions/conversas";
 import { useConversa } from "@/app/contexts/conversas-provider";
 import { SignalRMensagem } from "@/app/types/signalR";
 import { formatarUrlAnexo } from "@/app/utils";
+import { ApiError } from "@/app/class/index";
+import { conexaoSignalR } from "@/app/class/signalr";
 
 interface ConversaTemplateProps {
   conversaInicial: IConversa;
@@ -78,20 +79,14 @@ const ConversaTemplate = ({ conversaInicial }: ConversaTemplateProps) => {
           usuarioId: auth.usuarioId!,
         };
         const data = await enviarMensagem(msg);
-        if (data.erro) {
-          console.error(data.mensagemApi);
-          toast.error(data.mensagem);
-        } else {
+        if (!data.erro) {
           adicionarMensagem(data.resultado);
         }
       }
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error(error.message);
-        toast.error(error.message);
-      } else {
-        console.error("Ocorreu um erro:", error);
-      }
+    } catch (e) {
+      const apiError = e as ApiError;
+      toast.error(apiError.message);
+      console.error(apiError.message);
     }
     setCarregando(false);
     setMensagem("");
@@ -106,12 +101,16 @@ const ConversaTemplate = ({ conversaInicial }: ConversaTemplateProps) => {
        w-full"
       >
         <CAvatar
-          src={formatarUrlAnexo(
-            "conversa",
-            "perfil",
-            conversa.conversaId!,
-            conversa.conversaUsuarios![0].conversaFoto ?? null
-          )}
+          src={
+            conversa.conversaUsuarios![0].conversaFoto
+              ? formatarUrlAnexo(
+                  "conversa",
+                  "perfil",
+                  conversa.conversaId!,
+                  conversa.conversaUsuarios![0].conversaFoto
+                )
+              : undefined
+          }
           alt={conversa.conversaUsuarios![0].conversaNome!}
         />
         <span className="text-base text-white font-medium">

@@ -21,6 +21,7 @@ import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { ApiError } from "@/app/class/index";
 
 const formSchema = z.object({
   apelido: z.string().min(1, { message: "Por favor, preencha o seu apelido." }),
@@ -57,17 +58,11 @@ const LoginForm = () => {
         localStorage.setItem("usuario", JSON.stringify(data.resultado.usuario));
         rota.push("/");
         toast.success(data.mensagem);
-      } else {
-        console.error(data.mensagemApi);
-        toast.error(data.mensagem);
       }
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error(error.message);
-        toast.error(error.message);
-      } else {
-        console.error("Ocorreu um erro:", error);
-      }
+    } catch (e) {
+      const apiError = e as ApiError;
+      toast.error(apiError.message);
+      console.error(apiError.message);
     }
     setCarregando(false);
   };

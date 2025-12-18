@@ -21,6 +21,7 @@ import { Input } from "../../ui/input";
 import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { alterarSenha } from "@/app/actions/usuarios";
+import { ApiError } from "@/app/class/index";
 
 const formSchema = z.object({
   senha: z.string().min(6, {
@@ -52,17 +53,11 @@ const SenhaFormAlterar = ({ dadosSenha }: IStepProps) => {
       if (!data.erro) {
         rota.push("/login");
         toast.success(data.mensagem);
-      } else {
-        console.error(data.mensagemApi);
-        toast.error(data.mensagem);
       }
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error(error.message);
-        toast.error(error.message);
-      } else {
-        console.error("Ocorreu um erro:", error);
-      }
+    } catch (e) {
+      const apiError = e as ApiError;
+      toast.error(apiError.message);
+      console.error(apiError.message);
     }
     setCarregando(false);
   };

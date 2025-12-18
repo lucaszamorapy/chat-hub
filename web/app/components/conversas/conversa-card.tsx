@@ -9,6 +9,7 @@ import { visualizarMensagens } from "../../actions/conversas";
 import CAvatar from "../ui/c-avatar";
 import { useConversa } from "@/app/contexts/conversas-provider";
 import { useAuth } from "@/app/contexts/auth-provider";
+import { ApiError } from "@/app/class/index";
 
 interface ConversaCardProps {
   conversaUsuario: IConversaUsuario;
@@ -28,14 +29,14 @@ const ConversaCard = ({ conversaUsuario, load }: ConversaCardProps) => {
   const visualizarTodasMensagens = async () => {
     try {
       const data = await visualizarMensagens(mensagensVisualizadas);
-      if (data.erro) {
-        console.error(data.mensagemApi);
-        toast.error(data.mensagem);
+      if (!data.erro) {
+        setMensagensVisualizadas([]);
+        await load();
       }
-      setMensagensVisualizadas([]);
-      await load();
-    } catch (error) {
-      console.error(error);
+    } catch (e) {
+      const apiError = e as ApiError;
+      toast.error(apiError.message);
+      console.error(apiError.message);
     }
   };
 
@@ -74,12 +75,16 @@ const ConversaCard = ({ conversaUsuario, load }: ConversaCardProps) => {
         >
           <div className="flex items-center w-full">
             <CAvatar
-              src={formatarUrlAnexo(
-                "conversa",
-                "perfil",
-                conversaUsuario.conversaId!,
-                conversaUsuario.conversaFoto ?? null
-              )}
+              src={
+                conversaUsuario.conversaFoto
+                  ? formatarUrlAnexo(
+                      "conversa",
+                      "perfil",
+                      conversaUsuario.conversaId!,
+                      conversaUsuario.conversaFoto
+                    )
+                  : undefined
+              }
               alt={conversaUsuario.conversaNome!}
             />
             <div className="flex items-center ml-2 justify-between w-full">

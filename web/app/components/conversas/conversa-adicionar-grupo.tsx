@@ -33,6 +33,7 @@ import { useAuth } from "../../contexts/auth-provider";
 import InputFile from "../ui/input-file";
 import { getAmigosByUsuario } from "@/app/actions/amigos";
 import UsuarioCard from "../usuario/usuario-card";
+import { ApiError } from "@/app/class/index";
 
 interface ConversaAdicionarProps {
   atualizar: () => Promise<void>;
@@ -143,7 +144,6 @@ const ConversaAdicionarGrupo = ({
             cargo: "Membro",
           };
         });
-        console.log(usuarios);
         data = await criarConversaUsuarios(usuarios);
       }
       if (!data.erro) {
@@ -152,17 +152,11 @@ const ConversaAdicionarGrupo = ({
           rota.push(`/conversas/${data.resultado.conversaId}`);
         }
         toast.success(data.mensagem);
-      } else {
-        console.error(data.mensagemApi);
-        toast.error(data.mensagem);
       }
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error(error.message);
-        toast.error(error.message);
-      } else {
-        console.error("Ocorreu um erro:", error);
-      }
+    } catch (e) {
+      const apiError = e as ApiError;
+      toast.error(apiError.message);
+      console.error(apiError.message);
     }
     setCarregando(false);
     amigosGrupo(null, "limpar");
@@ -180,28 +174,29 @@ const ConversaAdicionarGrupo = ({
     if (open) {
       const fetchAmigos = async () => {
         setCarregando(true);
+        try {
+          if (auth.usuarioId) {
+            const data = await getAmigosByUsuario(auth.usuarioId);
+            if (!data.erro) {
+              const filtrados = data.resultado.filter((amigo: IAmigo) => {
+                if (usuariosId) {
+                  return (
+                    amigo.status === "Aceito" &&
+                    !usuariosId.includes(amigo.usuarioAmigoId!)
+                  );
+                }
+                return amigo.status === "Aceito";
+              });
 
-        if (auth.usuarioId) {
-          const data = await getAmigosByUsuario(auth.usuarioId);
-
-          if (!data.erro) {
-            const filtrados = data.resultado.filter((amigo: IAmigo) => {
-              if (usuariosId) {
-                return (
-                  amigo.status === "Aceito" &&
-                  !usuariosId.includes(amigo.usuarioAmigoId!)
-                );
-              }
-              return amigo.status === "Aceito";
-            });
-
-            setAmigos(filtrados);
-            setAmigosClone(filtrados);
-          } else {
-            toast.error(data.mensagem);
+              setAmigos(filtrados);
+              setAmigosClone(filtrados);
+            }
           }
+        } catch (e) {
+          const apiError = e as ApiError;
+          toast.error(apiError.message);
+          console.error(apiError.message);
         }
-
         setCarregando(false);
       };
 

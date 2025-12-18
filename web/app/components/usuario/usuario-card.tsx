@@ -16,12 +16,16 @@ const UsuarioCard = ({ usuario }: UsuarioCardProps) => {
   return (
     <div className="flex items-center gap-2">
       <CAvatar
-        src={formatarUrlAnexo(
-          "usuario",
-          "perfil",
-          usuario.usuarioId,
-          usuario.foto ?? null
-        )}
+        src={
+          usuario.foto
+            ? formatarUrlAnexo(
+                "usuario",
+                "perfil",
+                usuario.usuarioId,
+                usuario.foto
+              )
+            : undefined
+        }
         alt={usuario.foto ?? usuario.apelido}
       />
       {auth.usuarioId === usuario.usuarioId ? (

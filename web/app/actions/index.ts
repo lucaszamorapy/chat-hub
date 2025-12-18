@@ -25,21 +25,16 @@ api.interceptors.request.use(async (config) => {
   return config;
 });
 
-
-
-export const formatarError = async (error: any): Promise<IData> => {
-  const erroFormatado = {
-    resultado: error && error.resultado ? error.resultado : null,
+export const formatarError = async (data: IData): Promise<IData> => {
+  const erroFormatado: IData = {
+    resultado: data.resultado ?? null,
     erro: true,
-    mensagem:
-      error?.mensagem ||
-      error?.response?.data?.mensagem ||
-      "Erro inesperado ou falha de conexão com o servidor.",
-    mensagemApi:
-      error?.mensagemApi ||
-      error?.response?.data?.mensagemApi ||
-      "Erro ao comunicar com a API."
+    mensagem: data.mensagemApi ? `
+      ${data.mensagem}: ${data.mensagemApi}` : data.mensagem ||
+    "Erro inesperado ou falha de conexão com o servidor.",
   };
-  console.error(erroFormatado.mensagem || erroFormatado.mensagemApi)
+  console.error(erroFormatado.mensagem || erroFormatado.mensagemApi);
   return erroFormatado;
 };
+
+

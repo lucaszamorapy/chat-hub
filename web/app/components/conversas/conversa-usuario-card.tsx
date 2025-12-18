@@ -18,6 +18,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useConversa } from "@/app/contexts/conversas-provider";
 import UsuarioCard from "../usuario/usuario-card";
+import { ApiError } from "@/app/class/index";
 
 interface ConversaUsuarioCardProps {
   conversaUsuario: IConversaUsuario;
@@ -48,17 +49,11 @@ const ConversaUsuarioCard = ({
           }
         }
         toast.success(data.mensagem);
-      } else {
-        console.error(data.mensagemApi);
-        toast.error(data.mensagem);
       }
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error(error.message);
-        toast.error(error.message);
-      } else {
-        console.error("Ocorreu um erro:", error);
-      }
+    } catch (e) {
+      const apiError = e as ApiError;
+      toast.error(apiError.message);
+      console.error(apiError.message);
     }
   };
   const alterarConversaUsuario = async () => {
@@ -72,17 +67,11 @@ const ConversaUsuarioCard = ({
           atualizar();
         }
         toast.success(data.mensagem);
-      } else {
-        console.error(data.mensagemApi);
-        toast.error(data.mensagem);
       }
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error(error.message);
-        toast.error(error.message);
-      } else {
-        console.error("Ocorreu um erro:", error);
-      }
+    } catch (e) {
+      const apiError = e as ApiError;
+      toast.error(apiError.message);
+      console.error(apiError.message);
     }
   };
 

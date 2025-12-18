@@ -20,6 +20,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { esqueciMinhaSenha } from "@/app/actions/usuarios";
 import { IStepProps } from "@/app/types/usuarios";
+import { ApiError } from "@/app/class/index";
 
 const formSchema = z.object({
   email: z.string().email({
@@ -45,17 +46,12 @@ const SenhaFormEmail = ({ avancarStep }: IStepProps) => {
         if (!data.erro) {
           toast.success(data.mensagem);
           avancarStep(1, data.resultado);
-        } else {
-          toast.success(data.mensagem);
-          avancarStep(0);
         }
-      } catch (error: unknown) {
-        if (error instanceof Error) {
-          console.error(error.message);
-          toast.error(error.message);
-        } else {
-          console.error("Ocorreu um erro:", error);
-        }
+      } catch (e) {
+        const apiError = e as ApiError;
+        toast.error(apiError.message);
+        console.error(apiError.message);
+        avancarStep(0);
       }
     }
     setCarregando(false);
